@@ -39,7 +39,7 @@ public class VarManager
 
     public static QuestData.VarDefinition GetDefinition(string variableName)
     {
-        QuestData.VarDefinition definition = new QuestData.VarDefinition("");
+        QuestData.VarDefinition definition = new QuestData.VarDefinition(variableName);
         if (Game.Get().quest.qd.components.ContainsKey(variableName))
         {
             if (Game.Get().quest.qd.components[variableName] is QuestData.VarDefinition)
@@ -47,15 +47,18 @@ public class VarManager
                 definition = Game.Get().quest.qd.components[variableName] as QuestData.VarDefinition;
             }
         }
-        if (Game.Get().cd.VarDefinitions.ContainsKey(variableName))
+        else if (Game.Get().cd.varDefinitions.ContainsKey(variableName))
         {
-            definition = Game.Get().cd.VarDefinitions[variableName];
+            definition = Game.Get().cd.varDefinitions[variableName];
+        }
+        else
+        {
+            ValkyrieDebug.Log("Warning: Unknown variable: " + variableName);
         }
         if (definition.campaign)
         {
-            campaign.add(variableName)
+            Game.Get().quest.vars.campaign.Add(variableName);
         }
-        ValkyrieDebug.Log("Warning: Unknown variable: " + variableName);
         return definition;
     }
 
@@ -68,7 +71,7 @@ public class VarManager
             {
                 if(GetDefinition(kv.Key).variableType.Equals("trigger"))
                 {
-                    toReturn.Add(kb.Key);
+                    toReturn.Add(kv.Key);
                 }
             }
         }
@@ -130,9 +133,10 @@ public class VarManager
         }
         if (GetDefinition(var).random)
         {
-            if (GetDefinition(var).internalVariableType.equals(int))
+            if (GetDefinition(var).internalVariableType.Equals("int"))
             {
-                SetValue(var, Random.IntRange(GetDefinition(var).minimum, GetDefinition(var).maximum + 1));
+                int floorResult = Mathf.FloorToInt(Random.Range(GetDefinition(var).minimum, GetDefinition(var).maximum + 1));
+                SetValue(var, floorResult);
             }
             else
             {
@@ -406,12 +410,12 @@ public class VarManager
 
         foreach (KeyValuePair<string, float> kv in vars)
         {
-            campaignPrefix = "";
-            if (campaign.ContainsKey(kv.Value))
+            string campaignPrefix = "";
+            if (campaign.Contains(kv.Key))
             {
                 campaignPrefix = "%";
             }
-            if (kv.Value != 0 || !campaignPrefix.IsNullOrEmpty())
+            if (kv.Value != 0 || campaign.Contains(kv.Key))
             {
                 r += kv.Key + "=" + campaignPrefix + kv.Value.ToString() + nl;
             }

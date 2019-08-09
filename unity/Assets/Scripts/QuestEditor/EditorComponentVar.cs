@@ -170,6 +170,7 @@ public class EditorComponentVar : EditorComponent
         ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "VAR_MAXIMUM")));
 
         if (!varComponent.random)
+        {
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(8, offset, 4, 1);
             string maxEnableString = new StringKey("val","FALSE").Translate();

@@ -1350,7 +1350,7 @@ public class QuestData
                 }
                 if (data.ContainsKey("random"))
                 {
-                    float.TryParse(data["random"], out random);
+                    bool.TryParse(data["random"], out random);
                 }
             }
         }
@@ -1358,35 +1358,21 @@ public class QuestData
         // Create component from old variable name
         public static string AddVarFromOldName(string oldName)
         {
-            if (oldName.IndexOf("$%") == 0 || oldName.IndexOf("$@") == 0)
-            {
-                return "ValkVar" + oldName.Substring(2));
-            }
-            if (oldName.IndexOf("#") == 0 || oldName.IndexOf("$") == 0)
+            string newName = "Var" + oldName;
+            if (oldName.IndexOf("$") == 0 || oldName.IndexOf("#") == 0)
             {
                 if (oldName.IndexOf("#rand") != 0)
                 {
-                    return "ValkVar" + oldName.Substring(1));
+                    return "ValkVar" + oldName;
                 }
             }
-            if (oldName.IndexOf("-") == 0 || oldName.IndexOf(".") == 0)
-                || (oldName.Length > 0 && char.IsNumber(oldName.value[0]))
-            {
-                return oldName;
-            }
 
-            newName = "Var" + oldName;
-            VarDefinition newDefinition = new VarDefinition(newName);
-
-            if (oldName.IndexOf("%") >= 0)
+            if (Game.Get().quest.qd.components.ContainsKey(newName))
             {
-                newDefinition.campaign = true;
+                return newName;
             }
-
-            if (oldName.IndexOf("@") >= 0)
-            {
-                newDefinition.SetVariableType("trigger");
-            }
+            VarDefinition newDefinition = new VarDefinition("var" + oldName);
+            Game.Get().quest.qd.components.Add(newName, newDefinition);
 
             if (oldName.IndexOf("#rand") == 0)
             {
@@ -1398,15 +1384,21 @@ public class QuestData
                 float.TryParse(oldName.Substring(5), out newDefinition.maximum);
             }
 
-            if (!Game.Get().quest.qd.components.ContainsKey(newName))
+            if (oldName.IndexOf("%") >= 0)
             {
-                Game.Get().quest.qd.components.Add(newName, newDefinition)
+                newDefinition.campaign = true;
+
+            }
+
+            if (oldName.IndexOf("@") >= 0)
+            {
+                newDefinition.SetVariableType("trigger");
             }
 
             return newName;
         }
 
-        public bool isBoolean()
+        public bool IsBoolean()
         {
             if (variableType.Equals("trigger")) return true;
             return variableType.Equals("bool");
@@ -1585,14 +1577,14 @@ public class QuestData
                 string[] array = data["operations"].Split(" ".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
                 foreach (string s in array)
                 {
-                    operations.Add(new VarOperation(s));
+                    operations.Add(new VarOperation(s, format));
                 }
             }
 
             // Backwards support for format < 8
             if (format <= 8 && sectionName.StartsWith("EventEnd"))
             {
-                operations.Add(new VarOperation("$end,=,1"));
+                operations.Add(new VarOperation("ValkVar$end,=,1", format));
             }
 
             tests = new VarTests();
@@ -1661,15 +1653,19 @@ public class QuestData
                 }
             }
             // Update variable names in conditions
-            foreach (VarOperation condition in VarTests)
+            foreach (VarTestsComponent testComponent in tests.VarTestsComponents)
             {
-                if (condition.var.Equals(oldName))
+                if (testComponent is VarOperation)
                 {
-                    condition.var = newName;
-                }
-                if (condition.value.Equals(oldName))
-                {
-                    condition.value = newName;
+                    VarOperation operation = testComponent as VarOperation;
+                    if (operation.var.Equals(oldName))
+                    {
+                        operation.var = newName;
+                    }
+                    if (operation.value.Equals(oldName))
+                    {
+                        operation.value = newName;
+                    }
                 }
             }
         }

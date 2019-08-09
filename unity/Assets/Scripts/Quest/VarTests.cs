@@ -27,7 +27,7 @@ public class VarTests
         return result;
     }
 
-    public void Add(string str)
+    public void Add(string str, int format)
     {
         string[] part = str.Split(':');
 
@@ -41,7 +41,7 @@ public class VarTests
         }
         if (part[0].Equals(VarOperation.GetVarTestsComponentType()))
         {
-            VarTestsComponents.Add(new VarOperation(part[1]));
+            VarTestsComponents.Add(new VarOperation(part[1]), format);
         }
     }
 
@@ -352,7 +352,7 @@ public class VarOperation : VarTestsComponent
     {
     }
 
-    public VarOperation(string inOp)
+    public VarOperation(string inOp, int format)
     {
         string[] splitted_string = inOp.Split(",".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
 
@@ -365,9 +365,12 @@ public class VarOperation : VarTestsComponent
         operation = splitted_string[1];
         value = splitted_string[2];
 
-        // Support old internal var names (depreciated, format 3)
-        var = UpdateVarName(var);
-        value = UpdateVarName(value);
+        // Support old internal var names
+        if (format < 12)
+        {
+            var = UpdateVarName(var);
+            value = UpdateVarName(value);
+        }
     }
 
     override public string ToString()
@@ -378,6 +381,10 @@ public class VarOperation : VarTestsComponent
     private string UpdateVarName(string s)
     {
         if (s.Equals("#fire")) return "$fire";
+        if (s.Length > 0 && !char.IsDigit(s[0]))
+        {
+            QuestData.VarDefinition.AddVarFromOldName(s);
+        }
         return s;
     }
 

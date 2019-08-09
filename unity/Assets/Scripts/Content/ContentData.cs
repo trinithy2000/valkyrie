@@ -1763,31 +1763,31 @@ public class PerilData : QuestData.Event
             }
         }
     }
+}
 
-    // VarDefinitionData are content data that inherits from VarDefinition for reasons.
-    public class VarDefinitionData : QuestData.VarDefinition
+// VarDefinitionData are content data that inherits from VarDefinition for reasons.
+public class VarDefinitionData : QuestData.VarDefinition
+{
+    new public static string type = "ValkVar";
+    public int priority = 0;
+    public bool visible = true;
+
+    public VarDefinitionData(string name, Dictionary<string, string> data) : base(name, data, "")
     {
-        new public static string type = "ValkVar";
-        public int priority = 0;
-        public bool private = false;
-
-        public VarDefinitionData(string name, Dictionary<string, string> data) : base(name, data, "")
+        typeDynamic = type;
+        if (data.ContainsKey("priority"))
         {
-            typeDynamic = type;
-            if (data.ContainsKey("priority"))
-            {
-                int.TryParse(data["priority"], out priority);
-            }
+            int.TryParse(data["priority"], out priority);
+        }
 
-            if (data.ContainsKey("readonly"))
-            {
-                bool.TryParse(data["readonly"], out readOnly);
-            }
+        if (data.ContainsKey("readonly"))
+        {
+            bool.TryParse(data["readonly"], out readOnly);
+        }
 
-            if (data.ContainsKey("private"))
-            {
-                bool.TryParse(data["private"], out private);
-            }
+        if (data.ContainsKey("visible"))
+        {
+            bool.TryParse(data["visible"], out visible);
         }
     }
 }

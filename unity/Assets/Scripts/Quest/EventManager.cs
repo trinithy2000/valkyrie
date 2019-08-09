@@ -492,9 +492,7 @@ public class EventManager
         foreach (string varName in game.quest.vars.GetTriggerVars())
         {
             game.quest.vars.SetValue(varName, 0);
-            // Support for old variable names (format <11)
-            string triggerName = varName.Replace("@", "");
-            EventTriggerType(triggerName, false);
+            EventTriggerType(varName, false);
         }
     }
 

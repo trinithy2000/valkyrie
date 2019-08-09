@@ -269,10 +269,23 @@ public class EditorComponent {
 
                 VarOperation tmp = (VarOperation)tc;
                 ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-                ui.SetLocation(2.5f, offset, 8.5f, 1);
+                if (game.quest.qd.components.ContainsKey(tmp.var))
+                {
+                    ui.SetLocation(2.5f, offset, 7.5f, 1);
+                    string tmpName = tmp.var;
+                    UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                    link.SetLocation(10, offset, 1, 1);
+                    link.SetText("<b>⇨</b>", Color.blue);
+                    link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                    new UIElementBorder(link, Color.blue);
+                }
+                else
+                {
+                    ui.SetLocation(2.5f, offset, 8.5f, 1);
+                }
                 ui.SetText(tmp.var);
                 new UIElementBorder(ui);
-
+                
                 ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
                 ui.SetLocation(11f, offset, 2, 1);
                 ui.SetText(tmp.operation);
@@ -280,8 +293,33 @@ public class EditorComponent {
                 new UIElementBorder(ui);
 
                 ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-                ui.SetLocation(13f, offset, 5.5f, 1);
-                ui.SetText(tmp.value);
+                string displayValue = tmp.value;
+                if (game.quest.qd.components.ContainsKey(tmp.value))
+                {
+                    ui.SetLocation(13, offset, 4.5f, 1);
+                    string tmpName = tmp.value;
+                    UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                    link.SetLocation(17.5f, offset, 1, 1);
+                    link.SetText("<b>⇨</b>", Color.blue);
+                    link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                    new UIElementBorder(link, Color.blue);
+                }
+                else
+                {
+                    if (VarManager.GetDefinition(tmp.var).IsBoolean() && !Game.Get().cd.varDefinitions.ContainsKey(tmp.value))
+                    {
+                        bool setToValue;
+                        bool.TryParse(displayValue, out setToValue);
+
+                        displayValue = new StringKey("val", "FALSE").Translate();
+                        if (setToValue)
+                        {
+                            displayValue = new StringKey("val", "TRUE").Translate();
+                        }
+                    }
+                    ui.SetLocation(13f, offset, 5.5f, 1);
+                }
+                ui.SetText(displayValue);
                 ui.SetButton(delegate { SetValue(tmp); });
                 new UIElementBorder(ui);
 
@@ -388,6 +426,7 @@ public class EditorComponent {
         }
         return offset + 1;
     }
+
     virtual public float AddEventVarConditionComponents(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
@@ -823,71 +862,41 @@ public class EditorComponent {
         op.operation = "=";
         if (test)
         {
-            op.operation = ">";
+            op.operation = "==";
         }
         op.value = "0";
 
-        if (op.var.Equals("{NEW}"))
+        if (VarManager.GetDefinition(op.var).IsBoolean())
         {
-            // Var name doesn localize
-            varText = new QuestEditorTextEdit(VAR_NAME, "", delegate { NewVar(op, test); });
-            varText.EditText();
+            op.value = "true";
+        }
+
+        if (op.var.Equals("{NEW:Var}"))
+        {
+            int i = 0;
+            while (game.quest.qd.components.ContainsKey("Var" + i))
+            {
+                i++;
+            }
+            op.var = "Var" + i;
+            Game.Get().quest.qd.components.Add(op.var, new QuestData.VarDefinition(op.var));
+        }
+
+        if (test)
+        {
+            if (component.tests.VarTestsComponents.Count == 0)
+            {
+                component.tests.Add(op);
+            }
+            else
+            {
+                component.tests.Add(new VarTestsLogicalOperator());
+                component.tests.Add(op);
+            }
         }
         else
         {
-            if (test)
-            {
-                if (component.tests.VarTestsComponents.Count == 0)
-                {
-                    component.tests.Add(op);
-                }
-                else
-                {
-                    component.tests.Add(new VarTestsLogicalOperator());
-                    component.tests.Add(op);
-                }
-            }
-            else
-            {
-                component.operations.Add(op);
-            }
-            Update();
-        }
-    }
-
-    public void NewVar(VarOperation op, bool test)
-    {
-        op.var = System.Text.RegularExpressions.Regex.Replace(varText.value, "[^A-Za-z0-9_]", "");
-        if (op.var.Length > 0)
-        {
-            if (varText.value[0] == '%')
-            {
-                op.var = '%' + op.var;
-            }
-            if (varText.value[0] == '@')
-            {
-                op.var = '@' + op.var;
-            }
-            if (char.IsNumber(op.var[0]) || op.var[0] == '-' || op.var[0] == '.')
-            {
-                op.var = "var" + op.var;
-            }
-            if (test)
-            {
-                if (component.tests.VarTestsComponents.Count == 0)
-                {
-                    component.tests.Add(op);
-                }
-                else
-                {
-                    component.tests.Add(new VarTestsLogicalOperator());
-                    component.tests.Add(op);
-                }
-            }
-            else
-            {
-                component.operations.Add(op);
-            }
+            component.operations.Add(op);
         }
         Update();
     }
@@ -1099,51 +1108,13 @@ public class EditorComponent {
         }
 
         HashSet<string> valkVars = new HashSet<string>();
-        foreach (KeyValuePair<string, QuestData.VarDefinition> kv in game.cd.VarDefinitions)
+        foreach (KeyValuePair<string, VarDefinitionData> kv in game.cd.varDefinitions)
         {
-            if (!kv.Value.readonly)
+            if (kv.Value.visible)
             {
                 list.AddItem(kv.Value);
             }
         }
-    }
-
-    public void SelectAddOp(string var, bool test = true)
-    {
-        QuestData.Event.VarOperation op = new QuestData.Event.VarOperation();
-        op.var = var;
-        op.operation = "=";
-        if (test)
-        {
-            op.operation = "==";
-        }
-
-        op.value = "0";
-        if (VarManager.GetDefinition(op.var).IsBoolean())
-        {
-            op.value = "true";
-        }
-
-        if (op.var.Equals("{NEW:Var}"))
-        {
-            int i = 0;
-            while (game.quest.qd.components.ContainsKey("Var" + i))
-            {
-                i++;
-            }
-            op.var = "Var" + i;
-            Game.Get().quest.qd.components.Add(op.var, new QuestData.VarDefinition(op.var));
-        }
-
-        if (test)
-        {
-            eventComponent.conditions.Add(op);
-        }
-        else
-        {
-            eventComponent.operations.Add(op);
-        }
-        Update();
     }
 
     public void SetTestOpp(QuestData.Event.VarOperation op)
