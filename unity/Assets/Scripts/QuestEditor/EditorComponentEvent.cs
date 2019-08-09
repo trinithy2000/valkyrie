@@ -364,6 +364,16 @@ public class EditorComponentEvent : EditorComponent
             ui.SetText(eventComponent.quotaVar);
             ui.SetButton(delegate { SetQuotaVar(); });
             new UIElementBorder(ui);
+
+            if (game.quest.qd.components.ContainsKey(eventComponent.quotaVar))
+            {
+                string tmpName = eventComponent.quotaVar;
+                UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                link.SetLocation(18, offset, 1, 1);
+                link.SetText("<b>⇨</b>", Color.blue);
+                link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                new UIElementBorder(link, Color.blue);
+            }
         }
         offset += 2;
 
@@ -641,7 +651,6 @@ public class EditorComponentEvent : EditorComponent
             select.AddItem("DefeatedUnique" + kv.Key, traits);
         }
 
-        HashSet<string> vars = new HashSet<string>();
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
         {
             if (kv.Value is QuestData.CustomMonster)
@@ -649,28 +658,27 @@ public class EditorComponentEvent : EditorComponent
                 select.AddItem("Defeated" + kv.Key, traits);
                 select.AddItem("DefeatedUnique" + kv.Key, traits);
             }
-
-
-            if (kv.Value is QuestData.Event)
-            {
-                QuestData.Event e = kv.Value as QuestData.Event;
-                foreach (string s in ExtractVarsFromEvent(e))
-                {
-                    if (s[0] == '@')
-                    {
-                        vars.Add(s);
-                    }
-                }
-            }
         }
 
         traits = new Dictionary<string, IEnumerable<string>>();
-
         traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { new StringKey("val", "VARS").Translate() });
-
-        foreach (string s in vars)
+        foreach (KeyValuePair<string, QuestData.VarDefinition> kv in game.cd.VarDefinitions)
         {
-            select.AddItem("Var" + s.Substring(1), traits);
+            if (kv.Value.variableType.Equals("trigger"))
+            {
+                select.AddItem(kv.Key, traits);
+            }
+        }
+        foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
+        {
+            if (kv.Value is QuestData.VarDefinition)
+            {
+                QuestData.VarDefinition questVar = kv.Value as QuestData.VarDefinition;
+                if (questVar.variableType.Equals("trigger"))
+                {
+                    select.AddItem(kv.Key, traits);
+                }
+            }
         }
 
         select.Draw();
@@ -1060,10 +1068,7 @@ public class EditorComponentEvent : EditorComponent
         }
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(SelectQuotaVar, new StringKey("val", "SELECT", VAR));
-
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
-        select.AddItem("{" + CommonStringKeys.NEW.Translate() + "}", "{NEW}", traits);
+        select.AddNewComponentItem("Var");
 
         AddQuestVars(select);
 
@@ -1072,39 +1077,20 @@ public class EditorComponentEvent : EditorComponent
 
     public void SelectQuotaVar(string var)
     {
-        if (var.Equals("{NEW}"))
-        {
-            varText = new QuestEditorTextEdit(VAR_NAME, "", delegate { NewQuotaVar(); });
-            varText.EditText();
-        }
-        else
-        {
-            eventComponent.quotaVar = var;
-            eventComponent.quota = 0;
-            Update();
-        }
-    }
+        eventComponent.quotaVar = var;
+        eventComponent.quota = 0;
 
-    public void NewQuotaVar()
-    {
-        string var = System.Text.RegularExpressions.Regex.Replace(varText.value, "[^A-Za-z0-9_]", "");
-        if (var.Length > 0)
+        if (var.Equals("{NEW:Var}"))
         {
-            if (varText.value[0] == '%')
+            int i = 0;
+            while (game.quest.qd.components.ContainsKey("Var" + i))
             {
-                var = '%' + var;
+                i++;
             }
-            if (varText.value[0] == '@')
-            {
-                var = '@' + var;
-            }
-            if (char.IsNumber(var[0]) || var[0] == '-' || var[0] == '.')
-            {
-                var = "var" + var;
-            }
-            eventComponent.quotaVar = var;
-            eventComponent.quota = 0;
+            eventComponent.quotaVar = "Var" + i;
+            Game.Get().quest.qd.components.Add(eventComponent.quotaVar, new QuestData.VarDefinition(eventComponent.quotaVar));
         }
+
         Update();
     }
 

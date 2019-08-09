@@ -388,9 +388,90 @@ public class EditorComponent {
         }
         return offset + 1;
     }
+    virtual public float AddEventVarConditionComponents(float offset)
+    {
+        UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+        ui.SetLocation(0.5f, offset, 18, 1);
+        ui.SetText(new StringKey("val", "X_COLON", TESTS));
+
+        ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+        ui.SetLocation(18.5f, offset++, 1, 1);
+        ui.SetText(CommonStringKeys.PLUS, Color.green);
+        ui.SetButton(delegate { AddTestOp(); });
+        new UIElementBorder(ui, Color.green);
+
+        foreach (QuestData.Event.VarOperation op in eventComponent.conditions)
+        {
+            bool operationIsBoolean = VarManager.GetDefinition(op.var).IsBoolean();
+            QuestData.Event.VarOperation tmp = op;
+            ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+            if (game.quest.qd.components.ContainsKey(op.var))
+            {
+                ui.SetLocation(0.5f, offset, 7.5f, 1);
+                string tmpName = op.var;
+                UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                link.SetLocation(8, offset, 1, 1);
+                link.SetText("<b>⇨</b>", Color.blue);
+                link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                new UIElementBorder(link, Color.blue);
+            }
+            else
+            {
+                ui.SetLocation(0.5f, offset, 8.5f, 1);
+            }
+            ui.SetText(op.var);
+            new UIElementBorder(ui);
+
+            ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+            ui.SetLocation(9, offset, 2, 1);
+            ui.SetText(op.operation);
+            ui.SetButton(delegate { SetTestOpp(tmp); });
+            new UIElementBorder(ui);
+
+            ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+            string displayValue = op.value;
+            if (game.quest.qd.components.ContainsKey(op.value))
+            {
+                ui.SetLocation(11, offset, 6.5f, 1);
+                string tmpName = op.value;
+                UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                link.SetLocation(17.5f, offset, 1, 1);
+                link.SetText("<b>⇨</b>", Color.blue);
+                link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                new UIElementBorder(link, Color.blue);
+            }
+            else
+            {
+                if (operationIsBoolean && !Game.Get().cd.VarDefinitions.ContainsKey(op.value))
+                {
+                    bool setToValue;
+                    bool.TryParse(displayValue, out setToValue);
+
+                    displayValue = new StringKey("val", "FALSE").Translate();
+                    if (setToValue)
+                    {
+                        displayValue = new StringKey("val", "TRUE").Translate();
+                    }
+                }
+                ui.SetLocation(11, offset, 7.5f, 1);
+            }
+            ui.SetText(displayValue);
+            ui.SetButton(delegate { SetValue(tmp); });
+            new UIElementBorder(ui);
+
+            ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+            ui.SetLocation(18.5f, offset++, 1, 1);
+            ui.SetText(CommonStringKeys.MINUS, Color.red);
+            ui.SetButton(delegate { RemoveOp(tmp); });
+            new UIElementBorder(ui, Color.red);
+        }
+        return offset + 1;
+    }
 
     virtual public float AddEventVarOperationComponents(float offset)
     {
+        bool operationIsBoolean = VarManager.GetDefinition(op.var).IsBoolean();
+
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 18, 1);
         ui.SetText(new StringKey("val", "X_COLON", ASSIGN));
@@ -401,11 +482,24 @@ public class EditorComponent {
         ui.SetButton(delegate { AddAssignOp(); });
         new UIElementBorder(ui, Color.green);
 
-        foreach (VarOperation op in component.operations)
+        foreach (QuestData.Event.VarOperation op in component.operations)
         {
-            VarOperation tmp = op;
+            QuestData.Event.VarOperation tmp = op;
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-            ui.SetLocation(0.5f, offset, 8.5f, 1);
+            if (game.quest.qd.components.ContainsKey(op.var))
+            {
+                ui.SetLocation(0.5f, offset, 7.5f, 1);
+                string tmpName = op.var;
+                UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                link.SetLocation(8, offset, 1, 1);
+                link.SetText("<b>⇨</b>", Color.blue);
+                link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                new UIElementBorder(link, Color.blue);
+            }
+            else
+            {
+                ui.SetLocation(0.5f, offset, 8.5f, 1);
+            }
             ui.SetText(op.var);
             new UIElementBorder(ui);
 
@@ -416,16 +510,35 @@ public class EditorComponent {
             new UIElementBorder(ui);
 
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-            ui.SetLocation(11, offset, 7.5f, 1);
-            ui.SetText(op.value);
+            string displayValue = op.value;
+            if (game.quest.qd.components.ContainsKey(op.value))
+            {
+                ui.SetLocation(11, offset, 6.5f, 1);
+                string tmpName = op.value;
+                UIElement link = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+                link.SetLocation(17.5f, offset, 1, 1);
+                link.SetText("<b>⇨</b>", Color.blue);
+                link.SetButton(delegate { QuestEditorData.SelectComponent(tmpName); });
+                new UIElementBorder(link, Color.blue);
+            }
+            else
+            {
+                if (operationIsBoolean && !Game.Get().cd.VarDefinitions.ContainsKey(op.value))
+                {
+                    bool setToValue;
+                    bool.TryParse(displayValue, out setToValue);
+
+                    displayValue = new StringKey("val", "FALSE").Translate();
+                    if (setToValue)
+                    {
+                        displayValue = new StringKey("val", "TRUE").Translate();
+                    }
+                }
+                ui.SetLocation(11, offset, 7.5f, 1);
+            }
+            ui.SetText(displayValue);
             ui.SetButton(delegate { SetValue(tmp); });
             new UIElementBorder(ui);
-
-            ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-            ui.SetLocation(18.5f, offset++, 1, 1);
-            ui.SetText(CommonStringKeys.MINUS, Color.red);
-            ui.SetButton(delegate { RemoveOp(tmp); });
-            new UIElementBorder(ui, Color.red);
         }
         return offset + 1;
     }
@@ -916,6 +1029,305 @@ public class EditorComponent {
     {
         if (component.operations.Contains(op))
             component.operations.Remove(op);
+        Update();
+    }
+
+    public void AddTestOp()
+    {
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+        Game game = Game.Get();
+
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddOp(s); }, new StringKey("val", "SELECT", VAR));
+
+        select.AddNewComponentItem("VAR");
+
+        AddQuestVars(select);
+
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(new StringKey("val", "TYPE").Translate(), new string[] { "#" });
+
+        select.AddItem("#monsters", traits);
+        select.AddItem("#heroes", traits);
+        select.AddItem("#round", traits);
+        select.AddItem("#eliminated", traits);
+        foreach (ContentData.ContentPack pack in Game.Get().cd.allPacks)
+        {
+            if (pack.id.Length > 0)
+            {
+                select.AddItem("#" + pack.id, traits);
+            }
+        }
+        foreach (HeroData hero in Game.Get().cd.heroes.Values)
+        {
+            if (hero.sectionName.Length > 0)
+            {
+                select.AddItem("#" + hero.sectionName, traits);
+            }
+        }
+        select.Draw();
+    }
+
+    public void AddAssignOp()
+    {
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+        Game game = Game.Get();
+
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddOp(s, false); }, new StringKey("val", "SELECT", VAR));
+
+        select.AddNewComponentItem("VAR");
+
+        AddQuestVars(select);
+
+        select.Draw();
+    }
+
+    public void AddQuestVars(UIWindowSelectionListTraits list)
+    {
+        Game game = Game.Get();
+        foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
+        {
+            if (kv.Value is QuestData.VarDefinition)
+            {
+                list.AddItem(kv.Value);
+            }
+        }
+
+        HashSet<string> valkVars = new HashSet<string>();
+        foreach (KeyValuePair<string, QuestData.VarDefinition> kv in game.cd.VarDefinitions)
+        {
+            if (!kv.Value.readonly)
+            {
+                list.AddItem(kv.Value);
+            }
+        }
+    }
+
+    public void SelectAddOp(string var, bool test = true)
+    {
+        QuestData.Event.VarOperation op = new QuestData.Event.VarOperation();
+        op.var = var;
+        op.operation = "=";
+        if (test)
+        {
+            op.operation = "==";
+        }
+
+        op.value = "0";
+        if (VarManager.GetDefinition(op.var).IsBoolean())
+        {
+            op.value = "true";
+        }
+
+        if (op.var.Equals("{NEW:Var}"))
+        {
+            int i = 0;
+            while (game.quest.qd.components.ContainsKey("Var" + i))
+            {
+                i++;
+            }
+            op.var = "Var" + i;
+            Game.Get().quest.qd.components.Add(op.var, new QuestData.VarDefinition(op.var));
+        }
+
+        if (test)
+        {
+            eventComponent.conditions.Add(op);
+        }
+        else
+        {
+            eventComponent.operations.Add(op);
+        }
+        Update();
+    }
+
+    public void SetTestOpp(QuestData.Event.VarOperation op)
+    {
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+        Game game = Game.Get();
+
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectSetOp(op, s); }, new StringKey("val", "SELECT", OP));
+
+        select.AddItem("==");
+        select.AddItem("!=");
+
+        if (VarManager.GetDefinition(op.var).IsBoolean())
+        {
+            select.AddItem("OR");
+            select.AddItem("&");
+        }
+        else
+        {
+            select.AddItem(">=");
+            select.AddItem("<=");
+            select.AddItem(">");
+            select.AddItem("<");
+        }
+
+        select.Draw();
+    }
+
+    public void SetAssignOpp(QuestData.Event.VarOperation op)
+    {
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+        Game game = Game.Get();
+
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectSetOp(op, s); }, new StringKey("val", "SELECT", OP));
+
+        select.AddItem("=");
+        if (VarManager.GetDefinition(op.var).IsBoolean())
+        {
+            select.AddItem("OR");
+            select.AddItem("&");
+            select.AddItem("!");
+            select.AddItem("^");
+        }
+        else
+        {
+            select.AddItem("+");
+            select.AddItem("-");
+            select.AddItem("*");
+            select.AddItem("/");
+            select.AddItem("%");
+        }
+
+        select.Draw();
+    }
+
+    public void SelectSetOp(QuestData.Event.VarOperation op, string operation)
+    {
+        op.operation = operation;
+        Update();
+    }
+
+    public void SetValue(QuestData.Event.VarOperation op)
+    {
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+        Game game = Game.Get();
+
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectSetValue(op, s); }, new StringKey("val", "SELECT", VALUE));
+
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(new StringKey("val", "TYPE").Translate(), new string[] { "Quest" });
+        if (VarManager.GetDefinition(op.var).IsBoolean())
+        {
+            select.AddItem("{" + new StringKey("val", "TRUE").Translate() + "}", "{TRUE}", traits);
+            select.AddItem("{" + new StringKey("val", "FALSE").Translate() + "}", "{FALSE}", traits);
+        }
+        else
+        {
+            select.AddItem("{" + CommonStringKeys.NUMBER.Translate() + "}", "{NUMBER}", traits);
+        }
+
+        select.AddNewComponentItem("VAR");
+
+        AddQuestVars(select);
+
+        traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(new StringKey("val", "TYPE").Translate(), new string[] { "#" });
+
+        select.AddItem("#monsters", traits);
+        select.AddItem("#heroes", traits);
+        select.AddItem("#round", traits);
+        select.AddItem("#eliminated", traits);
+        foreach (ContentData.ContentPack pack in Game.Get().cd.allPacks)
+        {
+            if (pack.id.Length > 0)
+            {
+                select.AddItem("#" + pack.id, traits);
+            }
+        }
+        select.Draw();
+    }
+
+    public void SelectSetValue(QuestData.Event.VarOperation op, string value)
+    {
+        if (value.Equals("{NUMBER}"))
+        {
+            // Vars doesnt localize
+            varText = new QuestEditorTextEdit(
+                new StringKey("val", "X_COLON", NUMBER),
+                "", delegate { SetNumValue(op); });
+            varText.EditText();
+        }
+        else if (value.Equals("{TRUE}"))
+        {
+            op.value = "true";
+            Update();
+        }
+        else if (value.Equals("{FALSE}"))
+        {
+            op.value = "false";
+            Update();
+        }
+        else
+        {
+            op.value = value;
+            if (value.Equals("{NEW:Var}"))
+            {
+                int i = 0;
+                while (game.quest.qd.components.ContainsKey("Var" + i))
+                {
+                    i++;
+                }
+                op.value = "Var" + i;
+                Game.Get().quest.qd.components.Add(op.value, new QuestData.VarDefinition(op.value));
+            }
+
+            Update();
+        }
+    }
+
+    public void SetNumValue(QuestData.Event.VarOperation op)
+    {
+
+        if (varText.value.StartsWith("#rand"))
+        {
+            // rand integer value
+
+            string randLimit = varText.value.Substring(5);
+            int value;
+            int.TryParse(randLimit, out value);
+
+            // The minimal random number is 1
+            if (value == 0)
+            {
+                value = 1;
+            }
+
+            op.value = "#rand" + value.ToString();
+
+        }
+        else
+        {
+            // float value
+            float value;
+            float.TryParse(varText.value, out value);
+            op.value = value.ToString();
+        }
+        Update();
+    }
+
+    public void RemoveOp(QuestData.Event.VarOperation op)
+    {
+        if (eventComponent.operations.Contains(op))
+            eventComponent.operations.Remove(op);
+        if (eventComponent.conditions.Contains(op))
+            eventComponent.conditions.Remove(op);
         Update();
     }
 }

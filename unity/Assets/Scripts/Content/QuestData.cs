@@ -49,6 +49,8 @@ public class QuestData
     {
         ValkyrieDebug.Log("Loading quest from: \"" + questPath + "\"" + System.Environment.NewLine);
         game = Game.Get();
+        // Access before constructor is finished
+        game.quest.qd = this;
 
         components = new Dictionary<string, QuestComponent>();
         questActivations = new Dictionary<string, ActivationData>();
@@ -1010,6 +1012,37 @@ public class QuestData
             }
             // If component is deleted, trim array
             removeComponents = RemoveFromArray(removeComponents, "");
+
+            // Quota var renamed
+            if (quotaVar.Equals(oldName))
+            {
+                quotaVar = newName;
+            }
+
+            // Update variable names in operations
+            foreach (VarOperation operation in operations)
+            {
+                if (operation.var.Equals(oldName))
+                {
+                    operation.var = newName;
+                }
+                if (operation.value.Equals(oldName))
+                {
+                    operation.value = newName;
+                }
+            }
+            // Update variable names in conditions
+            foreach (VarOperation condition in conditions)
+            {
+                if (condition.var.Equals(oldName))
+                {
+                    condition.var = newName;
+                }
+                if (condition.value.Equals(oldName))
+                {
+                    condition.value = newName;
+                }
+            }
         }
 
         // Save event to string (editor)
@@ -1274,6 +1307,234 @@ public class QuestData
         }
     }
 
+    // Var Definition
+    public class VarDefinition : QuestComponent
+    {
+        new public static string type = "Var";
+        // A bast type is used for default values
+        public string variableType = "float";
+        public string internalVariableType;
+        public float initialise = 0;
+        public bool minimumUsed = false;
+        public float minimum = 0;
+        public bool maximumUsed = false;
+        public float maximum = 1;
+        public bool campaign = false;
+        public bool readOnly = false;
+        public bool random = false;
+
+        // Create new with name (editor)
+        public VarDefinition(string s) : base(s)
+        {
+            source = "vars.ini";
+            typeDynamic = type;
+        }
+
+        // Create from ini data
+        public VarDefinition(string iniName, Dictionary<string, string> data, string pathIn) : base(iniName, data, pathIn)
+        {
+            typeDynamic = type;
+            // Get variable type
+            if (data.ContainsKey("type"))
+            {
+                SetVariableType(data["type"]);
+            }
+            if (variableType.Equals("bool"))
+            {
+                if (data.ContainsKey("initialise"))
+                {
+                    bool boolInit;
+                    bool.TryParse(data["initialise"], out boolInit);
+                    if (boolInit)
+                    {
+                        initialise = 1;
+                    }
+                }
+            }
+            else
+            {
+                if (data.ContainsKey("minimum"))
+                {
+                    minimumUsed = true;
+                    float.TryParse(data["minimum"], out minimum);
+                }
+                if (data.ContainsKey("maximum"))
+                {
+                    maximumUsed = true;
+                    float.TryParse(data["maximum"], out maximum);
+                }
+                if (data.ContainsKey("campaign"))
+                {
+                    bool.TryParse(data["campaign"], out campaign);
+                }
+                if (data.ContainsKey("initialise"))
+                {
+                    float.TryParse(data["initialise"], out initialise);
+                }
+                if (data.ContainsKey("random"))
+                {
+                    float.TryParse(data["random"], out random);
+                }
+            }
+        }
+
+        // Create component from old variable name
+        public static string AddVarFromOldName(string oldName)
+        {
+            if (oldName.IndexOf("$%") == 0 || oldName.IndexOf("$@") == 0)
+            {
+                return "ValkVar" + oldName.Substring(2));
+            }
+            if (oldName.IndexOf("#") == 0 || oldName.IndexOf("$") == 0)
+            {
+                if (oldName.IndexOf("#rand") != 0)
+                {
+                    return "ValkVar" + oldName.Substring(1));
+                }
+            }
+            if (oldName.IndexOf("-") == 0 || oldName.IndexOf(".") == 0)
+                || (oldName.Length > 0 && char.IsNumber(oldName.value[0]))
+            {
+                return oldName;
+            }
+
+            newName = "Var" + oldName;
+            VarDefinition newDefinition = new VarDefinition(newName);
+
+            if (oldName.IndexOf("%") >= 0)
+            {
+                newDefinition.campaign = true;
+            }
+
+            if (oldName.IndexOf("@") >= 0)
+            {
+                newDefinition.SetVariableType("trigger");
+            }
+
+            if (oldName.IndexOf("#rand") == 0)
+            {
+                newDefinition.SetVariableType("int");
+                newDefinition.random = true;
+                newDefinition.minimumUsed = true;
+                newDefinition.minimum = 1;
+                newDefinition.maximumUsed = true;
+                float.TryParse(oldName.Substring(5), out newDefinition.maximum);
+            }
+
+            if (!Game.Get().quest.qd.components.ContainsKey(newName))
+            {
+                Game.Get().quest.qd.components.Add(newName, newDefinition)
+            }
+
+            return newName;
+        }
+
+        public bool isBoolean()
+        {
+            if (variableType.Equals("trigger")) return true;
+            return variableType.Equals("bool");
+        }
+
+        public void SetVariableType(string newType)
+        {
+            if (newType.Equals(variableType)) return;
+
+            if (newType.Equals("trigger"))
+            {
+                variableType = newType;
+                internalVariableType = "int";
+                campaign = false;
+                initialise = 0;
+                minimumUsed = true;
+                maximumUsed = true;
+                minimum = 0;
+                maximum = 1;
+            }
+            if (newType.Equals("bool"))
+            {
+                variableType = newType;
+                internalVariableType = "int";
+                minimumUsed = true;
+                maximumUsed = true;
+                minimum = 0;
+                maximum = 1;
+            }
+            if (newType.Equals("int"))
+            {
+                if (variableType.Equals("bool"))
+                {
+                    minimumUsed = false;
+                    maximumUsed = false;
+                }
+                variableType = newType;
+                internalVariableType = "int";
+            }
+            if (newType.Equals("float"))
+            {
+                if (variableType.Equals("bool"))
+                {
+                    minimumUsed = false;
+                    maximumUsed = false;
+                }
+                variableType = newType;
+                internalVariableType = "float";
+            }
+        }
+
+        // Save to string (editor)
+        override public string ToString()
+        {
+            StringBuilder r = new StringBuilder().Append(base.ToString());
+
+            if (variableType.Equals("trigger"))
+            {
+                r.Append("type=").AppendLine(variableType);
+            }
+            else if (variableType.Equals("bool"))
+            {
+                r.Append("type=").AppendLine(variableType);
+                r.Append("initialise=").AppendLine(bool.TrueString);
+                if (random)
+                {
+                    r.Append("random=").AppendLine(random.ToString());
+                }
+                if (campaign)
+                {
+                    r.Append("campaign=").AppendLine(campaign.ToString());
+                }
+            }
+            else
+            {
+                if (!variableType.Equals("float"))
+                {
+                    r.Append("type=").AppendLine(variableType);
+                }
+                if (random)
+                {
+                    r.Append("random=").AppendLine(random.ToString());
+                }
+                if (minimumUsed)
+                {
+                    r.Append("minimum=").AppendLine(minimum.ToString());
+                }
+                if (maximumUsed)
+                {
+                    r.Append("maximum=").AppendLine(maximum.ToString());
+                }
+                if (campaign)
+                {
+                    r.Append("campaign=").AppendLine(campaign.ToString());
+                }
+                if (initialise != 0)
+                {
+                    r.Append("initialise=").AppendLine(initialise.ToString());
+                }
+            }
+
+            return r.ToString();
+        }
+    }
+
     // Super class for all quest components
     public class QuestComponent
     {
@@ -1364,7 +1625,7 @@ public class QuestData
                 string[] array = data["vartests"].Split(" ".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries);
                 foreach (string s in array)
                 {
-                    tests.Add(s);
+                    tests.Add(s, format);
                 }
             }
             // Backwards support for conditions
@@ -1375,7 +1636,7 @@ public class QuestData
                 foreach (string s in array)
                 {
                     if (i > 0) tests.Add(new VarTestsLogicalOperator("AND"));
-                    tests.Add(new VarOperation(s));
+                    tests.Add(new VarOperation(s, format));
                     i++;
                 }
             }
@@ -1899,7 +2160,7 @@ public class QuestData
     {
         public static int minumumFormat = 4;
         // Increment during changes, and again at release
-        public static int currentFormat = 10;
+        public static int currentFormat = 12;
         public int format = 0;
         public bool hidden = false;
         public bool valid = false;

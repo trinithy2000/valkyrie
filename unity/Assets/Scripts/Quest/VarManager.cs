@@ -1,17 +1,19 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using ValkyrieTools;
 
 public class VarManager
 {
     public Dictionary<string, float> vars;
+    public HashSet<string> campaign = new HashSet<string>();
 
     public VarManager()
     {
         vars = new Dictionary<string, float>();
     }
 
-    public VarManager(Dictionary<string, string> data)
+    public VarManager(Dictionary<string, string> data, string valkyrieVersion)
     {
         vars = new Dictionary<string, float>();
 
@@ -19,29 +21,58 @@ public class VarManager
         {
             float value = 0;
             float.TryParse(kv.Value, out value);
+
+            string varName = kv.Key;
             // There is a \ before var starting with #, so they don't get ignored.
-            if(kv.Key.IndexOf("\\")==0)
+            if (kv.Key.IndexOf("\\") == 0)
             {
-                vars.Add(kv.Key.Substring(1, kv.Key.Length - 1), value);
+                varName = varName.Substring(1);
             }
-            else
+
+            vars.Add(varName, value);
+            if (varName.IndexOf("%") == 0)
             {
-                vars.Add(kv.Key, value);
+                campaign.Add(varName);
             }
         }
     }
 
-    public Dictionary<string, float> GetPrefixVars(string prefix)
+    public static QuestData.VarDefinition GetDefinition(string variableName)
     {
-        Dictionary<string, float> dict = new Dictionary<string, float>();
-        foreach (KeyValuePair<string, float> kv in vars)
+        QuestData.VarDefinition definition = new QuestData.VarDefinition("");
+        if (Game.Get().quest.qd.components.ContainsKey(variableName))
         {
-            if (kv.Key.IndexOf(prefix) == 0)
+            if (Game.Get().quest.qd.components[variableName] is QuestData.VarDefinition)
             {
-                dict.Add(kv.Key, kv.Value);
+                definition = Game.Get().quest.qd.components[variableName] as QuestData.VarDefinition;
             }
         }
-        return dict;
+        if (Game.Get().cd.VarDefinitions.ContainsKey(variableName))
+        {
+            definition = Game.Get().cd.VarDefinitions[variableName];
+        }
+        if (definition.campaign)
+        {
+            campaign.add(variableName)
+        }
+        ValkyrieDebug.Log("Warning: Unknown variable: " + variableName);
+        return definition;
+    }
+
+    public List<string> GetTriggerVars()
+    {
+        List<string> toReturn = new List<string>();
+        foreach (KeyValuePair<string, float> kv in vars)
+        {
+            if (kv.Value != 0)
+            {
+                if(GetDefinition(kv.Key).variableType.Equals("trigger"))
+                {
+                    toReturn.Add(kb.Key);
+                }
+            }
+        }
+        return toReturn;
     }
 
     public void TrimQuest()
@@ -49,8 +80,10 @@ public class VarManager
         Dictionary<string, float> newVars = new Dictionary<string, float>();
         foreach (KeyValuePair<string, float> kv in vars)
         {
-            if (kv.Key[0].Equals('%')) newVars.Add(kv.Key, kv.Value);
-            if (kv.Key.Substring(0, 2).Equals("$%")) newVars.Add(kv.Key, kv.Value);
+            if (campaign.Contains(kv.Key))
+            {
+                newVars.Add(kv.Key, kv.Value);
+            }
         }
         vars = newVars;
     }
@@ -65,25 +98,52 @@ public class VarManager
             }
             vars.Add(var, 0);
         }
-        vars[var] = value;
+
+        if (GetDefinition(var).minimumUsed && GetDefinition(var).minimum < value)
+        {
+            vars[var] = GetDefinition(var).minimum;
+        }
+        if (GetDefinition(var).maximumUsed && GetDefinition(var).maximum > value)
+        {
+            vars[var] = GetDefinition(var).maximum;
+        }
+        else
+        {
+            vars[var] = value;
+        }
+
+        if (GetDefinition(var).internalVariableType.Equals("int"))
+        {
+            vars[var] = Mathf.RoundToInt(vars[var]);
+        }
     }
 
     public float GetValue(string var)
     {
         if (!vars.ContainsKey(var))
         {
-            return 0;
+            if (Game.Get().quest != null && Game.Get().quest.log != null)
+            {
+                Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Adding quest var: " + var + " As: " + GetDefinition(var).initialise, true));
+            }
+            vars.Add(var, GetDefinition(var).initialise);
+        }
+        if (GetDefinition(var).random)
+        {
+            if (GetDefinition(var).internalVariableType.equals(int))
+            {
+                SetValue(var, Random.IntRange(GetDefinition(var).minimum, GetDefinition(var).maximum + 1));
+            }
+            else
+            {
+                SetValue(var, Random.Range(GetDefinition(var).minimum, GetDefinition(var).maximum));
+            }
         }
         return vars[var];
     }
 
     public float GetOpValue(VarOperation op)
     {
-        if (!vars.ContainsKey(op.var))
-        {
-            Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Adding quest var: " + op.var, true));
-            vars.Add(op.var, 0);
-        }
         float r = 0;
         if (op.value.Length == 0)
         {
@@ -101,13 +161,21 @@ public class VarManager
             r = Random.Range(1, randLimit + 1);
             return r;
         }
-        // value is var
-        if (!vars.ContainsKey(op.value))
+
+        if (GetDefinition(op.var).IsBoolean())
         {
-            Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Adding quest var: " + op.var, true));
-            vars.Add(op.value, 0);
+            bool valueBoolParse;
+            if (bool.TryParse(op.value, out valueBoolParse))
+            {
+                if (valueBoolParse)
+                {
+                    return 1;
+                }
+                return 0;
+            }
         }
-        return vars[op.value];
+        // value is var
+        return GetValue(op.var);
     }
 
     public void Perform(VarOperation op)
@@ -119,39 +187,83 @@ public class VarManager
             return;
         }
 
-        if (op.operation.Equals("+"))
+        if (op.operation.Equals("+") || op.operation.Equals("OR"))
         {
-            vars[op.var] += value;
+            SetValue(op.var, vars[op.var] + value);
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Adding: " + value + " to quest var: " + op.var + " result: " + vars[op.var], true));
         }
 
         if (op.operation.Equals("-"))
         {
-            vars[op.var] -= value;
+            SetValue(op.var, vars[op.var] - value);
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Subtracting: " + value + " from quest var: " + op.var + " result: " + vars[op.var], true));
         }
 
         if (op.operation.Equals("*"))
         {
-            vars[op.var] *= value;
+            SetValue(op.var, vars[op.var] * value);
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Multiplying: " + value + " with quest var: " + op.var + " result: " + vars[op.var], true));
         }
 
         if (op.operation.Equals("/"))
         {
-            vars[op.var] /= value;
+            SetValue(op.var, vars[op.var] / value);
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Dividing quest var: " + op.var + " by: " + value + " result: " + vars[op.var], true));
         }
 
         if (op.operation.Equals("%"))
         {
-            vars[op.var] %= value;
+            SetValue(op.var, vars[op.var] % value);
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Modulus quest var: " + op.var + " by: " + value + " result: " + vars[op.var], true));
         }
 
         if (op.operation.Equals("="))
         {
-            vars[op.var] = value;
+            SetValue(op.var, value);
+            Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Setting: " + op.var + " to: " + value, true));
+        }
+
+        if (op.operation.Equals("&"))
+        {
+            bool varAtZero = (vars[op.var] == 0);
+            bool valueAtZero = (value == 0);
+            if (!varAtZero && !valueAtZero)
+            {
+                SetValue(op.var, 1);
+            }
+            else
+            {
+                SetValue(op.var, 0);
+            }
+            SetValue(op.var, value);
+            Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Setting: " + op.var + " to: " + value, true));
+        }
+
+        if (op.operation.Equals("!"))
+        {
+            if (value == 0)
+            {
+                SetValue(op.var, 1);
+            }
+            else
+            {
+                SetValue(op.var, 0);
+            }
+            Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Setting: " + op.var + " to: " + value, true));
+        }
+
+        if (op.operation.Equals("^"))
+        {
+            bool varAtZero = (vars[op.var] == 0);
+            bool valueAtZero = (value == 0);
+            if (varAtZero ^ valueAtZero)
+            {
+                SetValue(op.var, 1);
+            }
+            else
+            {
+                SetValue(op.var, 0);
+            }
             Game.Get().quest.log.Add(new Quest.LogEntry("Notice: Setting: " + op.var + " to: " + value, true));
         }
     }
@@ -261,6 +373,20 @@ public class VarManager
             return (vars[op.var] < value);
         }
 
+        if (op.operation.Equals("OR"))
+        {
+            bool varAtZero = (vars[op.var] == 0);
+            bool valueAtZero = (value == 0);
+            return !varAtZero || !valueAtZero;
+        }
+
+        if (op.operation.Equals("&"))
+        {
+            bool varAtZero = (vars[op.var] == 0);
+            bool valueAtZero = (value == 0);
+            return !varAtZero && !valueAtZero;
+        }
+
         // unknown tests fail
         return false;
     }
@@ -280,17 +406,14 @@ public class VarManager
 
         foreach (KeyValuePair<string, float> kv in vars)
         {
-            if(kv.Value != 0)
-            { 
-                if (kv.Key.IndexOf("#") == 0)
-                {
-                    // # means comments in .ini
-                    r += "\\" + kv.Key + "=" + kv.Value.ToString() + nl;
-                }
-                else
-                {
-                    r += kv.Key + "=" + kv.Value.ToString() + nl;
-                }
+            campaignPrefix = "";
+            if (campaign.ContainsKey(kv.Value))
+            {
+                campaignPrefix = "%";
+            }
+            if (kv.Value != 0 || !campaignPrefix.IsNullOrEmpty())
+            {
+                r += kv.Key + "=" + campaignPrefix + kv.Value.ToString() + nl;
             }
         }
         return r + nl;
