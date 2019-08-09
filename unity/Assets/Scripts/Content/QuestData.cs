@@ -947,6 +947,8 @@ public class QuestData
         // Check all references when a component name is changed
         override public void ChangeReference(string oldName, string newName)
         {
+            base.ChangeReference(oldName, newName);
+
             if (sectionName.Equals(oldName) && newName != "")
             {
                 for (int i = 1; i <= buttons.Count; i++)
@@ -1017,31 +1019,6 @@ public class QuestData
             if (quotaVar.Equals(oldName))
             {
                 quotaVar = newName;
-            }
-
-            // Update variable names in operations
-            foreach (VarOperation operation in operations)
-            {
-                if (operation.var.Equals(oldName))
-                {
-                    operation.var = newName;
-                }
-                if (operation.value.Equals(oldName))
-                {
-                    operation.value = newName;
-                }
-            }
-            // Update variable names in conditions
-            foreach (VarOperation condition in conditions)
-            {
-                if (condition.var.Equals(oldName))
-                {
-                    condition.var = newName;
-                }
-                if (condition.value.Equals(oldName))
-                {
-                    condition.value = newName;
-                }
             }
         }
 
@@ -1671,7 +1648,30 @@ public class QuestData
         // Used to rename components
         virtual public void ChangeReference(string oldName, string newName)
         {
-
+            // Update variable names in operations
+            foreach (VarOperation operation in operations)
+            {
+                if (operation.var.Equals(oldName))
+                {
+                    operation.var = newName;
+                }
+                if (operation.value.Equals(oldName))
+                {
+                    operation.value = newName;
+                }
+            }
+            // Update variable names in conditions
+            foreach (VarOperation condition in VarTests)
+            {
+                if (condition.var.Equals(oldName))
+                {
+                    condition.var = newName;
+                }
+                if (condition.value.Equals(oldName))
+                {
+                    condition.value = newName;
+                }
+            }
         }
 
         // Used to delete components
@@ -1962,6 +1962,7 @@ public class QuestData
             {
                 horrorEvent = newName;
             }
+            base.ChangeReference(oldName, newName);
         }
     }
 
@@ -2152,6 +2153,7 @@ public class QuestData
             }
             // If any were replaced with "", remove them
             itemName = RemoveFromArray(itemName, "");
+            base.ChangeReference(oldName, newName);
         }
     }
 
