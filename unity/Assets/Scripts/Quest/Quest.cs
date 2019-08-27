@@ -304,16 +304,6 @@ public class Quest
             // we don't want duplicate in the shop
             exclude.AddRange(itemSelect.Values.ToList());
 
-            //  remove items with qty not yet reached from exclude list
-            foreach (string item in exclude)
-            {
-                if (game.cd.items.ContainsKey(item)
-                    && game.cd.items[item].qty != 1
-                    && exclude.Count(element => element == item) < game.cd.items[item].qty
-                    )
-                    exclude.RemoveAll(element => element == item);
-            }
-
             // Start a list of matches
             List<string> list = new List<string>();
             foreach (KeyValuePair<string, ItemData> kv in game.cd.items)
