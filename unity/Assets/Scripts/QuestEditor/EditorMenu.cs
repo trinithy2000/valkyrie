@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Menu popup when in editor
-public class EditorMenu {
+public class EditorMenu
+{
 
     private static readonly StringKey SAVE = new StringKey("val", "SAVE");
     private static readonly StringKey RELOAD = new StringKey("val", "RELOAD");

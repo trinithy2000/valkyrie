@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 // I couldn't work out unity scaling so I wrote my own.
 // The screen is alway 30 'units' high.  At 4:3 it is 40 across, at 16:9 it is 53.33.
@@ -8,7 +7,8 @@ using System.Collections;
 // Everything is floats so partial units are fine.
 
 // This is a utily class to help with screen placement and scaling
-public class UIScaler {
+public class UIScaler
+{
 
     public int widthPx;
     public int heightPx;
@@ -29,7 +29,7 @@ public class UIScaler {
     public static float GetPixelsPerUnit()
     {
         Game game = Game.Get();
-        return (float)game.uiScaler.heightPx / rowsOfUnits;
+        return game.uiScaler.heightPx / rowsOfUnits;
     }
 
     // Convert a scale unit vector to canvas units
@@ -42,14 +42,14 @@ public class UIScaler {
     public static float GetWidthUnits()
     {
         Game game = Game.Get();
-        return (float)game.uiScaler.widthPx / GetPixelsPerUnit();
+        return game.uiScaler.widthPx / GetPixelsPerUnit();
     }
 
     // Get the hieght of the screen in scale units (should always be 30)
     public static float GetHeightUnits()
     {
         Game game = Game.Get();
-        return (float)game.uiScaler.heightPx / GetPixelsPerUnit();
+        return game.uiScaler.heightPx / GetPixelsPerUnit();
     }
 
     // Get the right most position of the screen in scale units, with an offset
@@ -58,10 +58,19 @@ public class UIScaler {
         return GetWidthUnits() + offset;
     }
 
+    public static float GetLeft(float offset = 0)
+    {
+        return 0 + offset;
+    }
     // Get the lowest position of the screen in scale units, with an offset
     public static float GetBottom(float offset = 0)
     {
         return GetHeightUnits() + offset;
+    }
+
+    public static float GetTop(float offset = 0)
+    {
+        return 0 + offset;
     }
 
     // Get the vertical mid point of the screen in scale units, with an offset
@@ -76,12 +85,21 @@ public class UIScaler {
         return (GetWidthUnits() / 2) + offset;
     }
 
+    public static int GetSmallestFont()
+    {
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.7f);
+    }
+
     // small (standard) font size
     public static int GetSmallFont()
     {
         return Mathf.RoundToInt(GetPixelsPerUnit() * 0.8f);
     }
 
+    public static int GetSemiSmallFont()
+    {
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.92f);
+    }
     // medium font size
     public static int GetMediumFont()
     {
@@ -92,5 +110,15 @@ public class UIScaler {
     public static int GetLargeFont()
     {
         return Mathf.RoundToInt(GetPixelsPerUnit() * 2.3f);
+    }
+
+    public static float GetRelWidth(float width)
+    {
+        return UIScaler.GetWidthUnits() / width;
+    }
+
+    public static float GetRelHeight(float height)
+    {
+        return UIScaler.GetHeightUnits() / height;
     }
 }

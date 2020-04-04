@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using System.Security.Cryptography;
-using System.IO;
 using Ionic.Zip;
-using ValkyrieTools;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
+using UnityEngine;
+using ValkyrieTools;
 
 public class EditorTools
 {
@@ -115,7 +115,7 @@ public class EditorTools
 
             string packageFile = Path.Combine(destination, packageName + ".valkyrie");
 
-            using (var zip = new ZipFile())
+            using (ZipFile zip = new ZipFile())
             {
                 zip.AddDirectory(Path.GetDirectoryName(game.quest.qd.questPath));
                 zip.Save(packageFile);

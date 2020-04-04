@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using ValkyrieTools;
 
 public class PuzzleCode : Puzzle
@@ -66,7 +65,7 @@ public class PuzzleCode : Puzzle
         return false;
     }
 
-    override public string ToString(string id)
+    public override string ToString(string id)
     {
         string nl = System.Environment.NewLine;
         string r = "[PuzzleCode" + id + "]" + nl;
@@ -78,7 +77,7 @@ public class PuzzleCode : Puzzle
             r += g.ToString() + ",";
         }
         r = r.Substring(0, r.Length - 1) + nl;
-        
+
         return r + nl;
     }
 
@@ -108,7 +107,7 @@ public class PuzzleCode : Puzzle
             }
         }
 
-        override public string ToString()
+        public override string ToString()
         {
             string r = "";
             foreach (int i in state)
@@ -122,7 +121,7 @@ public class PuzzleCode : Puzzle
 
     public class CodeGuess
     {
-        Answer answer;
+        private readonly Answer answer;
         public List<int> guess;
 
         public CodeGuess(Answer a, List<int> g)
@@ -175,14 +174,28 @@ public class PuzzleCode : Puzzle
 
             for (int i = 0; i < guess.Count; i++)
             {
-                if (guess[i] == answer.state[i]) continue;
-                
+                if (guess[i] == answer.state[i])
+                {
+                    continue;
+                }
+
                 for (int j = 0; j < answer.state.Count; j++)
                 {
-                    if (i == j) continue;
-                    if (used[j]) continue;
-                    if (answer.state[j] == guess[j]) continue;
-                    
+                    if (i == j)
+                    {
+                        continue;
+                    }
+
+                    if (used[j])
+                    {
+                        continue;
+                    }
+
+                    if (answer.state[j] == guess[j])
+                    {
+                        continue;
+                    }
+
                     if (answer.state[j] == guess[i])
                     {
                         r++;
@@ -194,7 +207,7 @@ public class PuzzleCode : Puzzle
             return r;
         }
 
-        override public string ToString()
+        public override string ToString()
         {
             string r = "";
             foreach (int i in guess)

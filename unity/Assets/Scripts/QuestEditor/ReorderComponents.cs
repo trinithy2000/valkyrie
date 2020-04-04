@@ -1,13 +1,12 @@
-using UnityEngine;
 using Assets.Scripts.Content;
-using System.IO;
-using System.Collections.Generic;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class ReorderComponents
 {
-    string source = "";
-    List<UIElement> names;
+    private string source = "";
+    private List<UIElement> names;
 
     public ReorderComponents()
     {
@@ -16,7 +15,10 @@ public class ReorderComponents
         HashSet<string> sources = new HashSet<string>();
         foreach (QuestData.QuestComponent c in game.quest.qd.components.Values)
         {
-            if (!(c is PerilData)) sources.Add(c.source);
+            if (!(c is PerilData))
+            {
+                sources.Add(c.source);
+            }
         }
 
         UIWindowSelectionList select = new UIWindowSelectionList(ReorderSource, new StringKey("val", "SELECT", CommonStringKeys.FILE));
@@ -59,7 +61,10 @@ public class ReorderComponents
         int index = 0;
         foreach (QuestData.QuestComponent c in game.quest.qd.components.Values)
         {
-            if (!c.source.Equals(source)) continue;
+            if (!c.source.Equals(source))
+            {
+                continue;
+            }
 
             int tmp = index++;
             if (!first)
@@ -86,7 +91,10 @@ public class ReorderComponents
         }
         offset += 1.05f;
 
-        if (offset < 25) offset = 25;
+        if (offset < 25)
+        {
+            offset = 25;
+        }
 
         scrollArea.SetScrollSize(offset);
 

@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI.Screens;
-using ValkyrieTools;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using System;
+using UnityEngine;
+using ValkyrieTools;
 
 // Class for managing quest events
 public class EventManager
@@ -95,7 +95,7 @@ public class EventManager
     }
 
     // Queue all events by trigger, optionally start
-    public void EventTriggerType(string type, bool trigger=true)
+    public void EventTriggerType(string type, bool trigger = true)
     {
         foreach (KeyValuePair<string, Event> kv in events)
         {
@@ -107,7 +107,7 @@ public class EventManager
     }
 
     // Queue event, optionally trigger next event
-    public void QueueEvent(string name, bool trigger=true)
+    public void QueueEvent(string name, bool trigger = true)
     {
         // Check if the event doesn't exists - quest fault
         if (!events.ContainsKey(name))
@@ -130,7 +130,10 @@ public class EventManager
         }
 
         // Don't queue disabled events
-        if (events[name].Disabled()) return;
+        if (events[name].Disabled())
+        {
+            return;
+        }
 
         // Place this on top of the stack
         eventStack.Push(events[name]);
@@ -147,10 +150,16 @@ public class EventManager
     {
         Game game = Game.Get();
         // First check if things need to be added to the queue at end round
-        if (game.roundControl.CheckNewRound()) return;
+        if (game.roundControl.CheckNewRound())
+        {
+            return;
+        }
 
         // No events to trigger
-        if (eventStack.Count == 0) return;
+        if (eventStack.Count == 0)
+        {
+            return;
+        }
 
         // Get the next event
         Event e = eventStack.Pop();
@@ -218,7 +227,9 @@ public class EventManager
 
         // If a dialog window is open we force it closed (this shouldn't happen)
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             UnityEngine.Object.Destroy(go);
+        }
 
         // If this is a monster event then add the monster group
         if (e is MonsterEvent)
@@ -275,7 +286,7 @@ public class EventManager
             if (s.IndexOf("QItem") == 0)
             {
                 // Fix #998
-                if (game.gameType.TypeName() == "MoM" && itemList.Count==1)
+                if (game.gameType.TypeName() == "MoM" && itemList.Count == 1)
                 {
                     ValkyrieDebug.Log("WARNING: only one QItem can be used in event " + e.qEvent.sectionName + ", ignoring other items");
                     break;
@@ -395,7 +406,7 @@ public class EventManager
     }
 
     // Event ended
-    public void EndEvent(QuestData.Event eventData, int state=0)
+    public void EndEvent(QuestData.Event eventData, int state = 0)
     {
         // Get list of next events
         List<string> eventList = new List<string>();
@@ -438,8 +449,8 @@ public class EventManager
         {
             game.quest.questHasEnded = true;
 
-            if( Path.GetFileName(game.quest.originalPath).StartsWith("EditorScenario") 
-             || !Path.GetFileName(game.quest.originalPath).EndsWith(".valkyrie") )
+            if (Path.GetFileName(game.quest.originalPath).StartsWith("EditorScenario")
+             || !Path.GetFileName(game.quest.originalPath).EndsWith(".valkyrie"))
             {
                 // do not show score screen for scenario with a non customized name, or if the scenario is not a package (most probably a test)
                 Destroyer.MainMenu();
@@ -448,7 +459,7 @@ public class EventManager
             {
                 new EndGameScreen();
             }
-            
+
             return;
         }
 
@@ -525,7 +536,7 @@ public class EventManager
         }
 
         // Get the text to display for the event
-        virtual public string GetText()
+        public virtual string GetText()
         {
             string text = qEvent.text.Translate(true);
 
@@ -574,7 +585,11 @@ public class EventManager
                     end = text.IndexOf("}", end);
                 }
                 end = text.IndexOf(":", end);
-                if (end < 0) end = text.Length - 1;
+                if (end < 0)
+                {
+                    end = text.Length - 1;
+                }
+
                 string toReplace = text.Substring(next, end - next);
                 text = new StringKey(text.Substring(start, (next - start) - 1)).Translate();
                 text = text.Replace(toReplace, hero.name.Translate());
@@ -595,7 +610,7 @@ public class EventManager
                 string componentText;
                 foreach (Match oneVar in questItemRegex.Matches(toReturn))
                 {
-                    replaceFrom = oneVar.Value;                    
+                    replaceFrom = oneVar.Value;
                     componentName = oneVar.Groups[1].Value;
                     QuestData.QuestComponent component;
                     if (Game.Get().quest.qd.components.TryGetValue(componentName, out component))
@@ -619,7 +634,7 @@ public class EventManager
             switch (component.GetType().Name)
             {
                 case "Event":
-                    if(!game.quest.heroSelection.ContainsKey(component.sectionName) || game.quest.heroSelection[component.sectionName].Count == 0)
+                    if (!game.quest.heroSelection.ContainsKey(component.sectionName) || game.quest.heroSelection[component.sectionName].Count == 0)
                     {
                         return component.sectionName;
                     }
@@ -637,9 +652,12 @@ public class EventManager
                     }
                     // Replaced with the text shown in the spawn
                     string monsterName = game.quest.monsterSelect[component.sectionName];
-                    if (monsterName.StartsWith("Custom")) {
+                    if (monsterName.StartsWith("Custom"))
+                    {
                         return ((QuestData.CustomMonster)game.quest.qd.components[monsterName]).monsterName.Translate();
-                    } else {
+                    }
+                    else
+                    {
                         return game.cd.monsters[game.quest.monsterSelect[component.sectionName]].name.Translate();
                     }
                 case "QItem":
@@ -680,7 +698,10 @@ public class EventManager
         public bool ButtonsPresent()
         {
             // If the event can't be canceled it must have buttons
-            if (!qEvent.cancelable) return true;
+            if (!qEvent.cancelable)
+            {
+                return true;
+            }
             // Check if any of the next events are enabled
             foreach (List<string> l in qEvent.nextEvent)
             {
@@ -706,7 +727,10 @@ public class EventManager
                             return false;
                         }
                     }
-                    if (!game.quest.eManager.events[s].Disabled()) return true;
+                    if (!game.quest.eManager.events[s].Disabled())
+                    {
+                        return true;
+                    }
                 }
             }
             // Nothing valid, no buttons
@@ -714,10 +738,12 @@ public class EventManager
         }
 
         // Is this event disabled?
-        virtual public bool Disabled()
+        public virtual bool Disabled()
         {
             if (game.debugTests)
+            {
                 ValkyrieDebug.Log("Event test " + qEvent.sectionName + " result is : " + game.quest.vars.Test(qEvent.tests));
+            }
 
             // check if condition is valid, and if there is something to do in this event (see #916)
             return (!game.quest.vars.Test(qEvent.tests));
@@ -733,7 +759,7 @@ public class EventManager
             name = n;
         }
 
-        override public bool Disabled()
+        public override bool Disabled()
         {
             return false;
         }
@@ -772,7 +798,7 @@ public class EventManager
         }
 
         // Event text
-        override public string GetText()
+        public override string GetText()
         {
             // Monster events have {type} replaced with the selected type
             return base.GetText().Replace("{type}", cMonster.name.Translate());
@@ -786,7 +812,7 @@ public class EventManager
             {
                 return new StringKey("val", "MONSTER_MASTER_X", cMonster.name);
             }
-            return new StringKey(qMonster.uniqueTitle,"{type}",cMonster.name.fullKey);
+            return new StringKey(qMonster.uniqueTitle, "{type}", cMonster.name.fullKey);
         }
     }
 
@@ -862,7 +888,7 @@ public class EventManager
             game.quest.log.Add(new Quest.LogEntry("Warning: Invalid var clause in text: " + input, true));
         }
 
-        foreach (var conversion in GetCharacterMap(false, true))
+        foreach (KeyValuePair<string, string> conversion in GetCharacterMap(false, true))
         {
             output = output.Replace(conversion.Key, conversion.Value);
         }
@@ -879,7 +905,7 @@ public class EventManager
     {
         string output = input;
 
-        foreach (var conversion in GetCharacterMap(false, true))
+        foreach (KeyValuePair<string, string> conversion in GetCharacterMap(false, true))
         {
             output = output.Replace(conversion.Value, conversion.Key);
         }
@@ -900,7 +926,7 @@ public class EventManager
         }
         if (addPacks)
         {
-            foreach (var entry in CHAR_PACKS_MAP[Game.Get().gameType.TypeName()])
+            foreach (KeyValuePair<string, string> entry in CHAR_PACKS_MAP[Game.Get().gameType.TypeName()])
             {
                 toReturn.Add(entry.Key, entry.Value);
             }

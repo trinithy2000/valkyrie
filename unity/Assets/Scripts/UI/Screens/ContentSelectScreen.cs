@@ -1,15 +1,13 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
-using Assets.Scripts.Content;
-using Assets.Scripts.UI;
-using ValkyrieTools;
+using UnityEngine;
 
 namespace Assets.Scripts.UI.Screens
 {
     // Class for content (expansions) selection page
     public class ContentSelectScreen
     {
-        private StringKey SELECT_EXPANSION = new StringKey("val","SELECT_EXPANSION");
+        private readonly StringKey SELECT_EXPANSION = new StringKey("val", "SELECT_EXPANSION");
 
         public Game game;
         // List of expansions selected by ID
@@ -192,7 +190,7 @@ namespace Assets.Scripts.UI.Screens
                     ui.SetButton(delegate { Select(id); });
                     buttons[id].Add(ui);
 
-                    int text_font_size = (int) (UIScaler.GetMediumFont() * 0.9f);
+                    int text_font_size = (int)(UIScaler.GetMediumFont() * 0.9f);
 
                     ui = new UIElement(scrollArea.GetScrollTransform());
                     if (left)
@@ -211,18 +209,18 @@ namespace Assets.Scripts.UI.Screens
                     ui.SetButton(delegate { Select(id); });
                     buttons[id].Add(ui);
 
-                    float text_width = ui.GetStringWidth()+0.5f;
+                    float text_width = ui.GetStringWidth() + 0.5f;
                     ui = new UIElement(scrollArea.GetScrollTransform());
                     if (left)
                     {
-                        ui.SetLocation(8+ text_width, offset + 1.5f, UIScaler.GetWidthUnits() - 19 - text_width, 3);
+                        ui.SetLocation(8 + text_width, offset + 1.5f, UIScaler.GetWidthUnits() - 19 - text_width, 3);
                     }
                     else
                     {
                         ui.SetLocation(10 + text_width, offset + 1.5f, UIScaler.GetWidthUnits() - 20 - text_width, 3);
                     }
                     ui.SetBGColor(bgColor);
-                    ui.SetText("("+game.cd.GetContentAcronym(id)+")", Color.black);
+                    ui.SetText("(" + game.cd.GetContentAcronym(id) + ")", Color.black);
                     ui.SetTextAlignment(TextAnchor.MiddleLeft);
                     ui.SetFont(game.gameType.GetSymbolFont());
                     ui.SetFontSize(text_font_size);

@@ -1,5 +1,3 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using ValkyrieTools;
 
@@ -17,10 +15,10 @@ public class VarTests
         VarTestsComponents = inTC;
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         string result = "";
-        foreach (var v in VarTestsComponents)
+        foreach (VarTestsComponent v in VarTestsComponents)
         {
             result += v.GetClassVarTestsComponentType() + ":" + v.ToString() + " ";
         }
@@ -73,11 +71,17 @@ public class VarTests
                 tmp = (VarTestsParenthesis)VarTestsComponents[i];
 
                 if (tmp.parenthesis == "(")
+                {
                     count++;
+                }
                 else if (tmp.parenthesis == ")" && count == 0)
+                {
                     return i;
+                }
                 else
+                {
                     count--;
+                }
             }
         }
 
@@ -100,11 +104,17 @@ public class VarTests
                 tmp = (VarTestsParenthesis)VarTestsComponents[i];
 
                 if (tmp.parenthesis == ")")
+                {
                     count++;
+                }
                 else if (tmp.parenthesis == "(" && count == 0)
+                {
                     return i;
+                }
                 else
+                {
                     count--;
+                }
             }
         }
 
@@ -126,8 +136,14 @@ public class VarTests
 
         int i = index;
 
-        if (up) i--;
-        else i++;
+        if (up)
+        {
+            i--;
+        }
+        else
+        {
+            i++;
+        }
 
         if (VarTestsComponents[index].GetClassVarTestsComponentType() == VarTestsParenthesis.GetVarTestsComponentType())
         {
@@ -145,19 +161,33 @@ public class VarTests
                    )
                 {
                     if (up)
+                    {
                         return i;
+                    }
                     else if (i != index + 1)// if going down, ignore first item found
+                    {
                         return i - 1;
+                    }
                 }
 
-                if (up) i--;
-                else i++;
+                if (up)
+                {
+                    i--;
+                }
+                else
+                {
+                    i++;
+                }
             }
 
             if (i >= VarTestsComponents.Count && tmp.parenthesis == ")")
+            {
                 return VarTestsComponents.Count - 1;
+            }
             else if (i <= 0 && tmp.parenthesis == "(")
+            {
                 return 0;
+            }
         }
         else if (VarTestsComponents[index].GetClassVarTestsComponentType() == VarOperation.GetVarTestsComponentType())
         {
@@ -169,12 +199,21 @@ public class VarTests
                     return i;
                 }
 
-                if (up) i--;
-                else i++;
+                if (up)
+                {
+                    i--;
+                }
+                else
+                {
+                    i++;
+                }
             }
         }
 
-        if (i < 0 || i >= VarTestsComponents.Count) return -1;
+        if (i < 0 || i >= VarTestsComponents.Count)
+        {
+            return -1;
+        }
 
         // this should not happen
         ValkyrieDebug.Log("Invalid test position");
@@ -217,13 +256,13 @@ public class VarTests
 
             if (tmp.parenthesis == "(")
             {
-                other_parenthesis_index = FindClosingParenthesis(index+1);
+                other_parenthesis_index = FindClosingParenthesis(index + 1);
                 VarTestsComponents.RemoveAt(other_parenthesis_index);
                 VarTestsComponents.RemoveAt(index);
             }
             else if (tmp.parenthesis == ")")
             {
-                other_parenthesis_index = FindOpeningParenthesis(index-1);
+                other_parenthesis_index = FindOpeningParenthesis(index - 1);
                 VarTestsComponents.RemoveAt(index);
                 VarTestsComponents.RemoveAt(other_parenthesis_index);
             }
@@ -268,9 +307,9 @@ public class VarTests
     }
 }
 
-abstract public class VarTestsComponent : System.Object
+public abstract class VarTestsComponent : System.Object
 {
-    abstract public string GetClassVarTestsComponentType();
+    public abstract string GetClassVarTestsComponentType();
 }
 
 public class VarTestsLogicalOperator : VarTestsComponent
@@ -287,7 +326,7 @@ public class VarTestsLogicalOperator : VarTestsComponent
         op = inOp;
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         return op;
     }
@@ -295,9 +334,13 @@ public class VarTestsLogicalOperator : VarTestsComponent
     public void NextLogicalOperator()
     {
         if (op == "AND")
+        {
             op = "OR";
+        }
         else
+        {
             op = "AND";
+        }
     }
 
     public static string GetVarTestsComponentType()
@@ -305,7 +348,7 @@ public class VarTestsLogicalOperator : VarTestsComponent
         return "VarTestsLogicalOperator";
     }
 
-    override public string GetClassVarTestsComponentType()
+    public override string GetClassVarTestsComponentType()
     {
         return GetVarTestsComponentType();
     }
@@ -325,7 +368,7 @@ public class VarTestsParenthesis : VarTestsComponent
         parenthesis = inOp;
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         return parenthesis;
     }
@@ -335,7 +378,7 @@ public class VarTestsParenthesis : VarTestsComponent
         return "VarTestsParenthesis";
     }
 
-    override public string GetClassVarTestsComponentType()
+    public override string GetClassVarTestsComponentType()
     {
         return GetVarTestsComponentType();
     }
@@ -370,14 +413,18 @@ public class VarOperation : VarTestsComponent
         value = UpdateVarName(value);
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         return var + ',' + operation + ',' + value;
     }
 
     private string UpdateVarName(string s)
     {
-        if (s.Equals("#fire")) return "$fire";
+        if (s.Equals("#fire"))
+        {
+            return "$fire";
+        }
+
         return s;
     }
 
@@ -386,10 +433,9 @@ public class VarOperation : VarTestsComponent
         return "VarOperation";
     }
 
-    override public string GetClassVarTestsComponentType()
+    public override string GetClassVarTestsComponentType()
     {
         return GetVarTestsComponentType();
     }
 
 }
-    

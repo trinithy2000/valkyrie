@@ -1,14 +1,14 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Assets.Scripts.Content;
+using UnityEngine;
 using ValkyrieTools;
 
 /// <summary>
 /// This class reads and stores all of the content for a base game and expansions.</summary>
-public class ContentData {
+public class ContentData
+{
 
     public HashSet<string> loadedPacks;
     public List<ContentPack> allPacks;
@@ -90,7 +90,7 @@ public class ContentData {
     {
         get
         {
-            return Path.Combine(Game.AppData() , Game.Get().gameType.TypeName());
+            return Path.Combine(Game.AppData(), Game.Get().gameType.TypeName());
         }
     }
 
@@ -131,7 +131,7 @@ public class ContentData {
 
         // This is pack symbol list
         packSymbol = new Dictionary<string, StringKey>();
-    
+
         // This is all of the available sides of tiles (not currently tracking physical tiles)
         tileSides = new Dictionary<string, TileSideData>();
 
@@ -240,9 +240,11 @@ public class ContentData {
             }
 
             // Get all the other ini files in the pack
-            List<string> files = new List<string>();
-            // content_pack file is included
-            files.Add(path + Path.DirectorySeparatorChar + "content_pack.ini");
+            List<string> files = new List<string>
+            {
+                // content_pack file is included
+                path + Path.DirectorySeparatorChar + "content_pack.ini"
+            };
 
             // No extra files is valid
             if (d.Get("ContentPackData") != null)
@@ -323,7 +325,7 @@ public class ContentData {
         {
             if (cp.id.Equals(id))
             {
-                return new StringKey("val", cp.id+"_SYMBOL").Translate();
+                return new StringKey("val", cp.id + "_SYMBOL").Translate();
             }
         }
         return "";
@@ -341,7 +343,7 @@ public class ContentData {
     {
         foreach (ContentPack cp in allPacks)
         {
-            if(cp.name.Equals(name))
+            if (cp.name.Equals(name))
             {
                 LoadContent(cp);
             }
@@ -363,10 +365,13 @@ public class ContentData {
 
     // This loads content from a pack by object
     // Duplicate content will be replaced by the higher priority value
-    void LoadContent(ContentPack cp)
+    private void LoadContent(ContentPack cp)
     {
         // Don't reload content
-        if (loadedPacks.Contains(cp.id)) return;
+        if (loadedPacks.Contains(cp.id))
+        {
+            return;
+        }
 
         foreach (KeyValuePair<string, List<string>> kv in cp.localizationFiles)
         {
@@ -384,10 +389,12 @@ public class ContentData {
             IniData d = IniRead.ReadFromIni(ini);
             // Bad ini file not a fatal error, just ignore (will be in log)
             if (d == null)
+            {
                 return;
+            }
 
             // Add each section
-            foreach(KeyValuePair<string, Dictionary<string, string>> section in d.data)
+            foreach (KeyValuePair<string, Dictionary<string, string>> section in d.data)
             {
                 AddContent(section.Key, section.Value, Path.GetDirectoryName(ini), cp.id);
             }
@@ -405,23 +412,25 @@ public class ContentData {
     // Add a section of an ini file to game content
     // name is from the ini file and must start with the type
     // path is relative and is used for images or other paths in the content
-    void AddContent(string name, Dictionary<string, string> content, string path, string packID)
+    private void AddContent(string name, Dictionary<string, string> content, string path, string packID)
     {
         // Is this a "PackType" entry?
-        if(name.IndexOf(PackTypeData.type) == 0)
+        if (name.IndexOf(PackTypeData.type) == 0)
         {
             PackTypeData d = new PackTypeData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
-            if(!packTypes.ContainsKey(name))
+            if (!packTypes.ContainsKey(name))
             {
                 packTypes.Add(name, d);
                 d.sets.Add(packID);
             }
             // If we do replace if this has higher priority
-            else if(packTypes[name].priority < d.priority)
+            else if (packTypes[name].priority < d.priority)
             {
                 packTypes.Remove(name);
                 packTypes.Add(name, d);
@@ -434,20 +443,22 @@ public class ContentData {
         }
 
         // Is this a "TileSide" entry?
-        if(name.IndexOf(TileSideData.type) == 0)
+        if (name.IndexOf(TileSideData.type) == 0)
         {
             TileSideData d = new TileSideData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
-            if(!tileSides.ContainsKey(name))
+            if (!tileSides.ContainsKey(name))
             {
                 tileSides.Add(name, d);
                 d.sets.Add(packID);
             }
             // If we do replace if this has higher priority
-            else if(tileSides[name].priority < d.priority)
+            else if (tileSides[name].priority < d.priority)
             {
                 tileSides.Remove(name);
                 tileSides.Add(name, d);
@@ -465,7 +476,9 @@ public class ContentData {
             HeroData d = new HeroData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!heroes.ContainsKey(name))
             {
@@ -491,7 +504,9 @@ public class ContentData {
             ClassData d = new ClassData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!classes.ContainsKey(name))
             {
@@ -517,7 +532,9 @@ public class ContentData {
             SkillData d = new SkillData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!skills.ContainsKey(name))
             {
@@ -543,7 +560,9 @@ public class ContentData {
             ItemData d = new ItemData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!items.ContainsKey(name))
             {
@@ -569,7 +588,9 @@ public class ContentData {
             MonsterData d = new MonsterData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // Ignore monster activations
             if (name.IndexOf(ActivationData.type) != 0)
             {
@@ -599,7 +620,9 @@ public class ContentData {
             ActivationData d = new ActivationData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!activations.ContainsKey(name))
             {
@@ -618,14 +641,16 @@ public class ContentData {
                 activations[name].sets.Add(packID);
             }
         }
-        
+
         // Is this a "Attack" entry?
         if (name.IndexOf(AttackData.type) == 0)
         {
             AttackData d = new AttackData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!investigatorAttacks.ContainsKey(name))
             {
@@ -651,7 +676,9 @@ public class ContentData {
             EvadeData d = new EvadeData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!investigatorEvades.ContainsKey(name))
             {
@@ -677,7 +704,9 @@ public class ContentData {
             HorrorData d = new HorrorData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!horrorChecks.ContainsKey(name))
             {
@@ -703,7 +732,10 @@ public class ContentData {
             TokenData d = new TokenData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
+
             if (d.image.Equals(""))
             {
                 ValkyrieDebug.Log("Token " + d.name + "did not have an image. Skipping");
@@ -734,7 +766,9 @@ public class ContentData {
             PerilData d = new PerilData(name, content);
             // Ignore invalid entry
             if (d.sectionName.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!perils.ContainsKey(name))
             {
@@ -754,7 +788,9 @@ public class ContentData {
             PuzzleData d = new PuzzleData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!puzzles.ContainsKey(name))
             {
@@ -780,7 +816,9 @@ public class ContentData {
             ImageData d = new ImageData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!images.ContainsKey(name))
             {
@@ -806,7 +844,9 @@ public class ContentData {
             AudioData d = new AudioData(name, content, path);
             // Ignore invalid entry
             if (d.name.Equals(""))
+            {
                 return;
+            }
             // If we don't already have one then add this
             if (!audio.ContainsKey(name))
             {
@@ -839,7 +879,11 @@ public class ContentData {
     /// </summary>
     public static string ResolveTextureFile(string name)
     {
-        if (name == null) throw new System.ArgumentNullException("name");
+        if (name == null)
+        {
+            throw new System.ArgumentNullException("name");
+        }
+
         if (File.Exists(name))
         {
             return name;
@@ -860,7 +904,11 @@ public class ContentData {
     // Get a unity texture from a file (dds or other unity supported format)
     public static Texture2D FileToTexture(string file)
     {
-        if (file == null) throw new System.ArgumentNullException("file");
+        if (file == null)
+        {
+            throw new System.ArgumentNullException("file");
+        }
+
         return FileToTexture(file, Vector2.zero, Vector2.zero);
     }
 
@@ -868,8 +916,12 @@ public class ContentData {
     // Crop to pos and size in pixels
     public static Texture2D FileToTexture(string file, Vector2 pos, Vector2 size)
     {
-        if (file == null) throw new System.ArgumentNullException("file");
-        var resolvedFile = ResolveTextureFile(file);
+        if (file == null)
+        {
+            throw new System.ArgumentNullException("file");
+        }
+
+        string resolvedFile = ResolveTextureFile(file);
         // return if file could not be resolved
         if (resolvedFile == null)
         {
@@ -878,7 +930,7 @@ public class ContentData {
         }
         file = resolvedFile;
 
-        Texture2D texture = null;
+        Texture2D texture;
 
         if (textureCache == null)
         {
@@ -910,13 +962,16 @@ public class ContentData {
             }
         }
         // Get whole image
-        if (size.x == 0) return texture;
+        if (size.x == 0)
+        {
+            return texture;
+        }
 
         // Get part of the image
         // Array of pixels from image
         Color[] pix = texture.GetPixels(Mathf.RoundToInt(pos.x), Mathf.RoundToInt(pos.y), Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
         // Empty texture
-        var subTexture = new Texture2D(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
+        Texture2D subTexture = new Texture2D(Mathf.RoundToInt(size.x), Mathf.RoundToInt(size.y));
         // Set pixels
         subTexture.SetPixels(pix);
         subTexture.Apply();
@@ -925,10 +980,13 @@ public class ContentData {
 
     private static Texture2D DdsToTexture(string file)
     {
-        if (file == null) throw new System.ArgumentNullException("file");
+        if (file == null)
+        {
+            throw new System.ArgumentNullException("file");
+        }
         // Unity doesn't support dds directly, have to do hackery
         // Read the data
-        byte[] ddsBytes = null;
+        byte[] ddsBytes;
         try
         {
             ddsBytes = File.ReadAllBytes(file);
@@ -936,9 +994,14 @@ public class ContentData {
         catch (System.Exception ex)
         {
             if (!File.Exists(file))
+            {
                 ValkyrieDebug.Log("Warning: DDS Image missing: '" + file + "'");
+            }
             else
+            {
                 ValkyrieDebug.Log("Warning: DDS Image loading of file '" + file + "' failed with " + ex.GetType().Name + " message: " + ex.Message);
+            }
+
             return null;
         }
         // Check for valid header
@@ -1017,13 +1080,16 @@ public class ContentData {
 
     private static Texture2D PvrToTexture(string file)
     {
-        if (file == null) throw new System.ArgumentNullException("file");
+        if (file == null)
+        {
+            throw new System.ArgumentNullException("file");
+        }
 
         long pixelformat = -1;
         try
         {
             string imagePath = new System.Uri(file).AbsoluteUri;
-            var www = new WWW(imagePath);
+            WWW www = new WWW(imagePath);
 
             // *** HEADER ****
             // int verison
@@ -1041,7 +1107,7 @@ public class ContentData {
 
             // *** IMAGE DATA ****
             const int PVR_HEADER_SIZE = 52;
-            var image = new byte[www.bytesDownloaded - PVR_HEADER_SIZE];
+            byte[] image = new byte[www.bytesDownloaded - PVR_HEADER_SIZE];
             System.Buffer.BlockCopy(www.bytes, PVR_HEADER_SIZE, image, 0, www.bytesDownloaded - PVR_HEADER_SIZE);
             Texture2D texture = null;
             switch (pixelformat)
@@ -1059,34 +1125,48 @@ public class ContentData {
                 default:
                     ValkyrieDebug.Log("Warning: PVR unknown pixelformat: '" + pixelformat + "' in file: '" + file + "'");
                     break;
-            } 
+            }
             return texture;
         }
         catch (System.Exception ex)
         {
             if (!File.Exists(file))
+            {
                 ValkyrieDebug.Log("Warning: PVR Image missing: '" + file + "'");
+            }
             else
+            {
                 ValkyrieDebug.Log("Warning: PVR Image loading of file '" + file + "' failed with " + ex.GetType().Name + " message: " + ex.Message + " pixelformat: '" + pixelformat + "'");
+            }
+
             return null;
         }
     }
 
     private static Texture2D ImageToTexture(string file)
     {
-        if (file == null) throw new System.ArgumentNullException("file");
+        if (file == null)
+        {
+            throw new System.ArgumentNullException("file");
+        }
+
         try
         {
             string imagePath = new System.Uri(file).AbsoluteUri;
-            var www = new WWW(imagePath);
+            WWW www = new WWW(imagePath);
             return www.texture;
         }
         catch (System.Exception ex)
         {
             if (!File.Exists(file))
+            {
                 ValkyrieDebug.Log("Warning: Image missing: '" + file + "'");
+            }
             else
+            {
                 ValkyrieDebug.Log("Warning: Image loading of file '" + file + "' failed with " + ex.GetType().Name + " message: " + ex.Message);
+            }
+
             return null;
         }
     }
@@ -1255,12 +1335,36 @@ public class ItemData : GenericData
 
     public static int Fame(string name)
     {
-        if (name.Equals("insignificant")) return 1;
-        if (name.Equals("noteworthy")) return 2;
-        if (name.Equals("impressive")) return 3;
-        if (name.Equals("celebrated")) return 4;
-        if (name.Equals("heroic")) return 5;
-        if (name.Equals("legendary")) return 6;
+        if (name.Equals("insignificant"))
+        {
+            return 1;
+        }
+
+        if (name.Equals("noteworthy"))
+        {
+            return 2;
+        }
+
+        if (name.Equals("impressive"))
+        {
+            return 3;
+        }
+
+        if (name.Equals("celebrated"))
+        {
+            return 4;
+        }
+
+        if (name.Equals("heroic"))
+        {
+            return 5;
+        }
+
+        if (name.Equals("legendary"))
+        {
+            return 6;
+        }
+
         return 0;
     }
 }
@@ -1268,7 +1372,7 @@ public class ItemData : GenericData
 // Class for Hero specific data
 public class MonsterData : GenericData
 {
-    public StringKey info = new StringKey(null,"-", false);
+    public StringKey info = new StringKey(null, "-", false);
     public string imagePlace;
     public static new string type = "Monster";
     public string[] activations;
@@ -1276,7 +1380,7 @@ public class MonsterData : GenericData
     public float healthPerHero = 0;
     public int horror = 0;
     public int awareness = 0;
-    
+
     // This constuctor only exists for the quest version of this class to use to do nothing
     public MonsterData()
     {
@@ -1327,7 +1431,7 @@ public class MonsterData : GenericData
         }
     }
 
-    virtual public IEnumerable<string> GetAttackTypes()
+    public virtual IEnumerable<string> GetAttackTypes()
     {
         HashSet<string> toReturn = new HashSet<string>();
         foreach (KeyValuePair<string, AttackData> kv in Game.Get().cd.investigatorAttacks)
@@ -1340,14 +1444,14 @@ public class MonsterData : GenericData
         return toReturn;
     }
 
-    virtual public StringKey GetRandomAttack(string type)
+    public virtual StringKey GetRandomAttack(string type)
     {
         List<AttackData> validAttacks = new List<AttackData>();
         foreach (AttackData ad in Game.Get().cd.investigatorAttacks.Values)
         {
             if (ad.attackType.Equals(type))
             {
-                if(traits.Length == 0)
+                if (traits.Length == 0)
                 {
                     ValkyrieDebug.Log("Monster with no traits, this should not happen");
                     validAttacks.Add(ad);
@@ -1365,7 +1469,7 @@ public class MonsterData : GenericData
 // Class for Activation specific data
 public class ActivationData : GenericData
 {
-    public StringKey ability = new StringKey(null,"-", false);
+    public StringKey ability = new StringKey(null, "-", false);
     public StringKey minionActions = StringKey.NULL;
     public StringKey masterActions = StringKey.NULL;
     public StringKey moveButton = StringKey.NULL;
@@ -1427,15 +1531,15 @@ public class TokenData : GenericData
 
     public TokenData(string name, Dictionary<string, string> content, string path) : base(name, content, path, type)
     {
-        init(content);
+        Init(content);
     }
 
     public TokenData(string name, Dictionary<string, string> content, string path, string typeIn) : base(name, content, path, typeIn)
     {
-        init(content);
+        Init(content);
     }
 
-    public void init(Dictionary<string, string> content)
+    public void Init(Dictionary<string, string> content)
     {
 
         if (Application.platform == RuntimePlatform.Android && content.ContainsKey("x_android"))
@@ -1474,8 +1578,16 @@ public class TokenData : GenericData
 
     public bool FullImage()
     {
-        if (height == 0) return true;
-        if (width == 0) return true;
+        if (height == 0)
+        {
+            return true;
+        }
+
+        if (width == 0)
+        {
+            return true;
+        }
+
         return false;
     }
 }
@@ -1638,9 +1750,10 @@ public class GenericData
         if (content.ContainsKey("name"))
         {
             name = new StringKey(content["name"]);
-        } else
+        }
+        else
         {
-            name = new StringKey(null,name_ini.Substring(type.Length));
+            name = new StringKey(null, name_ini.Substring(type.Length));
         }
 
         priority = 0;
@@ -1651,7 +1764,7 @@ public class GenericData
 
         if (content.ContainsKey("traits"))
         {
-            traits = content["traits"].Split(" ".ToCharArray()) ;
+            traits = content["traits"].Split(" ".ToCharArray());
         }
         else // No traits is a valid condition
         {
@@ -1703,11 +1816,11 @@ public class GenericData
 // Perils are content data that inherits from QuestData for reasons.
 public class PerilData : QuestData.Event
 {
-    new public static string type = "Peril";
+    public static new string type = "Peril";
     public int priority = 0;
 
     public StringKey perilText;
-    override public StringKey text { get { return perilText; } }
+    public override StringKey text { get { return perilText; } }
 
     public PerilData(string name, Dictionary<string, string> data) : base(name, data, "", QuestData.Quest.currentFormat)
     {

@@ -1,13 +1,13 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 // Window with Investigator evade information
-public class InvestigatorEvade {
-    Quest.Monster m;
-    string text;
+public class InvestigatorEvade
+{
+    private readonly Quest.Monster m;
+    private string text;
 
     public InvestigatorEvade(Quest.Monster monster)
     {

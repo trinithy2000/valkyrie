@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PuzzleTowerWindow : IUpdateListener
 {
     public EventManager.Event eventData;
-    QuestData.Puzzle questPuzzle;
+    private readonly QuestData.Puzzle questPuzzle;
     public PuzzleTower puzzle;
     public int lastMoves = 0;
     protected bool windowClosed = false;
@@ -60,14 +60,14 @@ public class PuzzleTowerWindow : IUpdateListener
         new UIElementBorder(ui);
         towerBoxes.Add(ui);
 
-        for(int i = 0; i < puzzleDisplay.Count; i++)
+        for (int i = 0; i < puzzleDisplay.Count; i++)
         {
             CreateTower(UIScaler.GetHCenter(-9) + (i * 9), 17f, puzzleDisplay[i]);
         }
 
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-5), 18, 7, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.SKILL));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.SKILL));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -78,7 +78,7 @@ public class PuzzleTowerWindow : IUpdateListener
 
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-11f), 20.5f, 6, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.MOVES));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -89,7 +89,7 @@ public class PuzzleTowerWindow : IUpdateListener
 
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-2f), 20.5f, 10, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.TOTAL_MOVES));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.TOTAL_MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -144,7 +144,7 @@ public class PuzzleTowerWindow : IUpdateListener
 
         windowClosed = true;
         game.quest.eManager.TriggerEvent();
-   }
+    }
 
     public void Finished()
     {
@@ -192,7 +192,10 @@ public class PuzzleTowerWindow : IUpdateListener
     /// </summary>
     void IUpdateListener.Click()
     {
-        if (puzzle.Solved()) return;
+        if (puzzle.Solved())
+        {
+            return;
+        }
 
         for (int i = 0; i < towerBoxes.Count; i++)
         {
@@ -210,7 +213,10 @@ public class PuzzleTowerWindow : IUpdateListener
     /// <returns>True to keep this in the update list, false to remove.</returns>
     bool IUpdateListener.Update()
     {
-        if (startDragTower < 0 ) return !windowClosed;
+        if (startDragTower < 0)
+        {
+            return !windowClosed;
+        }
 
         int newHover = -1;
         for (int i = 0; i < towerBoxes.Count; i++)

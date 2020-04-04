@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class PuzzleImage : Puzzle
 {
@@ -66,7 +65,7 @@ public class PuzzleImage : Puzzle
         return true;
     }
 
-    override public string ToString(string id)
+    public override string ToString(string id)
     {
         string nl = System.Environment.NewLine;
         string r = "[PuzzleImage" + id + "]" + nl;
@@ -78,7 +77,7 @@ public class PuzzleImage : Puzzle
             r += p.Key.ToString() + "," + p.Value.ToString() + ":";
         }
         r = r.Substring(0, r.Length - 1) + nl;
-        
+
         return r + nl;
     }
 
@@ -100,7 +99,7 @@ public class PuzzleImage : Puzzle
             int.TryParse(split[1], out y);
         }
 
-        override public string ToString()
+        public override string ToString()
         {
             return x + " " + y;
         }

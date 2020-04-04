@@ -1,17 +1,14 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.EventSystems;
-using UnityEngine.Events;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class PuzzleImageWindow
 {
 
     public EventManager.Event eventData;
-    QuestData.Puzzle questPuzzle;
+    private readonly QuestData.Puzzle questPuzzle;
     public PuzzleImage puzzle;
     public int previousMoves = 0;
     public Sprite[][] imageSprite;
@@ -79,7 +76,7 @@ public class PuzzleImageWindow
         // Puzzle goes here
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(7.75f), 8, 7f, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.SKILL));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.SKILL));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -96,7 +93,7 @@ public class PuzzleImageWindow
 
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-13f), 20.5f, 6, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.MOVES));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -107,7 +104,7 @@ public class PuzzleImageWindow
 
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-3f), 20.5f, 10, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.TOTAL_MOVES));
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.TOTAL_MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
 
         ui = new UIElement();
@@ -151,8 +148,10 @@ public class PuzzleImageWindow
     {
         Game game = Game.Get();
         // Create object
-        GameObject gameObject = new GameObject("PuzzleTile");
-        gameObject.tag = Game.DIALOG;
+        GameObject gameObject = new GameObject("PuzzleTile")
+        {
+            tag = Game.DIALOG
+        };
 
         gameObject.transform.SetParent(game.uICanvas.transform);
 
@@ -209,17 +208,17 @@ public class PuzzleImageWindow
         public Vector2 transStart;
         public PuzzleImage.TilePosition screenPos;
         public PuzzleImageWindow win;
-        RectTransform trans;
+        private RectTransform trans;
 
         // Use this for initialization (called at creation)
-        void Start()
+        private void Start()
         {
             trans = gameObject.GetComponent<RectTransform>();
             // Get the image attached to this game object
         }
 
         // Update is called once per frame
-        void Update()
+        private void Update()
         {
             if (!sliding && !Input.GetMouseButtonDown(0))
             {
@@ -227,10 +226,26 @@ public class PuzzleImageWindow
             }
             if (Input.GetMouseButtonDown(0))
             {
-                if (Input.mousePosition.x < trans.position.x - (trans.rect.width / 2f)) return;
-                if (Input.mousePosition.y < trans.position.y - (trans.rect.height / 2f)) return;
-                if (Input.mousePosition.x > trans.position.x + (trans.rect.width / 2f)) return;
-                if (Input.mousePosition.y > trans.position.y + (trans.rect.height / 2f)) return;
+                if (Input.mousePosition.x < trans.position.x - (trans.rect.width / 2f))
+                {
+                    return;
+                }
+
+                if (Input.mousePosition.y < trans.position.y - (trans.rect.height / 2f))
+                {
+                    return;
+                }
+
+                if (Input.mousePosition.x > trans.position.x + (trans.rect.width / 2f))
+                {
+                    return;
+                }
+
+                if (Input.mousePosition.y > trans.position.y + (trans.rect.height / 2f))
+                {
+                    return;
+                }
+
                 sliding = true;
                 mouseStart = Input.mousePosition;
                 transStart = trans.anchoredPosition;

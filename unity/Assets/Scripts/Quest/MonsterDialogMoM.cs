@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
+using UnityEngine.UI;
 
 // Class for creation of monster seleciton options
 // Extends the standard class for MoM
@@ -43,68 +44,104 @@ public class MonsterDialogMoM : MonsterDialog
         { // In investigator phase we do attacks and evades
             DrawMonsterHealth(monster, delegate { CreateWindow(); });
 
+            bool condition = monster.damage != monster.GetHealth();
+            float center = UIScaler.GetHCenter(-22.4f);
+            float anchor = 1.75f;
+
             UIElement ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-8f), 2, 16, 2);
-            ui.SetText(new StringKey("val","ACTION_X",ATTACK));
+            ui.SetLocation(center, 17.5f, 9, anchor);
+            ui.SetText(new StringKey("val", "ACTION_X", ATTACK));
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
             ui.SetButton(Attack);
-            new UIElementBorder(ui);
+            new UIButtonBackGround(ui, 0);
 
             ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-8f), 4.5f, 16, 2);
+            ui.SetLocation(center, 19.5f, 9, anchor);
             ui.SetText(EVADE);
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
             ui.SetButton(Evade);
-            new UIElementBorder(ui);
+            new UIButtonBackGround(ui, 0);
 
-            ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-5f), 7, 10, 2);
-            if (monster.damage == monster.GetHealth())
+            if (monster.damage != monster.GetHealth())
             {
-                ui.SetText(CommonStringKeys.CANCEL, Color.gray);
-                new UIElementBorder(ui, Color.gray);
+                ui = new UIElement();
+                ui.SetLocation(center, 21.5f, 9, anchor);
+                ui.SetText(CommonStringKeys.CANCEL, condition ? Color.white : Color.gray);
+                ui.SetFontSize(UIScaler.GetMediumFont());
+                ui.SetBGColor(Color.clear);
+                if (condition)
+                {
+                    ui.SetButton(OnCancel);
+                }
+
+                new UIButtonBackGround(ui, 0);
             }
-            else
-            {
-                ui.SetText(CommonStringKeys.CANCEL);
-                ui.SetButton(OnCancel);
-                new UIElementBorder(ui);
-            }
-            ui.SetFontSize(UIScaler.GetMediumFont());
         }
     }
 
-    public static void DrawMonster(Quest.Monster monster, bool displayHealth=false)
+    public static void DrawMonster(Quest.Monster monster, bool displayHealth = false)
     {
         Game game = Game.Get();
 
-        Texture2D newTex = ContentData.FileToTexture(monster.monsterData.image);
-        Texture2D dupeTex = Resources.Load("sprites/monster_duplicate_" + monster.duplicate) as Texture2D;
-        Sprite iconSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
-        Sprite duplicateSprite = null;
-        if (dupeTex != null)
+        GameObject mImg = new GameObject("monsterImg" + monster.monsterData.name)
         {
-            duplicateSprite = Sprite.Create(dupeTex, new Rect(0, 0, dupeTex.width, dupeTex.height), Vector2.zero, 1);
-        }
-
-        GameObject mImg = new GameObject("monsterImg" + monster.monsterData.name);
-        mImg.tag = Game.DIALOG;
+            tag = Game.DIALOG
+        };
         mImg.transform.SetParent(game.uICanvas.transform);
 
         RectTransform trans = mImg.AddComponent<RectTransform>();
-        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 1f * UIScaler.GetPixelsPerUnit(), 8f * UIScaler.GetPixelsPerUnit());
-        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 1f * UIScaler.GetPixelsPerUnit(), 8f * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 2.4f * UIScaler.GetPixelsPerUnit(), 10.5f * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 3.6f * UIScaler.GetPixelsPerUnit(), 10.5f * UIScaler.GetPixelsPerUnit());
         mImg.AddComponent<CanvasRenderer>();
 
-        UnityEngine.UI.Image icon = mImg.AddComponent<UnityEngine.UI.Image>();
-        icon.sprite = iconSprite;
-        icon.rectTransform.sizeDelta = new Vector2(8f * UIScaler.GetPixelsPerUnit(), 8f * UIScaler.GetPixelsPerUnit());
+        RawImage icon = mImg.AddComponent<RawImage>();
+        icon.texture = ContentData.FileToTexture(monster.monsterData.image);
+        icon.rectTransform.sizeDelta = new Vector2(11f * UIScaler.GetPixelsPerUnit(), 11f * UIScaler.GetPixelsPerUnit());
 
-        UnityEngine.UI.Image iconDupe = null;
-        if (duplicateSprite != null)
+        GameObject mBgnd = new GameObject("monsterBgnd" + monster.monsterData.name)
         {
-            GameObject mImgDupe = new GameObject("monsterDupe" + monster.monsterData.name);
-            mImgDupe.tag = Game.DIALOG;
+            tag = Game.DIALOG
+        };
+        mBgnd.transform.SetParent(game.uICanvas.transform);
+
+        trans = mBgnd.AddComponent<RectTransform>();
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 1.5f * UIScaler.GetPixelsPerUnit(), 23f * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 1f * UIScaler.GetPixelsPerUnit(), 16f * UIScaler.GetPixelsPerUnit());
+        mBgnd.AddComponent<CanvasRenderer>();
+
+        RawImage bgnd = mBgnd.AddComponent<RawImage>();
+        bgnd.texture = CommonImageKeys.mom_bgnd_monster;
+        bgnd.rectTransform.sizeDelta = new Vector2(16f * UIScaler.GetPixelsPerUnit(), 23f * UIScaler.GetPixelsPerUnit());
+
+        GameObject mText = new GameObject("monsterName" + monster.monsterData.name)
+        {
+            tag = Game.DIALOG
+        };
+        mText.transform.SetParent(game.uICanvas.transform);
+
+        trans = mText.AddComponent<RectTransform>();
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 6.2f * UIScaler.GetPixelsPerUnit(), 15f * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 4.5f * UIScaler.GetPixelsPerUnit(), 15f * UIScaler.GetPixelsPerUnit());
+        mText.AddComponent<CanvasRenderer>();
+
+        Text uiText = mText.AddComponent<Text>();
+        uiText.color = Color.black;
+        uiText.font = game.gameType.GetHeaderFont();
+        uiText.material = uiText.font.material;
+        uiText.fontSize = UIScaler.GetSemiSmallFont();
+        uiText.text = monster.monsterData.name.Translate();
+        uiText.rectTransform.sizeDelta = new Vector2(13f * UIScaler.GetPixelsPerUnit(), 3f * UIScaler.GetPixelsPerUnit());
+
+        Texture2D dupeTex = CommonImageKeys.ObtMomDupe(monster.duplicate);
+
+        if (dupeTex != null)
+        {
+            GameObject mImgDupe = new GameObject("monsterDupe" + monster.monsterData.name)
+            {
+                tag = Game.DIALOG
+            };
             mImgDupe.transform.SetParent(game.uICanvas.transform);
 
             RectTransform dupeFrame = mImgDupe.AddComponent<RectTransform>();
@@ -112,65 +149,59 @@ public class MonsterDialogMoM : MonsterDialog
             dupeFrame.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 5f * UIScaler.GetPixelsPerUnit(), 4f * UIScaler.GetPixelsPerUnit());
             mImgDupe.AddComponent<CanvasRenderer>();
 
-            iconDupe = mImgDupe.AddComponent<UnityEngine.UI.Image>();
-            iconDupe.sprite = duplicateSprite;
+            RawImage iconDupe = mImgDupe.AddComponent<RawImage>();
+            iconDupe.texture = dupeTex;
             iconDupe.rectTransform.sizeDelta = new Vector2(4f * UIScaler.GetPixelsPerUnit(), 4f * UIScaler.GetPixelsPerUnit());
         }
 
         if (displayHealth)
+        {
             DrawMonsterHealth(monster, DrawMonster);
+        }
     }
 
     private static void DrawMonsterHealth(Quest.Monster monster, UnityEngine.Events.UnityAction<Quest.Monster, bool> call)
     {
         UIElement ui = new UIElement();
-        ui.SetLocation(0.2f, 0.2f, 2, 2);
-        ui.SetText(monster.GetHealth().ToString(), Color.red);
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui, Color.red);
+        ui.SetLocation(2.6f, 2.7f, 3, 3);
+        ui.SetText(monster.GetHealth().ToString(), Color.white);
+        ui.SetFontSize(UIScaler.GetLargeFont());
+        ui.SetFontStyle(FontStyle.Bold);
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(1, 9, 2, 2);
-        if (monster.damage == 0)
+        ui.SetLocation(5.1f, 14, 2, 2);
+        ui.SetBGColor(Color.clear);
+
+        if (monster.damage != 0)
         {
-            ui.SetText(CommonStringKeys.MINUS, Color.grey);
-            new UIElementBorder(ui, Color.grey);
+            ui.SetButton(delegate { MonsterDamageDec(monster, call); });
+        }
+
+        ui = new UIElement();
+        ui.SetLocation(7.9f, 14.2f, 2, 2);
+        ui.SetText(monster.damage.ToString(), Color.yellow);
+        ui.SetFontSize(UIScaler.GetLargeFont());
+        ui.SetFontStyle(FontStyle.Bold);
+        ui.SetBGColor(Color.clear);
+
+        ui = new UIElement();
+        ui.SetLocation(11, 14, 2, 2);
+        ui.SetBGColor(Color.clear);
+        if (monster.damage != monster.GetHealth())
+        {
+            ui.SetButton(delegate { MonsterDamageInc(monster, call); });
         }
         else
         {
-            ui.SetText(CommonStringKeys.MINUS, Color.red);
-            new UIElementBorder(ui, Color.red);
-            ui.SetButton(delegate { MonsterDamageDec(monster, call); });
-        }
-        ui.SetFontSize(UIScaler.GetMediumFont());
-
-        ui = new UIElement();
-        ui.SetLocation(4, 9, 2, 2);
-        ui.SetText(monster.damage.ToString(), Color.red);
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui, Color.red);
-
-        ui = new UIElement();
-        ui.SetLocation(7, 9, 2, 2);
-        if (monster.damage == monster.GetHealth())
-        {
-            ui.SetText(CommonStringKeys.PLUS, Color.grey);
-            new UIElementBorder(ui, Color.grey);
-
             UIElement defui = new UIElement();
-            defui.SetLocation(2, 11.5f, 6, 2);
+            defui.SetLocation(UIScaler.GetHCenter(-22.4f), 21.5f, 9, 1.75f);
             defui.SetText(DEFEATED);
             defui.SetFontSize(UIScaler.GetMediumFont());
             defui.SetButton(delegate { Defeated(monster); });
-            new UIElementBorder(defui, Color.red);
+            defui.SetBGColor(Color.clear);
+            new UIButtonBackGround(defui, 0);
         }
-        else
-        {
-            ui.SetText(CommonStringKeys.PLUS, Color.red);
-            new UIElementBorder(ui, Color.red);
-            ui.SetButton(delegate { MonsterDamageInc(monster, call); });
-        }
-        ui.SetFontSize(UIScaler.GetMediumFont());
     }
 
     public static void Defeated(Quest.Monster monster)
@@ -182,12 +213,12 @@ public class MonsterDialogMoM : MonsterDialog
         game.monsterCanvas.UpdateList();
 
         game.quest.vars.SetValue("#monsters", game.quest.monsters.Count);
-        
+
         game.audioControl.PlayTrait("defeated");
 
         // end this event (fix #1112)
         Game.Get().quest.eManager.currentEvent = null;
-        
+
         // Trigger defeated event
         game.quest.eManager.EventTriggerType("Defeated" + monster.monsterData.sectionName);
         // If unique trigger defeated unique event

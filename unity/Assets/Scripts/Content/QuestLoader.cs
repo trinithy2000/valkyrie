@@ -1,10 +1,11 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 using ValkyrieTools;
 
 // Class for getting lists of quest with details
-public class QuestLoader {
+public class QuestLoader
+{
 
     // Return a dictionary of all available quests
     public static Dictionary<string, QuestData.Quest> GetQuests(bool getHidden = false)
@@ -40,7 +41,7 @@ public class QuestLoader {
             dataLocation += "/IA/Editor";
         }
         questDirectories.AddRange(GetUnpackedQuests(dataLocation));
-        
+
         // Go through all directories
         foreach (string p in questDirectories)
         {
@@ -124,7 +125,7 @@ public class QuestLoader {
     // Return list of quests available in the user path unpackaged (editable)
     public static Dictionary<string, QuestData.Quest> GetUserUnpackedQuests()
     {
-        var quests = new Dictionary<string, QuestData.Quest>();
+        Dictionary<string, QuestData.Quest> quests = new Dictionary<string, QuestData.Quest>();
 
         // Read user application data for quests
         string dataLocation = Game.AppData();
@@ -142,7 +143,7 @@ public class QuestLoader {
                 continue;
             }
             // read quest
-            var q = new QuestData.Quest(p);
+            QuestData.Quest q = new QuestData.Quest(p);
             // Check if valid and correct type
             if (q.valid && q.type.Equals(gameType))
             {
@@ -170,7 +171,7 @@ public class QuestLoader {
             // All packs must have a quest.ini, otherwise ignore
             if (File.Exists(p + "/quest.ini"))
             {
-                    quests.Add(p);
+                quests.Add(p);
             }
         }
 

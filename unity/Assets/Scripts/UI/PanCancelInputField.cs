@@ -9,7 +9,7 @@ namespace Assets.Scripts.UI
     /// </summary>
     public class PanCancelInputField : InputField
     {
-        public PanCancelInputField() : base() {}
+        public PanCancelInputField() : base() { }
 
         /// <summary>
         /// When selecting the component, the pan is disabled
@@ -19,9 +19,9 @@ namespace Assets.Scripts.UI
         {
             CameraController.panDisable = true;
             base.OnSelect(eventData);
-            this.caretPosition = lastCaretPosition;
-            this.selectionAnchorPosition = lastCaretPosition;
-            this.selectionFocusPosition = lastCaretPosition;
+            caretPosition = lastCaretPosition;
+            selectionAnchorPosition = lastCaretPosition;
+            selectionFocusPosition = lastCaretPosition;
         }
 
         private int lastCaretPosition = 0;
@@ -42,7 +42,7 @@ namespace Assets.Scripts.UI
         /// <param name="eventData"></param>
         public override void OnDeselect(BaseEventData eventData)
         {
-            lastCaretPosition = this.caretPosition;
+            lastCaretPosition = caretPosition;
             CameraController.panDisable = false;
             base.OnDeselect(eventData);
         }

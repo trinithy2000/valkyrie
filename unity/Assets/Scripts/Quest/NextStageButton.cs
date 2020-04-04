@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Next stage button is used by MoM to move between investigators and monsters
 public class NextStageButton
@@ -14,7 +13,10 @@ public class NextStageButton
     // Construct and display
     public NextStageButton()
     {
-        if (Game.Get().gameType.DisplayHeroes()) return;
+        if (Game.Get().gameType.DisplayHeroes())
+        {
+            return;
+        }
 
         Update();
     }
@@ -23,20 +25,28 @@ public class NextStageButton
     {
         // do not display the button bar when we reach the end of the game screen
         if (Game.Get().quest.questHasEnded)
+        {
             return;
+        }
 
         // First tile has not been displayed, button bar is not required yet
-        if (!Game.Get().quest.firstTileDisplayed) 
+        if (!Game.Get().quest.firstTileDisplayed)
+        {
             return;
+        }
 
         // do not display the button bar when we are in the editor
         if (Game.Get().editMode)
+        {
             return;
+        }
 
         // Clean up everything marked as 'uiphase'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.UIPHASE))
+        {
             Object.Destroy(go);
-                
+        }
+
         Color bgColor = new Color(0.05f, 0, 0, 0.9f);
         StringKey phase;
         if (Game.Get().quest.phase == Quest.MoMPhase.horror)
@@ -57,77 +67,70 @@ public class NextStageButton
             bgColor = new Color(0, 0, 0, 0.9f);
         }
 
-        float string_width=0f, offset=0.5f;
-        StringKey text;
+        float string_width = UIScaler.GetRelWidth(13.4f);
+        float offset = UIScaler.GetRelHeight(14.5f);
+        float button_hw = UIScaler.GetRelWidth(16.3f);
+        float button_ph = UIScaler.GetBottom(-UIScaler.GetRelHeight(7.92f));
+
+        UIElement ui_parent = new UIElement(Game.UIPHASE);
+        ui_parent.SetLocation(1, UIScaler.GetBottom(-UIScaler.GetRelHeight(5.6f)), UIScaler.GetRelWidth(4f), UIScaler.GetRelHeight(4.2f));
+        ui_parent.SetImage(CommonImageKeys.mom_bgnd_bbox_r);
+        ui_parent.GetTransform().SetAsLastSibling();
 
         // Inventory button 
         UIElement ui = new UIElement(Game.UIPHASE);
-        text = new StringKey("val", "ITEMS_SMALL");
-        ui.SetText(text);
-        string_width = ui.GetStringWidth(text, UIScaler.GetMediumFont(), Game.Get().gameType.GetHeaderFont()) + 0.5f;
-        ui.SetLocation(offset, UIScaler.GetBottom(-2.5f), string_width, 2);
-        ui.SetFont(Game.Get().gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        ui.SetButton(Items);
-        ui.SetBGColor(bgColor);
-        new UIElementBorder(ui);
+        ui.SetLocation(offset, button_ph, button_hw, button_hw);
+        ui.SetImage(CommonImageKeys.mom_btn_system);
+        ui.SetButton(Set);
+        ui.GetTransform().parent = ui_parent.GetTransform();
         offset += string_width;
 
-        // Action button
+        // BAG button
         ui = new UIElement(Game.UIPHASE);
-        text = CommonStringKeys.SET;
-        ui.SetText(text);
-        string_width = ui.GetStringWidth(text, UIScaler.GetMediumFont(), Game.Get().gameType.GetHeaderFont()) + 0.5f;
-        ui.SetLocation(offset, UIScaler.GetBottom(-2.5f), string_width, 2);
-        ui.SetFont(Game.Get().gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        ui.SetButton(Set);
-        ui.SetBGColor(bgColor);
-        new UIElementBorder(ui);
+        ui.SetLocation(offset, button_ph, button_hw, button_hw);
+        ui.SetImage(CommonImageKeys.mom_btn_bag);
+        ui.SetButton(Items);
+        ui.GetTransform().parent = ui_parent.GetTransform();
         offset += string_width;
 
         // Log button (text from previous event)
         ui = new UIElement(Game.UIPHASE);
-        text = CommonStringKeys.LOG;
-        ui.SetText(text);
-        string_width = ui.GetStringWidth(text, UIScaler.GetMediumFont(), Game.Get().gameType.GetHeaderFont()) + 0.5f;
-        ui.SetLocation(offset, UIScaler.GetBottom(-2.5f), string_width, 2);
-        ui.SetFont(Game.Get().gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetLocation(offset, button_ph, button_hw, button_hw);
+        ui.SetImage(CommonImageKeys.mom_btn_log);
         ui.SetButton(Log);
-        ui.SetBGColor(bgColor);
-        new UIElementBorder(ui);
-        offset += string_width;
+        ui.GetTransform().parent = ui_parent.GetTransform();
+
+        ui_parent = new UIElement(Game.UIPHASE);
+        ui_parent.SetLocation(UIScaler.GetRight(-UIScaler.GetRelWidth(8)), UIScaler.GetBottom(-UIScaler.GetRelHeight(6.5f)), UIScaler.GetRelWidth(10.5f), UIScaler.GetRelHeight(5));
+        ui_parent.SetImage(CommonImageKeys.mom_bgnd_bbox_l);
+        ui_parent.GetTransform().SetAsLastSibling();
+
+        ui = new UIElement(Game.UIPHASE);
+        ui.SetLocation(UIScaler.GetRight(-UIScaler.GetRelWidth(9.3f)), button_ph, button_hw, button_hw);
+        ui.SetImage(CommonImageKeys.mom_btn_next);
+        ui.SetButton(Next);
+        ui.GetTransform().parent = ui_parent.GetTransform();
 
         // Text description for current phase
         ui = new UIElement(Game.UIPHASE);
         Color color;
         if (phase == PHASE_INVESTIGATOR)
+        {
             color = Color.white;
+        }
         else
+        {
             color = Color.red;
+        }
 
         ui.SetText(phase, color);
         string_width = ui.GetStringWidth(phase, UIScaler.GetMediumFont(), Game.Get().gameType.GetHeaderFont()) + 0.5f;
-        ui.SetLocation(offset + ((UIScaler.GetRight(-4f) - offset - string_width)*0.5f), UIScaler.GetBottom(-1.8f), string_width, 1.8f);
+        ui.SetLocation(offset + ((UIScaler.GetRight(-4f) - offset - string_width) * 0.5f), UIScaler.GetBottom(-1.8f), string_width, 1.8f);
         ui.SetBGColor(bgColor);
         ui.SetFont(Game.Get().gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetMediumFont());
         ui.SetFontStyle(FontStyle.Italic);
 
-        // Next phase button
-        // Tweak border size so that arrow is centered, should be changed if using another character or picture
-        ui = new UIElement(Game.UIPHASE);
-        ui.SetLocation(UIScaler.GetRight(-4f), UIScaler.GetBottom(-2.5f), 3f, 2.25f);
-        new UIElementBorder(ui);
-        // make button slightly smaller so it does not overlap border
-        ui = new UIElement(Game.UIPHASE);
-        ui.SetLocation(UIScaler.GetRight(-3.95f), UIScaler.GetBottom(-2.5f), 2.9f, 1.65f);
-        ui.SetText(CommonStringKeys.TAB);
-        ui.SetFont(Game.Get().gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetLargeFont());
-        ui.SetButton(Next);
-        ui.SetBGColor(bgColor);
     }
 
     // Button pressed
@@ -140,7 +143,10 @@ public class NextStageButton
 
         Game game = Game.Get();
 
-        if (game.quest.UIItemsPresent()) return;
+        if (game.quest.UIItemsPresent())
+        {
+            return;
+        }
 
         // Add to undo stack
         game.quest.Save();
@@ -174,8 +180,7 @@ public class NextStageButton
 
     public void Log()
     {
-        // log window should always be available, do not test for Dialog existence
-
+        Destroyer.Dialog();
         new LogWindow();
     }
 

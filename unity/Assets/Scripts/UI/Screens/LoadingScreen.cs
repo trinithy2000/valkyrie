@@ -1,7 +1,5 @@
-﻿using Assets.Scripts.Content;
-using UnityEngine;
-using FFGAppImport;
-using System.Threading;
+﻿using UnityEngine;
+using UnityEngine.Networking;
 
 namespace Assets.Scripts.UI.Screens
 {
@@ -23,7 +21,7 @@ namespace Assets.Scripts.UI.Screens
         /// </summary>
         /// <param name="download">WWW object tracking download</param>
         /// <param name="display">Text to display</param>
-        public LoadingScreen(WWW download, string display = "")
+        public LoadingScreen(UnityWebRequest download, string display = "")
         {
             Destroyer.Dialog();
             Draw(display);
@@ -35,9 +33,11 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(ui);
 
             // Create an object
-            GameObject bar = new GameObject("progress");
-            // Mark it as dialog
-            bar.tag = Game.DIALOG;
+            GameObject bar = new GameObject("progress")
+            {
+                // Mark it as dialog
+                tag = Game.DIALOG
+            };
             bar.transform.SetParent(Game.Get().uICanvas.transform);
 
             RectTransform transBg = bar.AddComponent<RectTransform>();
@@ -57,9 +57,11 @@ namespace Assets.Scripts.UI.Screens
         private void Draw(string display)
         {
             // Create an object
-            GameObject logo = new GameObject("logo");
-            // Mark it as dialog
-            logo.tag = Game.DIALOG;
+            GameObject logo = new GameObject("logo")
+            {
+                // Mark it as dialog
+                tag = Game.DIALOG
+            };
             logo.transform.SetParent(Game.Get().uICanvas.transform);
 
             RectTransform transBg = logo.AddComponent<RectTransform>();

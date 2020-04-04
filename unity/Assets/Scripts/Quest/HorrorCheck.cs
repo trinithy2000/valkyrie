@@ -1,11 +1,11 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 // Window with Investigator evade information
-public class HorrorCheck {
+public class HorrorCheck
+{
     public HorrorCheck(Quest.Monster m)
     {
         Game game = Game.Get();
@@ -46,7 +46,10 @@ public class HorrorCheck {
             }
         }
 
-        if (horrors.Count != 0) Draw(horrors[Random.Range(0, horrors.Count)], m);
+        if (horrors.Count != 0)
+        {
+            Draw(horrors[Random.Range(0, horrors.Count)], m);
+        }
     }
 
     protected void Draw(HorrorData horror, Quest.Monster m)
@@ -54,7 +57,9 @@ public class HorrorCheck {
         Game game = Game.Get();
         // If a dialog window is open we force it closed (this shouldn't happen)
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             Object.Destroy(go);
+        }
 
         string text = horror.text.Translate().Replace("{0}", m.monsterData.name.Translate());
         UIElement ui = new UIElement();

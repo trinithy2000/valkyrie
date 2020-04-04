@@ -19,7 +19,7 @@ namespace Assets.Scripts.UI.Screens
         private static readonly StringKey STATS_SEND_BUTTON = new StringKey("val", "STATS_SEND_BUTTON");
         private static readonly StringKey STATS_MENU_BUTTON = new StringKey("val", "STATS_MENU_BUTTON");
         private static readonly StringKey STATS_MISSING_INFO = new StringKey("val", "STATS_MISSING_INFO");
-        
+
         private static readonly float TitleWidth = 28;
         private static readonly float QuestionsWidth = 14;
         private static readonly float VictoryButtonWidth = 4;
@@ -27,13 +27,13 @@ namespace Assets.Scripts.UI.Screens
         private static readonly float CommentsWidth = 20f;
         private static readonly float ActionButtonWidth = 6;
 
-        private UIElement button_yes = null;
-        private UIElement button_no = null;
-        private UIElement[] rating_buttons = null;
-        private UIElementEditable comments = null;
-        private UIElement error_message = null;
-        private string game_won="not set";
-        private int selected_rating=0;
+        private readonly UIElement button_yes = null;
+        private readonly UIElement button_no = null;
+        private readonly UIElement[] rating_buttons = null;
+        private readonly UIElementEditable comments = null;
+        private readonly UIElement error_message = null;
+        private string game_won = "not set";
+        private int selected_rating = 0;
 
 
         // Create a menu which will take up the whole screen and have options.  All items are dialog for destruction.
@@ -62,7 +62,7 @@ namespace Assets.Scripts.UI.Screens
             }
             bg.SetImage(bgTex);
             bg.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
-            
+
             // Welcome text
             UIElement ui = new UIElement(Game.ENDGAME);
             ui.SetLocation((UIScaler.GetWidthUnits() - TitleWidth) / 2, 1, TitleWidth, 4);
@@ -117,14 +117,14 @@ namespace Assets.Scripts.UI.Screens
 
             // rating 1 to 10
             rating_buttons = new UIElement[10];
-            for(int i=0;i<=9;i++)
+            for (int i = 0; i <= 9; i++)
             {
                 rating_buttons[i] = new UIElement(Game.ENDGAME);
-                rating_buttons[i].SetLocation((UIScaler.GetWidthUnits()/22)*(11+i),
+                rating_buttons[i].SetLocation((UIScaler.GetWidthUnits() / 22) * (11 + i),
                                                offset + 2.5f,
                                                RatingButtonWidth,
                                                1);
-                rating_buttons[i].SetText((i+1).ToString());
+                rating_buttons[i].SetText((i + 1).ToString());
                 rating_buttons[i].SetFont(game.gameType.GetHeaderFont());
                 rating_buttons[i].SetFontSize(UIScaler.GetSmallFont());
                 rating_buttons[i].SetButtonWithParams(PressRatingButton, (i + 1).ToString());
@@ -143,9 +143,9 @@ namespace Assets.Scripts.UI.Screens
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetSmallFont());
             ui.SetBGColor(new Color(0, 0.03f, 0f, 0.2f));
-            
+
             comments = new UIElementEditable(Game.ENDGAME);
-            comments.SetLocation((UIScaler.GetWidthUnits()/2), offset+ 2, CommentsWidth, 5);
+            comments.SetLocation((UIScaler.GetWidthUnits() / 2), offset + 2, CommentsWidth, 5);
             comments.SetText(" ");
             comments.SetTextAlignment(TextAnchor.UpperLeft);
             comments.SetTextPadding(0.1f);
@@ -155,7 +155,7 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(comments);
 
             offset += 8.5f;
-            
+
 
             // Go back to menu button
             ui = new UIElement(Game.ENDGAME);
@@ -169,7 +169,7 @@ namespace Assets.Scripts.UI.Screens
 
             // Publish button
             ui = new UIElement(Game.ENDGAME);
-            ui.SetLocation((UIScaler.GetWidthUnits() / 6) * 3 , offset, ActionButtonWidth, 2);
+            ui.SetLocation((UIScaler.GetWidthUnits() / 6) * 3, offset, ActionButtonWidth, 2);
             ui.SetText(STATS_SEND_BUTTON);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
@@ -194,13 +194,13 @@ namespace Assets.Scripts.UI.Screens
         {
             ValkyrieDebug.Log("INFO: Go back to main menu and provide feedback");
 
-            if (game_won=="not set" || selected_rating == 0)
+            if (game_won == "not set" || selected_rating == 0)
             {
-                error_message.SetText(STATS_MISSING_INFO,Color.red);
+                error_message.SetText(STATS_MISSING_INFO, Color.red);
                 error_message.SetBGColor(Color.clear);
                 return;
             }
-            
+
             Game.Get().stats.PrepareStats(game_won, selected_rating, comments.GetText());
             Game.Get().stats.PublishData();
 
@@ -232,7 +232,7 @@ namespace Assets.Scripts.UI.Screens
             game_won = "false";
 
             button_yes.SetBGColor(new Color(0, 0.03f, 0f));
-            button_yes.SetText(STATS_ASK_VICTORY_YES,Color.white);
+            button_yes.SetText(STATS_ASK_VICTORY_YES, Color.white);
         }
 
         private void PressRatingButton(string value)
@@ -244,7 +244,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 button = rating_buttons[i];
 
-                if ((i+1).ToString() == value)
+                if ((i + 1).ToString() == value)
                 {
                     button.SetBGColor(new Color(0.9f, 0.9f, 0.9f));
                     button.SetText((i + 1).ToString(), Color.black);

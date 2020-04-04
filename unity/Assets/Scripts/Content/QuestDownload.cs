@@ -1,22 +1,23 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Content;
+using Assets.Scripts.UI.Screens;
 using System.Collections;
 using System.IO;
-using Assets.Scripts.UI.Screens;
-using Assets.Scripts.Content;
+using UnityEngine;
+using UnityEngine.Networking;
 using ValkyrieTools;
 
 // Class for quest selection window
 public class QuestDownload : MonoBehaviour
 {
-    public WWW download;
+    public UnityWebRequest download;
     public Game game;
-    string key = "";
+    private string key = "";
 
-    void Start()
+    private void Start()
     {
         game = Game.Get();
 
-        if(key=="")
+        if (key == "")
         {
             Debug.Log("Download key is not set, this should not happen");
             return;
@@ -43,14 +44,16 @@ public class QuestDownload : MonoBehaviour
     public void Save(string key)
     {
         // in case of error during download, do nothing
-        if (!string.IsNullOrEmpty(download.error) || download.bytesDownloaded <= 0)
+        if (!string.IsNullOrEmpty(download.error) || download.downloadedBytes <= 0)
+        {
             return;
+        }
 
         // Write to disk
         QuestLoader.mkDir(ContentData.DownloadPath());
         using (BinaryWriter writer = new BinaryWriter(File.Open(ContentData.DownloadPath() + Path.DirectorySeparatorChar + key + ".valkyrie", FileMode.Create)))
         {
-            writer.Write(download.bytes);
+            writer.Write(download.downloadHandler.data);
             writer.Close();
         }
 
@@ -69,17 +72,19 @@ public class QuestDownload : MonoBehaviour
     /// <param name="call">function to call on completion</param>
     public IEnumerator Download(string file, UnityEngine.Events.UnityAction call)
     {
-        download = new WWW(file);
-        new LoadingScreen(download, new StringKey("val", "DOWNLOAD_PACKAGE").Translate());
-        yield return download;
-        if (!string.IsNullOrEmpty(download.error))
+        using (download = UnityWebRequest.Get(file))
         {
-            // fixme not fatal
-            ValkyrieDebug.Log("Error while downloading :" + file);
-            ValkyrieDebug.Log(download.error);
-            //Application.Quit();
-        }
+            new LoadingScreen(download, new StringKey("val", "DOWNLOAD_PACKAGE").Translate());
+            yield return download.SendWebRequest();
+            if (!string.IsNullOrEmpty(download.error))
+            {
+                // fixme not fatal
+                ValkyrieDebug.Log("Error while downloading :" + file);
+                ValkyrieDebug.Log(download.error);
+                //Application.Quit();
+            }
 
-        call();
+            call();
+        }
     }
 }

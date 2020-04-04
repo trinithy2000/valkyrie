@@ -1,11 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 using ValkyrieTools;
 
 // Monster information dialog (additional rules)
-public class InfoDialog {
+public class InfoDialog
+{
 
     public InfoDialog(Quest.Monster m)
     {
@@ -59,6 +59,8 @@ public class InfoDialog {
     {
         // Clean up everything marked as 'dialog'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             Object.Destroy(go);
+        }
     }
 }

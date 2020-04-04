@@ -3,7 +3,8 @@ using Assets.Scripts.UI;
 using UnityEngine;
 
 // Window with Monster activation
-public class ActivateDialog {
+public class ActivateDialog
+{
     // The monster that raises this dialog
     public Quest.Monster monster;
     public bool master;
@@ -20,7 +21,7 @@ public class ActivateDialog {
         CreateWindow(singleStep);
     }
 
-    virtual public void CreateWindow(bool singleStep = false)
+    public virtual void CreateWindow(bool singleStep = false)
     {
         // If a dialog window is open we force it closed (this shouldn't happen)
         Destroyer.Dialog();
@@ -114,13 +115,19 @@ public class ActivateDialog {
         ui.SetFontSize(UIScaler.GetMediumFont());
     }
 
-    virtual public void activated()
+    public virtual void activated()
     {
         // Disable if there is a menu open
-        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null) return;
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
 
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.ACTIVATION))
+        {
             Object.Destroy(go);
+        }
+
         Game.Get().roundControl.MonsterActivated();
     }
 }

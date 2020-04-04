@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Assets.Scripts.UI.Screens
 {
-    class SaveSelectScreen
+    internal class SaveSelectScreen
     {
         public bool save;
-        List<SaveManager.SaveData> saves;
-        Game game = Game.Get();
+        private readonly List<SaveManager.SaveData> saves;
+        private readonly Game game = Game.Get();
         private readonly StringKey SELECT_SAVE = new StringKey("val", "SELECT_SAVE");
         private readonly StringKey SAVE = new StringKey("val", "SAVE");
         private readonly StringKey AUTOSAVE = new StringKey("val", "AUTOSAVE");
@@ -49,7 +49,9 @@ namespace Assets.Scripts.UI.Screens
             for (int i = 0; i < saves.Count; i++)
             {
                 if (i == 0 && save)
+                {
                     continue;
+                }
 
                 int tmp = i;
                 if (saves[i].valid)
@@ -67,7 +69,7 @@ namespace Assets.Scripts.UI.Screens
                     {
                         Sprite imgSprite = Sprite.Create(saves[i].image, new Rect(0, 0, saves[i].image.width, saves[i].image.height), Vector2.zero, 1, 0, SpriteMeshType.FullRect);
                         ui = new UIElement();
-                        ui.SetLocation(UIScaler.GetHCenter(-20), offset, 4f * (float)saves[i].image.width / (float)saves[i].image.height, 4);
+                        ui.SetLocation(UIScaler.GetHCenter(-20), offset, 4f * saves[i].image.width / saves[i].image.height, 4);
                         ui.SetButton(delegate { Select(tmp); });
                         ui.SetImage(imgSprite);
                         new UIElementBorder(ui);

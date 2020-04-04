@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Assets.Scripts.Content
+﻿namespace Assets.Scripts.Content
 {
     public class CommonStringKeys
     {
-        private static string VAL = "val";
+        private static readonly string VAL = "val";
 
         /// <summary>
         /// StringKey with pattern {0}:
@@ -15,14 +10,14 @@ namespace Assets.Scripts.Content
         public static readonly StringKey X_COLON = new StringKey(VAL, "X_COLON");
         public static readonly StringKey BACK = new StringKey(VAL, "BACK");
         public static readonly StringKey CLOSE = new StringKey(VAL, "CLOSE");
-        public static readonly StringKey EXIT = new StringKey(VAL,"EXIT");
+        public static readonly StringKey EXIT = new StringKey(VAL, "EXIT");
         public static readonly StringKey E = new StringKey(VAL, "E");
         public static readonly StringKey POSITION = new StringKey(VAL, "POSITION");
         public static readonly StringKey POSITION_SNAP = new StringKey(VAL, "POSITION_SNAP");
         public static readonly StringKey POSITION_FREE = new StringKey(VAL, "POSITION_FREE");
-        public static readonly StringKey PLUS = new StringKey(null,"+", false);
-        public static readonly StringKey MINUS = new StringKey(null,"-", false);
-        public static readonly StringKey HASH = new StringKey(null,"#", false);
+        public static readonly StringKey PLUS = new StringKey(null, "+", false);
+        public static readonly StringKey MINUS = new StringKey(null, "-", false);
+        public static readonly StringKey HASH = new StringKey(null, "#", false);
         public static readonly StringKey TAB = new StringKey(null, "➤", false);
         public static readonly StringKey UP = new StringKey(null, "▲", false);
         public static readonly StringKey DOWN = new StringKey(null, "▼", false);
@@ -75,5 +70,10 @@ namespace Assets.Scripts.Content
 
         public static readonly StringKey TRUE = new StringKey(VAL, "TRUE");
         public static readonly StringKey FALSE = new StringKey(VAL, "FALSE");
+        public static readonly StringKey OBT_OBJECTS = new StringKey(VAL, "OBT_OBJECTS");
+        public static readonly StringKey RET_SELECT_QUEST = new StringKey(VAL, "RET_SELECT_QUEST");
+        public static readonly StringKey TIT_SELECT_ITEMS = new StringKey(VAL, "TIT_SELECT_ITEMS");
+        public static readonly StringKey CONTINUE_PREPAR = new StringKey(VAL, "CONTINUE_PREPAR");
+
     }
 }

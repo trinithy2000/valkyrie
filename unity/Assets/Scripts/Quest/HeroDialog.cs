@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Class for creation of hero control button menu
-public class HeroDialog{
+public class HeroDialog
+{
     public Quest.Hero hero;
-    private readonly StringKey RECOVER = new StringKey("val","RECOVER");
+    private readonly StringKey RECOVER = new StringKey("val", "RECOVER");
     private readonly StringKey END_TURN = new StringKey("val", "END_TURN");
     private readonly StringKey KO = new StringKey("val", "KO");
 

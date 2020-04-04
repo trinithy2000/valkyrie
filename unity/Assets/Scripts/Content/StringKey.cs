@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Text;
+﻿using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Assets.Scripts.Content
@@ -12,7 +11,7 @@ namespace Assets.Scripts.Content
         /// <summary>
         /// Empty string Key
         /// </summary>
-        public static StringKey NULL = new StringKey(null,"",false);
+        public static StringKey NULL = new StringKey(null, "", false);
 
         /// <summary>
         /// Complete key.
@@ -34,7 +33,8 @@ namespace Assets.Scripts.Content
                         .Append(':')
                         .Append(key);
 
-                    if (parameters != null) { 
+                    if (parameters != null)
+                    {
                         result.Append(':').Append(parameters);
                     }
                     return result.Append('}').ToString();
@@ -42,19 +42,19 @@ namespace Assets.Scripts.Content
             }
         }
 
-        private string dict;
+        private readonly string dict;
 
         public readonly string key;
 
-        private string parameters = null;
+        private readonly string parameters = null;
 
-        private bool preventLookup = false;
+        private readonly bool preventLookup = false;
 
         public StringKey(string unknownKey)
         {
             if (Regex.Match(unknownKey, LocalizationRead.LookupRegexKey()).Success)
             {
-                string[] parts = unknownKey.Substring(1,unknownKey.Length -2).Split(":".ToCharArray(), 3, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] parts = unknownKey.Substring(1, unknownKey.Length - 2).Split(":".ToCharArray(), 3, System.StringSplitOptions.RemoveEmptyEntries);
 
                 dict = parts[0];
                 key = parts[1];
@@ -63,7 +63,8 @@ namespace Assets.Scripts.Content
                     parameters = parts[2];
                 }
                 preventLookup = false;
-            } else
+            }
+            else
             {
                 dict = null;
                 key = unknownKey;
@@ -90,7 +91,7 @@ namespace Assets.Scripts.Content
         /// <param name="newKey">key to translate</param>
         /// <param name="numberZeroParam">first param for {0} replace</param>
         public StringKey(string newDict, string newKey, StringKey numberZeroKeyParam)
-            : this(newDict,newKey,numberZeroKeyParam.fullKey) { }
+            : this(newDict, newKey, numberZeroKeyParam.fullKey) { }
 
         /// <summary>
         /// Constructor from a dict, key and one parameter
@@ -102,7 +103,7 @@ namespace Assets.Scripts.Content
         {
             dict = newDict;
             key = newKey;
-            parameters = "{0}:"+ numberZeroParam;
+            parameters = "{0}:" + numberZeroParam;
         }
 
         /// <summary>
@@ -145,15 +146,21 @@ namespace Assets.Scripts.Content
         {
             if (isKey() && !preventLookup)
             {
-                if (emptyIfNotFound && !KeyExists()) return "";
+                if (emptyIfNotFound && !KeyExists())
+                {
+                    return "";
+                }
+
                 return LocalizationRead.DictLookup(this);
-            } else
+            }
+            else
             {
                 if (fullKey != null)
                 {
                     //non heys can have newline characters
                     return fullKey.Replace("\\n", "\n");
-                } else
+                }
+                else
                 {
                     return null;
                 }

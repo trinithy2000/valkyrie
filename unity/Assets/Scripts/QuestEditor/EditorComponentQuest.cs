@@ -1,9 +1,8 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 
 public class EditorComponentQuest : EditorComponent
 {
@@ -38,7 +37,7 @@ public class EditorComponentQuest : EditorComponent
     {
     }
 
-    override public float AddSubComponents(float offset)
+    public override float AddSubComponents(float offset)
     {
         Game game = Game.Get();
 
@@ -133,7 +132,7 @@ public class EditorComponentQuest : EditorComponent
         authors_shortUIE.SetMaxCharacters(75);
         new UIElementBorder(authors_shortUIE);
         offset += 1;
-        
+
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 10, 1);
         ui.SetText(REQUIRED_EXPANSIONS);
@@ -184,7 +183,7 @@ public class EditorComponentQuest : EditorComponent
         maxHeroUIE.SetSingleLine();
         maxHeroUIE.SetButton(delegate { UpdateMaxHero(); });
         new UIElementBorder(maxHeroUIE);
-        offset +=2;
+        offset += 2;
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 7.5f, 1);
@@ -207,7 +206,7 @@ public class EditorComponentQuest : EditorComponent
         maxLengthUIE.SetSingleLine();
         maxLengthUIE.SetButton(delegate { UpdateMaxLength(); });
         new UIElementBorder(maxLengthUIE);
-        offset +=2;
+        offset += 2;
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 7.5f, 1);
@@ -219,22 +218,22 @@ public class EditorComponentQuest : EditorComponent
         difficultyUIE.SetSingleLine();
         difficultyUIE.SetButton(delegate { UpdateDifficulty(); });
         new UIElementBorder(difficultyUIE);
-        offset +=2;
+        offset += 2;
 
         return offset;
     }
 
-    override public float DrawComponentSelection(float offset)
+    public override float DrawComponentSelection(float offset)
     {
         return offset + 1;
     }
 
-    override public float AddComment(float offset)
+    public override float AddComment(float offset)
     {
         return offset;
     }
 
-    override public float AddSource(float offset)
+    public override float AddSource(float offset)
     {
         return offset;
     }
@@ -259,9 +258,9 @@ public class EditorComponentQuest : EditorComponent
 
     public void Image()
     {
-        var select = new UIWindowSelectionListImage(SelectImage, new StringKey("val", "SELECT_IMAGE"));
+        UIWindowSelectionListImage select = new UIWindowSelectionListImage(SelectImage, new StringKey("val", "SELECT_IMAGE"));
         select.AddItem("{NONE}", "");
-        var traits = new Dictionary<string, IEnumerable<string>>
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
         {
             {
                 CommonStringKeys.SOURCE.Translate(),

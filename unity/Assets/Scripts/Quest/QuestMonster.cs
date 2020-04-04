@@ -31,7 +31,8 @@ public class QuestMonster : MonsterData
         if (!qm.monsterName.KeyExists() && baseObject != null)
         {
             name = baseObject.name;
-        } else
+        }
+        else
         {
             name = qm.monsterName;
         }
@@ -115,7 +116,7 @@ public class QuestMonster : MonsterData
         }
     }
 
-    override public StringKey GetRandomAttack(string type)
+    public override StringKey GetRandomAttack(string type)
     {
         if (!cMonster.investigatorAttacks.ContainsKey(type))
         {

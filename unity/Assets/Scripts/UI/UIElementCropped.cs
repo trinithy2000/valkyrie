@@ -4,11 +4,11 @@ namespace Assets.Scripts.UI
 {
     public class UIElementCropped : UIElement
     {
-        GameObject mask = null;
-        float x_mask = 0f;
-        float y_mask = 0f;
-        float width_mask = 0f;
-        float height_mask = 0f;
+        private GameObject mask = null;
+        private float x_mask = 0f;
+        private float y_mask = 0f;
+        private float width_mask = 0f;
+        private float height_mask = 0f;
 
         /// <summary>
         /// Construct a UI element with options tag name and parent.</summary>
@@ -16,7 +16,11 @@ namespace Assets.Scripts.UI
         /// <param name="parent">Parent transform, cannot be changed after construction, defaults to the UI Panel.</param>
         public UIElementCropped(string t = "", Transform parent = null)
         {
-            if (t.Length > 0) tag = t;
+            if (t.Length > 0)
+            {
+                tag = t;
+            }
+
             CreateMask(parent);
         }
 
@@ -32,10 +36,16 @@ namespace Assets.Scripts.UI
         /// Internal method called by constructor to set up base GameObject.</summary>
         protected virtual void CreateMask(Transform parent)
         {
-            mask = new GameObject("UIMASK");
-            mask.tag = tag;
+            mask = new GameObject("UIMASK")
+            {
+                tag = tag
+            };
             mask.AddComponent<UnityEngine.UI.RectMask2D>();
-            if (parent == null) parent = Game.Get().uICanvas.transform;
+            if (parent == null)
+            {
+                parent = Game.Get().uICanvas.transform;
+            }
+
             mask.transform.SetParent(parent);
             // destroy base bg and create a new one
             Object.Destroy(bg);
@@ -50,7 +60,7 @@ namespace Assets.Scripts.UI
         /// <param name="height">Vertical size.</param>
         /// <remarks>
         /// Cannot be changed after ***FIXME***.</remarks>
-        override public void SetLocationPixels(float x, float y, float width, float height)
+        public override void SetLocationPixels(float x, float y, float width, float height)
         {
             RectTransform transBg = mask.GetComponent<RectTransform>();
             transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, y, height);

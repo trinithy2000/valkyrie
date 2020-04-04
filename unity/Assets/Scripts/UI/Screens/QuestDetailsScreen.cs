@@ -1,7 +1,6 @@
-using UnityEngine;
-using System.Collections.Generic;
 using Assets.Scripts.Content;
 using System.IO;
+using UnityEngine;
 using ValkyrieTools;
 
 namespace Assets.Scripts.UI.Screens
@@ -10,50 +9,64 @@ namespace Assets.Scripts.UI.Screens
     {
         public QuestDetailsScreen(QuestData.Quest q)
         {
+
             Game game = Game.Get();
             LocalizationRead.AddDictionary("qst", q.localizationDict);
             // If a dialog window is open we force it closed (this shouldn't happen)
             foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+            {
                 Object.Destroy(go);
+            }
 
             // Heading
+
             UIElement ui = new UIElement();
-            ui.SetLocation(2, 0.5f, UIScaler.GetWidthUnits() - 4, 3);
-            ui.SetText(q.name);
+            ui.SetLocation(UIScaler.GetRelWidth(4), .2f, UIScaler.GetRelWidth(2), 4);
+            ui.SetText(q.name, game.gameType is D2EGameType ? Color.white : Color.black);
             ui.SetFont(game.gameType.GetHeaderFont());
-            ui.SetFontSize(UIScaler.GetLargeFont());
+            ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
+            new UITitleBackGround(ui, CommonString.title);
 
             // Draw Image
+            ui = new UIElement();
+            ui.SetLocation(UIScaler.GetHCenter(-19.8f), 5, 13f, 13);
             if (q.image.Length > 0)
             {
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(-20), 4, 8, 8);
                 ui.SetImage(ContentData.FileToTexture(Path.Combine(q.path, q.image)));
-                new UIElementBorder(ui);
             }
+            else
+            {
+                ui.SetImage(CommonImageKeys.default_img_quest);
+            }
+
+            new UITitleBackGround(ui, CommonString.image);
 
             // Draw Description
             ui = new UIElement();
-            float height = ui.GetStringHeight(q.description, 30);
-            if (height > 25) height = 25;
-            ui.SetLocation(UIScaler.GetHCenter(-7), 15 - (height / 2), 30, height);
-            ui.SetText(q.description);
-            new UIElementBorder(ui);
+            float height = UIScaler.GetHeightUnits() / 2.1f;
+            UIElementScrollVertical scrollArea = new UIElementScrollVertical();
+            scrollArea.SetLocation(UIScaler.GetHCenter(-4), UIScaler.GetTop(7), UIScaler.GetWidthUnits() / 2, height);
+
+            ui = new UIElement(scrollArea.GetScrollTransform());
+            ui.SetLocation(1, UIScaler.GetRelHeight(7), UIScaler.GetRelWidth(2.2f), height);
+            ui.SetText(q.description, Color.black);
+            ui.SetBGColor(Color.clear);
+            scrollArea.SetScrollSize(height * 4);
+            new UITitleBackGround(scrollArea, CommonString.description);
 
             // Draw authors
             ui = new UIElement();
-            height = ui.GetStringHeight(q.authors, 14);
-            if (height > 25) height = 25;
-            ui.SetLocation(UIScaler.GetHCenter(-23), 18.5f - (height / 2), 14, height);
+            ui.SetLocation(UIScaler.GetHCenter(-20.15f), UIScaler.GetBottom(-10f), 14, 6.5f);
             ui.SetText(q.authors);
-            new UIElementBorder(ui);
+            new UIElementBorderDialog(ui, CommonString.dialogOne);
 
             // Difficulty
             if (q.difficulty != 0)
             {
                 ui = new UIElement();
                 ui.SetLocation(UIScaler.GetHCenter(-13), 27, 11, 1);
-                ui.SetText(new StringKey("val","DIFFICULTY"));
+                ui.SetText(new StringKey("val", "DIFFICULTY"));
                 string symbol = "*";
                 if (game.gameType is MoMGameType)
                 {
@@ -73,7 +86,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 ui = new UIElement();
                 ui.SetLocation(UIScaler.GetHCenter(2), 27, 11, 1);
-                ui.SetText(new StringKey("val","DURATION"));
+                ui.SetText(new StringKey("val", "DURATION"));
 
                 ui = new UIElement();
                 ui.SetLocation(UIScaler.GetHCenter(2), 28, 4, 2);
@@ -95,30 +108,29 @@ namespace Assets.Scripts.UI.Screens
             if (Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
             {
                 ui = new UIElement();
-                ui.SetLocation(UIScaler.GetRight(-8.5f), 0.5f, 8, 2);
+                ui.SetLocation(UIScaler.GetRight(-8.5f), 0.5f, 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
                 ui.SetText(CommonStringKeys.DELETE, Color.grey);
                 ui.SetFont(game.gameType.GetHeaderFont());
                 ui.SetFontSize(UIScaler.GetMediumFont());
                 ui.SetButton(delegate { Delete(q); });
-                new UIElementBorder(ui, Color.grey);
+                ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_menu_blue));
             }
 
             ui = new UIElement();
-            ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, 2);
+            ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
             ui.SetText(CommonStringKeys.BACK, Color.red);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(Cancel);
-            new UIElementBorder(ui, Color.red);
+            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_red));
 
             ui = new UIElement();
-            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, 2);
+            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
             ui.SetText(new StringKey("val", "START"), Color.green);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(delegate { Start(q); });
-            new UIElementBorder(ui, Color.green);
-
+            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_green));
 
         }
 

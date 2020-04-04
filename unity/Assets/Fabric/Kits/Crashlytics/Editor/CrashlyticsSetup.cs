@@ -1,82 +1,82 @@
 namespace Fabric.Internal.Crashlytics.Editor
 {
-	using UnityEditor;
-	using System.IO;
-	using UnityEngine;
-	using System.Xml;
-	using Fabric.Internal.Editor;
-	using Fabric.Internal.Editor.Model;
-	
-	public class CrashlyticsSetup : FabricSetup
-	{
-		private const string Name = Controller.Controller.Name;
+    using Fabric.Internal.Editor;
+    using Fabric.Internal.Editor.Model;
 
-		public static void EnableCrashlytics (bool checkSetupComplete)
-		{
-			var settings = Settings.Instance;
-			var listed = settings.InstalledKits.Find (k => k.Name.Equals (Name));
-			var installed = listed != null && listed.Installed;
+    public class CrashlyticsSetup : FabricSetup
+    {
+        private const string Name = Controller.Controller.Name;
 
-			if (checkSetupComplete && !installed) {
-				Fabric.Internal.Editor.Utils.Error ("Please first prepare Crashlytics in the Fabric menu to obtain your login credentials.");
-				return;
-			}
+        public static void EnableCrashlytics(bool checkSetupComplete)
+        {
+            Settings settings = Settings.Instance;
+            Settings.InstalledKit listed = settings.InstalledKits.Find(k => k.Name.Equals(Name));
+            bool installed = listed != null && listed.Installed;
 
-			SetKitScriptExecutionOrder (typeof(Fabric.Internal.Crashlytics.CrashlyticsInit));
+            if (checkSetupComplete && !installed)
+            {
+                Fabric.Internal.Editor.Utils.Error("Please first prepare Crashlytics in the Fabric menu to obtain your login credentials.");
+                return;
+            }
 
-			EnableCrashlyticsiOS ();
-			EnableCrashlyticsAndroid ();
+            SetKitScriptExecutionOrder(typeof(Fabric.Internal.Crashlytics.CrashlyticsInit));
 
-			if (listed != null) {
-				listed.Enabled = true;
-			}
-		}
+            EnableCrashlyticsiOS();
+            EnableCrashlyticsAndroid();
 
-		public static void DisableCrashlytics ()
-		{
-			var listed = Settings.Instance.InstalledKits.Find (k => k.Name.Equals (Name));
+            if (listed != null)
+            {
+                listed.Enabled = true;
+            }
+        }
 
-			if (listed != null) {
-				listed.Enabled = false;
-				DisableCrashlyticsiOS ();
-				DisableCrashlyticsAndroid ();
-			}
-		}
+        public static void DisableCrashlytics()
+        {
+            Settings.InstalledKit listed = Settings.Instance.InstalledKits.Find(k => k.Name.Equals(Name));
 
-		private static void EnableCrashlyticsiOS ()
-		{
-			// In the case of iOS, this is currently taken care of at post-build time
-		}
+            if (listed != null)
+            {
+                listed.Enabled = false;
+                DisableCrashlyticsiOS();
+                DisableCrashlyticsAndroid();
+            }
+        }
 
-		private static void DisableCrashlyticsiOS ()
-		{
-			// In the case of iOS, this is currently taken care of at post-build time
-		}
+        private static void EnableCrashlyticsiOS()
+        {
+            // In the case of iOS, this is currently taken care of at post-build time
+        }
 
-		private static void EnableCrashlyticsAndroid ()
-		{
-			string unityManifestPath = FindUnityAndroidManifest ();
+        private static void DisableCrashlyticsiOS()
+        {
+            // In the case of iOS, this is currently taken care of at post-build time
+        }
 
-			if (unityManifestPath == null) {
-				Utils.Warn ("Could not find Unity's AndroidManifest.xml file, cannot initialize Crashlytics for Android.");
-				return;
-			}
+        private static void EnableCrashlyticsAndroid()
+        {
+            string unityManifestPath = FindUnityAndroidManifest();
 
-			BootstrapTopLevelManifest (unityManifestPath);
-			ToggleApplicationInTopLevelManifest (enableFabric: true);
+            if (unityManifestPath == null)
+            {
+                Utils.Warn("Could not find Unity's AndroidManifest.xml file, cannot initialize Crashlytics for Android.");
+                return;
+            }
 
-			InjectMetadataIntoFabricManifest ("io.fabric.ApiKey", Settings.Instance.Organization.ApiKey);
-			InjectMetadataIntoFabricManifest ("io.fabric.unity.crashlytics.version", Info.Version.ToString ());
+            BootstrapTopLevelManifest(unityManifestPath);
+            ToggleApplicationInTopLevelManifest(enableFabric: true);
 
-			InjectMetadataIntoFabricManifest ("io.fabric.crashlytics.qualified", "com.crashlytics.android.Crashlytics");
-			InjectMetadataIntoFabricManifest ("io.fabric.crashlytics.unqualified", "Crashlytics");
-			InjectMetadataIntoFabricManifest ("io.fabric.kits", "crashlytics", true);
-		}
+            InjectMetadataIntoFabricManifest("io.fabric.ApiKey", Settings.Instance.Organization.ApiKey);
+            InjectMetadataIntoFabricManifest("io.fabric.unity.crashlytics.version", Info.Version.ToString());
 
-		private static void DisableCrashlyticsAndroid ()
-		{
-			RemoveMetadataFromFabricManifest ("io.fabric.kits", "crashlytics");
-		}
-	}
+            InjectMetadataIntoFabricManifest("io.fabric.crashlytics.qualified", "com.crashlytics.android.Crashlytics");
+            InjectMetadataIntoFabricManifest("io.fabric.crashlytics.unqualified", "Crashlytics");
+            InjectMetadataIntoFabricManifest("io.fabric.kits", "crashlytics", true);
+        }
+
+        private static void DisableCrashlyticsAndroid()
+        {
+            RemoveMetadataFromFabricManifest("io.fabric.kits", "crashlytics");
+        }
+    }
 
 }

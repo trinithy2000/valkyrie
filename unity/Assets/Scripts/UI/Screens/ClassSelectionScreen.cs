@@ -1,11 +1,10 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
-using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+using UnityEngine;
 
 namespace Assets.Scripts.UI.Screens
 {
-    class ClassSelectionScreen
+    internal class ClassSelectionScreen
     {
         protected List<float> scrollOffset = new List<float>();
         protected List<UIElementScrollVertical> scrollArea = new List<UIElementScrollVertical>();
@@ -20,51 +19,64 @@ namespace Assets.Scripts.UI.Screens
             // Clean up
             Destroyer.Dialog();
             foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.HEROSELECT))
+            {
                 Object.Destroy(go);
+            }
 
             Game game = Game.Get();
 
             // Add a title to the page
             UIElement ui = new UIElement(Game.HEROSELECT);
             ui.SetLocation(8, 1, UIScaler.GetWidthUnits() - 16, 3);
-            ui.SetText(new StringKey("val","SELECT_CLASS"));
+            ui.SetText(new StringKey("val", "SELECT_CLASS"));
             ui.SetFont(Game.Get().gameType.GetHeaderFont());
-            ui.SetFontSize(UIScaler.GetLargeFont());
+            ui.SetFontSize(UIScaler.GetMediumFont());
+            new UITitleBackGround(ui, CommonString.title);
 
             // Get all heros
             int heroCount = 0;
             // Count number of selected heroes
             foreach (Quest.Hero h in game.quest.heroes)
             {
-                if (h.heroData != null) heroCount++;
+                if (h.heroData != null)
+                    heroCount++;
             }
 
-            float xOffset = UIScaler.GetHCenter(-18);
-            if (heroCount < 4) xOffset += 4.5f;
-            if (heroCount < 3) xOffset += 4.5f;
+            float xOffset = UIScaler.GetHCenter(-22);
+
+            if (heroCount < 4)
+            {
+                xOffset += 5f;
+            }
+
+            if (heroCount < 3)
+            {
+                xOffset += 5f;
+            }
 
             for (int i = 0; i < heroCount; i++)
             {
                 DrawHero(xOffset, i);
-                xOffset += 9f;
+                xOffset += 11f;
             }
 
             // Add a finished button to start the quest
-            ui = new UIElement(Game.HEROSELECT);
-            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, 2);
-            ui.SetText(CommonStringKeys.FINISHED, Color.green);
-            ui.SetFont(Game.Get().gameType.GetHeaderFont());
-            ui.SetFontSize(UIScaler.GetMediumFont());
-            ui.SetButton(Finished);
-            new UIElementBorder(ui, Color.green);
 
             ui = new UIElement(Game.HEROSELECT);
-            ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, 2);
+            ui.SetLocation(0.5f, UIScaler.GetBottom(-3.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
             ui.SetText(CommonStringKeys.BACK, Color.red);
-            ui.SetFont(Game.Get().gameType.GetHeaderFont());
+            ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(Destroyer.QuestSelect);
-            new UIElementBorder(ui, Color.red);
+            ui.SetImage(CommonImageKeys.d2e_btn_red);
+
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-3.5f), 8, 2.5f);
+            ui.SetText(CommonStringKeys.FINISHED, Color.green);
+            ui.SetFont(game.gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetButton(Finished);
+            ui.SetImage(CommonImageKeys.d2e_btn_green);
         }
 
         public void DrawHero(float xOffset, int hero)
@@ -78,14 +90,14 @@ namespace Assets.Scripts.UI.Screens
 
             string archetype = game.quest.heroes[hero].heroData.archetype;
             string hybridClass = game.quest.heroes[hero].hybridClass;
-            float yStart = 7f;
+            float yStart = 15f;
 
             UIElement ui = null;
             if (hybridClass.Length > 0)
             {
                 archetype = game.cd.classes[hybridClass].hybridArchetype;
                 ui = new UIElement(Game.HEROSELECT);
-                ui.SetLocation(xOffset + 0.25f, yStart, 8.5f, 5);
+                ui.SetLocation(xOffset + 0.25f, yStart, 10.5f, 5);
                 new UIElementBorder(ui);
 
                 ui = new UIElement(Game.HEROSELECT);
@@ -93,9 +105,7 @@ namespace Assets.Scripts.UI.Screens
                 ui.SetText(game.cd.classes[hybridClass].name, Color.black);
                 ui.SetFontSize(UIScaler.GetMediumFont());
                 ui.SetButton(delegate { Select(hero, hybridClass); });
-                ui.SetBGColor(new Color(0, 0.7f, 0));
-                new UIElementBorder(ui, Color.black);
-
+                ui.SetImage(CommonImageKeys.d2e_btn_white);
                 yStart += 5;
             }
 
@@ -104,15 +114,17 @@ namespace Assets.Scripts.UI.Screens
                 scrollArea.Add(null);
             }
             scrollArea[hero] = new UIElementScrollVertical(Game.HEROSELECT);
-            scrollArea[hero].SetLocation(xOffset + 0.25f, yStart, 8.5f, 27 - yStart);
-            new UIElementBorder(scrollArea[hero]);
+            scrollArea[hero].SetImage(CommonImageKeys.d2e_bgnd_pergam_gold);
+            scrollArea[hero].SetLocation(xOffset + 1.7f, yStart, 9.5f, 25.5f - yStart);
 
             float yOffset = 1;
 
             foreach (ClassData cd in game.cd.classes.Values)
             {
-                if (!cd.archetype.Equals(archetype)) continue;
-                if (cd.hybridArchetype.Length > 0 && hybridClass.Length > 0) continue;
+                if (!cd.archetype.Equals(archetype))
+                    continue;
+                if (cd.hybridArchetype.Length > 0 && hybridClass.Length > 0)
+                    continue;
 
                 string className = cd.sectionName;
                 bool available = true;
@@ -123,35 +135,30 @@ namespace Assets.Scripts.UI.Screens
                     if (game.quest.heroes[i].className.Equals(className))
                     {
                         available = false;
-                        if (hero == i)
-                        {
-                            pick = true;
-                        }
+                         pick = (hero == i);
                     }
                     if (game.quest.heroes[i].hybridClass.Equals(className))
-                    {
                         available = false;
-                    }
                 }
 
                 ui = new UIElement(Game.HEROSELECT, scrollArea[hero].GetScrollTransform());
-                ui.SetLocation(0.25f, yOffset, 7, 4);
+                ui.SetLocation(.65f, yOffset, 7.8f, 3.4f);
+                ui.SetText(cd.name, Color.black);
                 if (available)
                 {
-                    ui.SetBGColor(Color.white);
+                    ui.SetImage(CommonImageKeys.d2e_btn_white);
                     ui.SetButton(delegate { Select(hero, className); });
                 }
                 else
                 {
-                    ui.SetBGColor(new Color(0.2f, 0.2f, 0.2f));
+                    ui.SetImage(CommonImageKeys.d2e_btn_grey);
                     if (pick)
                     {
-                        ui.SetBGColor(new Color(0, 0.7f, 0));
+                        ui.SetText(cd.name, Color.white);
+                        ui.SetImage(CommonImageKeys.d2e_btn_blue);
                     }
-                }
-                ui.SetText(cd.name, Color.black);
-                ui.SetFontSize(UIScaler.GetMediumFont());
-
+                }   
+                ui.SetFontSize(UIScaler.GetSemiSmallFont());
                 yOffset += 5f;
             }
 
@@ -166,10 +173,14 @@ namespace Assets.Scripts.UI.Screens
             }
 
             Texture2D heroTex = ContentData.FileToTexture(game.quest.heroes[hero].heroData.image);
-            Sprite heroSprite = Sprite.Create(heroTex, new Rect(0, 0, heroTex.width, heroTex.height), Vector2.zero, 1);
             ui = new UIElement(Game.HEROSELECT);
-            ui.SetLocation(xOffset + 2.5f, 3.5f, 4, 4);
-            ui.SetImage(heroSprite);
+            ui.SetLocation(xOffset + 2.5f, 5f, 7.8f, 7.8f);
+            ui.SetImage(heroTex);
+            new UICharacterBorders(ui, game.quest.heroes[hero].heroData.name);
+
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(xOffset + 1.4f, 25f, 10f, .86f);
+            ui.SetImage(CommonImageKeys.d2e_bar_gold);
         }
 
         public void Select(int hero, string className)
@@ -201,8 +212,15 @@ namespace Assets.Scripts.UI.Screens
             HashSet<string> items = new HashSet<string>();
             foreach (Quest.Hero h in game.quest.heroes)
             {
-                if (h.heroData == null) continue;
-                if (h.className.Length == 0) return;
+                if (h.heroData == null)
+                {
+                    continue;
+                }
+
+                if (h.className.Length == 0)
+                {
+                    return;
+                }
 
                 game.quest.vars.SetValue("#" + h.className, 1);
 
@@ -211,7 +229,11 @@ namespace Assets.Scripts.UI.Screens
                     items.Add(s);
                 }
 
-                if (h.hybridClass.Length == 0) continue;
+                if (h.hybridClass.Length == 0)
+                {
+                    continue;
+                }
+
                 foreach (string s in game.cd.classes[h.hybridClass].items)
                 {
                     items.Add(s);
@@ -220,7 +242,10 @@ namespace Assets.Scripts.UI.Screens
             game.quest.items.UnionWith(items);
 
             foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.HEROSELECT))
+            {
                 Object.Destroy(go);
+            }
+
             game.moraleDisplay = new MoraleDisplay();
             game.QuestStartEvent();
         }

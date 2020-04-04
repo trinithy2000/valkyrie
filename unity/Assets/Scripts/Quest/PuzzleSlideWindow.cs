@@ -1,12 +1,12 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 public class PuzzleSlideWindow
 {
 
     public EventManager.Event eventData;
-    QuestData.Puzzle questPuzzle;
+    private readonly QuestData.Puzzle questPuzzle;
     public PuzzleSlide puzzle;
     public int lastMoves = 0;
 
@@ -33,19 +33,22 @@ public class PuzzleSlideWindow
     public void CreateWindow()
     {
         Destroyer.Dialog();
+
         UIElement ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(-14f), 0.5f, 28, 22);
-        new UIElementBorder(ui);
+        ui.SetLocation(UIScaler.GetHCenter(-18f), 2f, UIScaler.GetWidthUnits() / 1.7f, 25);
+        ui.SetImage(CommonImageKeys.mom_bgnd_puzzle);
 
         // Puzzle goes here
-        GameObject background = new GameObject("puzzleContent");
-        background.tag = Game.DIALOG;
+        GameObject background = new GameObject("puzzleContent")
+        {
+            tag = Game.DIALOG
+        };
         RectTransform transBg = background.AddComponent<RectTransform>();
         background.transform.SetParent(Game.Get().uICanvas.transform);
-        transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, UIScaler.GetPixelsPerUnit() * 2.5f, 18f * UIScaler.GetPixelsPerUnit());
-        transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, UIScaler.GetHCenter(-12f) * UIScaler.GetPixelsPerUnit(), 24f * UIScaler.GetPixelsPerUnit());
+        transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, UIScaler.GetPixelsPerUnit() * 3.8f, 18f * UIScaler.GetPixelsPerUnit());
+        transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, UIScaler.GetHCenter(-16f) * UIScaler.GetPixelsPerUnit(), 24f * UIScaler.GetPixelsPerUnit());
 
-        DrawSlideFrame(background.transform);
+        DrawSlideFrame(background.transform, transBg);
 
         foreach (PuzzleSlide.Block b in puzzle.puzzle)
         {
@@ -53,67 +56,61 @@ public class PuzzleSlideWindow
         }
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(6.5f), 3, 7, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.SKILL));
+        ui.SetLocation(UIScaler.GetHCenter(2.6f), 17, 7, 2);
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.SKILL));
         ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(8.5f), 5, 3, 2);
+        ui.SetLocation(UIScaler.GetHCenter(7.5f), 17, 3, 2);
         ui.SetText(EventManager.OutputSymbolReplace(questPuzzle.skill));
         ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui);
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(6.5f), 12.5f, 7, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.MOVES));
+        ui.SetLocation(UIScaler.GetHCenter(3.5f), 19, 7, 2);
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(8.5f), 14.5f, 3, 2);
+        ui.SetLocation(UIScaler.GetHCenter(9.5f), 19, 3, 2);
         ui.SetText((puzzle.moves - lastMoves).ToString());
         ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui);
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(6.5f), 17, 7, 2);
-        ui.SetText(new StringKey("val","X_COLON",CommonStringKeys.TOTAL_MOVES));
+        ui.SetLocation(UIScaler.GetHCenter(3.2f), 21, 8.5f, 2);
+        ui.SetText(new StringKey("val", "X_COLON", CommonStringKeys.TOTAL_MOVES));
         ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(8.5f), 19, 3, 2);
+        ui.SetLocation(UIScaler.GetHCenter(10.5f), 21, 3, 2);
         ui.SetText(puzzle.moves.ToString());
         ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui);
+        ui.SetBGColor(Color.clear);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(-13), 23.5f, 8, 2);
-        if (puzzle.Solved())
-        {
-            ui.SetText(CommonStringKeys.CLOSE, Color.grey);
-            new UIElementBorder(ui, Color.grey);
-        }
-        else
-        {
-            ui.SetText(CommonStringKeys.CLOSE);
-            new UIElementBorder(ui);
-            ui.SetButton(Close);
-        }
+        ui.SetLocation(UIScaler.GetHCenter(-15), 24f, 8, 2);
+        ui.SetText(CommonStringKeys.CLOSE, puzzle.Solved() ? Color.grey : Color.white);
         ui.SetFontSize(UIScaler.GetMediumFont());
-
-        ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(5), 23.5f, 8, 2);
+        ui.SetImage(CommonImageKeys.mom_btn_menu);
         if (!puzzle.Solved())
         {
-            ui.SetText(eventData.GetButtons()[0].GetLabel(), Color.grey);
-            new UIElementBorder(ui, Color.grey);
+            ui.SetButton(Close);
         }
-        else
+
+        ui = new UIElement();
+        ui.SetLocation(UIScaler.GetHCenter(-5), 24f, 8, 2);
+        ui.SetText(eventData.GetButtons()[0].GetLabel(), puzzle.Solved() ? Color.white : Color.grey);
+        ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetImage(CommonImageKeys.mom_btn_menu);
+
+        if (puzzle.Solved())
         {
-            ui.SetText(eventData.GetButtons()[0].GetLabel());
-            new UIElementBorder(ui);
             ui.SetButton(Finished);
         }
-        ui.SetFontSize(UIScaler.GetMediumFont());
     }
 
     public void Close()
@@ -143,61 +140,46 @@ public class PuzzleSlideWindow
         game.quest.eManager.EndEvent();
     }
 
-    public void DrawSlideFrame(Transform trans, float scale = 3f)
+    public void DrawSlideFrame(Transform trans, RectTransform rectTrans, float scale = 3f)
     {
-        GameObject[] bLine = new GameObject[8];
-        // create 4 lines
-        for (int i = 0; i < 8; i++)
+        GameObject bLine = new GameObject("PuzzleFrame")
         {
-            bLine[i] = new GameObject("PuzzleFrame" + i);
-            bLine[i].tag = Game.DIALOG;
-            bLine[i].AddComponent<RectTransform>();
-            bLine[i].AddComponent<CanvasRenderer>();
-            bLine[i].transform.SetParent(trans);
-            UnityEngine.UI.Image blImage = bLine[i].AddComponent<UnityEngine.UI.Image>();
-            blImage.color = Color.white;
-        }
-
+            tag = Game.DIALOG
+        };
+        bLine.AddComponent<RectTransform>();
+        bLine.AddComponent<CanvasRenderer>();
+        bLine.AddComponent<UnityEngine.UI.RawImage>().texture = CommonImageKeys.mom_border_mechanical;
+        bLine.transform.SetParent(trans);
         // Set the thickness of the lines
-        float thick = 0.05f * UIScaler.GetPixelsPerUnit();
 
-        bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, -thick, thick);
-        bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, -thick, (scale * 6f * UIScaler.GetPixelsPerUnit()) + (2 * thick));
+        bLine.GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -(1.09f * UIScaler.GetPixelsPerUnit()), rectTrans.rect.height * 1.12f);
+        bLine.GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, -(1.08f * UIScaler.GetPixelsPerUnit()), rectTrans.rect.width * 1.095f);
 
-        bLine[1].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -thick, thick);
-        bLine[1].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, -thick, (scale * 6f * UIScaler.GetPixelsPerUnit()) + (2 * thick));
-
-        bLine[2].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, -thick, thick);
-        bLine[2].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -thick, (scale * 6f * UIScaler.GetPixelsPerUnit()) + (2 * thick));
-
-        bLine[3].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, (scale * 2f * UIScaler.GetPixelsPerUnit()) - thick, thick);
-        bLine[3].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -thick, (scale * 2f * UIScaler.GetPixelsPerUnit()) + thick);
-
-        bLine[4].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, (scale * 2f * UIScaler.GetPixelsPerUnit()) - thick, thick);
-        bLine[4].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, -thick, (scale * 3f * UIScaler.GetPixelsPerUnit()) + thick);
-
-        bLine[5].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, -thick, thick);
-        bLine[5].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, (scale * 2f * UIScaler.GetPixelsPerUnit()) - thick, (scale * UIScaler.GetPixelsPerUnit()) + (2 * thick));
-
-        bLine[6].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, (scale * 2f * UIScaler.GetPixelsPerUnit()) - thick, thick);
-        bLine[6].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, -thick, (scale * 2f * UIScaler.GetPixelsPerUnit()) + thick);
-
-        bLine[7].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, (scale * 3f * UIScaler.GetPixelsPerUnit()) - thick, thick);
-        bLine[7].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Right, -thick, (scale * 2f * UIScaler.GetPixelsPerUnit()) + thick);
     }
 
     public void CreateBlock(PuzzleSlide.Block block, RectTransform pos, bool target = false)
     {
-        Color borderColour = Color.yellow;
-        Color bgColour = new Color(0.6f, 0.6f, 0f, 1f);
-
+        Texture2D bar = CommonImageKeys.mom_bar_gold;
         // Create object
         GameObject blockGO = new GameObject("puzzleBlock");
+
         if (block.target)
         {
-            borderColour = Color.red;
-            bgColour = new Color(0.8f, 0.0f, 0f, 1f);
+            bar = CommonImageKeys.mom_bar_key;
         }
+        else if (block.xlen > 1)
+        {
+            bar = CommonImageKeys.mom_bar_gold_ext;
+        }
+        else if (block.ylen > 1)
+        {
+            bar = CommonImageKeys.mom_bar_gold_ext_v;
+        }
+        else if (block.ylen == 1)
+        {
+            bar = CommonImageKeys.mom_bar_gold_v;
+        }
+
         blockGO.tag = Game.DIALOG;
 
         //Game game = Game.Get();
@@ -209,10 +191,8 @@ public class PuzzleSlideWindow
         transBg.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (block.xpos * 3f * UIScaler.GetPixelsPerUnit()) + 0.1f, ((block.xlen + 1) * 3f * UIScaler.GetPixelsPerUnit()) - 0.2f);
         blockGO.AddComponent<CanvasRenderer>();
 
-        new UIElementBorder(blockGO.transform, transBg, Game.DIALOG, borderColour);
-
-        UnityEngine.UI.Image uiImage = blockGO.AddComponent<UnityEngine.UI.Image>();
-        uiImage.color = bgColour;
+        UnityEngine.UI.RawImage uiImage = blockGO.AddComponent<UnityEngine.UI.RawImage>();
+        uiImage.texture = bar;
 
         BlockSlider slider = blockGO.AddComponent<BlockSlider>();
         slider.block = block;
@@ -227,17 +207,17 @@ public class BlockSlider : MonoBehaviour
     public Vector2 transStart;
     public PuzzleSlide.Block block;
     public PuzzleSlideWindow win;
-    RectTransform trans;
+    private RectTransform trans;
 
     // Use this for initialization (called at creation)
-    void Start ()
+    private void Start()
     {
         trans = gameObject.GetComponent<RectTransform>();
         // Get the image attached to this game object
     }
-	
-	// Update is called once per frame
-	void Update ()
+
+    // Update is called once per frame
+    private void Update()
     {
         if (!sliding && !Input.GetMouseButtonDown(0))
         {
@@ -245,10 +225,26 @@ public class BlockSlider : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0))
         {
-            if (Input.mousePosition.x < trans.position.x) return;
-            if (Input.mousePosition.y < trans.position.y - trans.rect.height) return;
-            if (Input.mousePosition.x > trans.position.x + trans.rect.width) return;
-            if (Input.mousePosition.y > trans.position.y) return;
+            if (Input.mousePosition.x < trans.position.x)
+            {
+                return;
+            }
+
+            if (Input.mousePosition.y < trans.position.y - trans.rect.height)
+            {
+                return;
+            }
+
+            if (Input.mousePosition.x > trans.position.x + trans.rect.width)
+            {
+                return;
+            }
+
+            if (Input.mousePosition.y > trans.position.y)
+            {
+                return;
+            }
+
             sliding = true;
             mouseStart = Input.mousePosition;
             transStart = trans.anchoredPosition;
@@ -365,7 +361,7 @@ public class BlockSlider : MonoBehaviour
         {
             posx += block.xlen + 1;
         }
-        
+
         while (PuzzleSlide.Empty(win.puzzle.puzzle, posx, posy))
         {
             if (block.rotation)

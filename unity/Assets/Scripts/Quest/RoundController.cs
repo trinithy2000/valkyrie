@@ -1,17 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
+using UnityEngine;
 using ValkyrieTools;
-using Assets.Scripts.Content;
 
 // This class controls the progression of activations and events
-public class RoundController {
+public class RoundController
+{
 
     // Latch activations finished incase more monsters come
-    bool activationsFinished = false;
+    private bool activationsFinished = false;
 
     // A hero has finished their turn
-    virtual public void HeroActivated()
+    public virtual void HeroActivated()
     {
         Game game = Game.Get();
         // Check if all heros have finished
@@ -19,7 +19,9 @@ public class RoundController {
         foreach (Quest.Hero h in game.quest.heroes)
         {
             if (!h.activated && h.heroData != null)
+            {
                 herosActivated = false;
+            }
         }
 
         // activate a monster group (returns if all activated, does nothing if none left)
@@ -48,7 +50,7 @@ public class RoundController {
     }
 
     // A monster has activated, work out what to do next
-    virtual public void MonsterActivated()
+    public virtual void MonsterActivated()
     {
         Game game = Game.Get();
 
@@ -77,11 +79,13 @@ public class RoundController {
         foreach (Quest.Hero h in game.quest.heroes)
         {
             if (!h.activated && h.heroData != null)
+            {
                 herosActivated = false;
+            }
         }
 
         // If there no heros left activate another monster
-        if(herosActivated)
+        if (herosActivated)
         {
             if (ActivateMonster())
             {
@@ -99,7 +103,7 @@ public class RoundController {
     }
 
     // Activate a monster (if any left) and return true if all monsters activated
-    virtual public bool ActivateMonster()
+    public virtual bool ActivateMonster()
     {
         Game game = Game.Get();
 
@@ -108,12 +112,16 @@ public class RoundController {
         for (int i = 0; i < game.quest.monsters.Count; i++)
         {
             if (!game.quest.monsters[i].activated)
+            {
                 notActivated.Add(i);
+            }
         }
 
         // If no monsters are found return true
         if (notActivated.Count == 0)
+        {
             return true;
+        }
 
         // Find a random unactivated monster
         Quest.Monster toActivate = game.quest.monsters[notActivated[Random.Range(0, notActivated.Count)]];
@@ -122,7 +130,7 @@ public class RoundController {
     }
 
     // Activate a monster
-    virtual public bool ActivateMonster(Quest.Monster m)
+    public virtual bool ActivateMonster(Quest.Monster m)
     {
         List<ActivationData> adList = new List<ActivationData>();
         Game game = Game.Get();
@@ -241,7 +249,7 @@ public class RoundController {
         m.minionStarted = Random.Range(0, 2) == 0;
 
         // If order specificed then use that instead
-        if(m.currentActivation.ad.masterFirst)
+        if (m.currentActivation.ad.masterFirst)
         {
             m.minionStarted = false;
         }
@@ -292,13 +300,20 @@ public class RoundController {
 
         // Is there an active event?
         if (game.quest.eManager.currentEvent != null)
+        {
             return false;
+        }
 
         // Are there queued events?
         if (game.quest.eManager.eventStack.Count > 0)
+        {
             return false;
+        }
 
-        if (!activationsFinished) return false;
+        if (!activationsFinished)
+        {
+            return false;
+        }
 
         // Clean up for next round
         activationsFinished = false;

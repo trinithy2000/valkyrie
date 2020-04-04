@@ -1,12 +1,13 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
-using ValkyrieTools;
 using System.IO;
 using System.Text;
+using UnityEngine;
+using ValkyrieTools;
 
 // Quest editor static helper class
-public class QuestEditor {
+public class QuestEditor
+{
 
     // start editing a quest
     public static void Begin(string path)
@@ -29,11 +30,16 @@ public class QuestEditor {
         Game game = Game.Get();
 
         // Remove all current components
-        if (game.quest != null)   game.quest.RemoveAll();
+        if (game.quest != null)
+        {
+            game.quest.RemoveAll();
+        }
 
         // Clean up everything marked as 'editor'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.EDITOR))
+        {
             Object.Destroy(go);
+        }
 
         // Read from file
         game.quest = new Quest(new QuestData.Quest(path));
@@ -135,7 +141,7 @@ public class QuestEditor {
         foreach (KeyValuePair<string, StringBuilder> kv in fileData)
         {
             string outFile = Path.Combine(Path.GetDirectoryName(game.quest.qd.questPath), kv.Key);
-           // Write to disk
+            // Write to disk
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(outFile));

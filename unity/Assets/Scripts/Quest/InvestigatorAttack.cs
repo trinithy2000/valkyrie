@@ -1,8 +1,6 @@
-using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Window with Investigator attack information
 public class InvestigatorAttack
@@ -23,41 +21,42 @@ public class InvestigatorAttack
     {
         // If a dialog window is open we force it closed (this shouldn't happen)
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             Object.Destroy(go);
+        }
 
         UIElement ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(-10), 0.5f, 20, 2);
+        ui.SetLocation(UIScaler.GetHCenter(-8), 1.5f, 20, 2);
         ui.SetText(ATTACK_PROMPT);
         ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui);
+        new UIElementBorderDialog(ui,CommonString.dialogOne);
 
-        float offset = 3f;
+        float offset = 4f;
         foreach (string type in monster.monsterData.GetAttackTypes())
         {
             string tmpType = type;
             ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-6f), offset, 12, 2);
+            ui.SetLocation(UIScaler.GetHCenter(-4f), offset, 12, 2);
             ui.SetText(new StringKey("val", tmpType));
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(delegate { Attack(tmpType); });
-            new UIElementBorder(ui);
+            new UIButtonBackGround(ui, 1);
             offset += 2.5f;
         }
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(-4f), offset, 8, 2);
+        ui.SetLocation(UIScaler.GetHCenter(-2f), offset, 8, 2);
         if (monster.damage == monster.GetHealth())
         {
             ui.SetText(CommonStringKeys.CANCEL, Color.gray);
-            new UIElementBorder(ui, Color.gray);
         }
         else
         {
             ui.SetText(CommonStringKeys.CANCEL);
             ui.SetButton(Destroyer.Dialog);
-            new UIElementBorder(ui);
         }
         ui.SetFontSize(UIScaler.GetMediumFont());
+        new UIButtonBackGround(ui, 1);
 
         MonsterDialogMoM.DrawMonster(monster, true);
     }
@@ -75,24 +74,24 @@ public class InvestigatorAttack
         Destroyer.Dialog();
 
         UIElement ui = new UIElement();
-        ui.SetLocation(10, 0.5f, UIScaler.GetWidthUnits() - 20, 8);
+        ui.SetLocation(18, 1.5f, UIScaler.GetWidthUnits() - 25, 10);
         ui.SetText(attackText);
-        new UIElementBorder(ui);
+        new UIElementBorderDialog(ui, CommonString.dialogOne);
 
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetHCenter(-6), 9, 12, 2);
+        ui.SetLocation(UIScaler.GetHCenter(), 12, 12, 2);
         if (monster.damage == monster.GetHealth())
         {
             ui.SetText(CommonStringKeys.FINISHED, Color.gray);
-            new UIElementBorder(ui, Color.gray);
         }
         else
         {
             ui.SetText(CommonStringKeys.FINISHED);
             ui.SetButton(Destroyer.Dialog);
-            new UIElementBorder(ui);
+
         }
         ui.SetFontSize(UIScaler.GetMediumFont());
+        new UIButtonBackGround(ui, 1);
 
         MonsterDialogMoM.DrawMonster(monster, true);
     }

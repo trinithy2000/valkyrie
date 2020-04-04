@@ -1,11 +1,11 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
-using Assets.Scripts.Content;
 using System.IO;
+using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
-    class UIWindowSelectionListImage : UIWindowSelectionListTraits
+    internal class UIWindowSelectionListImage : UIWindowSelectionListTraits
     {
         protected Dictionary<string, ItemDraw> spriteCache = new Dictionary<string, ItemDraw>();
 
@@ -17,7 +17,7 @@ namespace Assets.Scripts.UI
         {
         }
 
-        override public void Draw()
+        public override void Draw()
         {
             GenerateSpriteCache();
             base.Draw();
@@ -29,13 +29,18 @@ namespace Assets.Scripts.UI
             {
                 float aspect = 0;
                 Texture2D tex = GetTexture(item.GetKey(), out aspect);
-                if (tex == null) continue;
+                if (tex == null)
+                {
+                    continue;
+                }
 
-                ItemDraw spriteData = new ItemDraw();
-                spriteData.color = item.GetColor();
-                spriteData.sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1, 0, SpriteMeshType.FullRect);
+                ItemDraw spriteData = new ItemDraw
+                {
+                    color = item.GetColor(),
+                    sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1, 0, SpriteMeshType.FullRect),
 
-                spriteData.height = 3.95f;
+                    height = 3.95f
+                };
                 spriteData.width = spriteData.height * tex.width / tex.height;
                 if (aspect != 0)
                 {
@@ -110,7 +115,10 @@ namespace Assets.Scripts.UI
                     display &= tg.ActiveItem(item);
                 }
 
-                if (!display) continue;
+                if (!display)
+                {
+                    continue;
+                }
 
                 if (spriteCache.ContainsKey(item.GetKey()))
                 {
@@ -123,7 +131,11 @@ namespace Assets.Scripts.UI
                 }
                 else
                 {
-                    if (xOffset > 0) offset += yOffset;
+                    if (xOffset > 0)
+                    {
+                        offset += yOffset;
+                    }
+
                     xOffset = 0;
                     offset = DrawItem(item, itemScrollArea.GetScrollTransform(), offset);
                 }

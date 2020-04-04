@@ -1,12 +1,13 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 using ValkyrieTools;
 
 // Class for creation of a dialog window with buttons and handling button press
 // This is used for display of event information
-public class DialogWindow {
+public class DialogWindow
+{
     // The even that raises this dialog
     public EventManager.Event eventData;
     // An event can have a list of selected heroes
@@ -14,7 +15,7 @@ public class DialogWindow {
 
     public int quota = 0;
 
-    public string text= "";
+    public string text = "";
 
     // Create from event
     public DialogWindow(EventManager.Event e)
@@ -66,56 +67,84 @@ public class DialogWindow {
         // Draw text
         UIElement ui = new UIElement();
         float offset = ui.GetStringHeight(text, 28);
-        if (offset < 4)
+        if (offset < 5)
         {
-            offset = 4;
+            offset = 5;
         }
-        ui.SetLocation(UIScaler.GetHCenter(-14f), 0.5f, 28, offset);
+        ui.SetLocation(UIScaler.GetHCenter(-14), UIScaler.GetVCenter(-5.5f), 28, offset);
         ui.SetText(text);
-        new UIElementBorder(ui);
-        offset += 1f;
+        new UIElementBorderDialog(ui, CommonString.dialogOne);
+        offset += UIScaler.GetRelWidth(6) + 1f;
+
 
         // Determine button size
-        float buttonWidth = 8;
-        float hOffset = UIScaler.GetWidthUnits() - 19f;
+        float buttonWidth = 10;
+        float buttonHeight = 2f;
+        float hOffset = UIScaler.GetRelWidth(8);
         float hOffsetCancel = 11;
         float offsetCancel = offset;
 
         List<DialogWindow.EventButton> buttons = eventData.GetButtons();
-        foreach (EventButton eb in buttons)
-        {
-            float length = ui.GetStringWidth(eb.GetLabel().Translate(), UIScaler.GetMediumFont());
-            if (length > buttonWidth)
-            {
-                buttonWidth = length;
-                hOffset = UIScaler.GetHCenter(-length / 2);
-                hOffsetCancel = UIScaler.GetHCenter(-4);
-                offsetCancel = offset + (2.5f * buttons.Count);
-            }
-        }
 
         int num = 1;
+
         foreach (EventButton eb in buttons)
         {
+            if (ui.GetStringHeight(eb.GetLabel().Translate(), buttonWidth, UIScaler.GetMediumFont()) > buttonHeight)
+            {
+                buttonHeight = ui.GetStringHeight(eb.GetLabel().Translate(), buttonWidth, UIScaler.GetMediumFont());
+            }
+
             int numTmp = num++;
+
+            if (buttons.Count > 3 || (buttons.Count == 1 && !eventData.qEvent.cancelable))
+            {
+                hOffset = UIScaler.GetHCenter(-(buttonWidth / 2));
+            }
+            else
+            {
+                if ((numTmp % 2) != 0)
+                {
+                    hOffset = UIScaler.GetHCenter(1);
+                }
+                else
+                {
+                    hOffset = UIScaler.GetHCenter(-(buttonWidth + 1));
+                }
+            }
             ui = new UIElement();
-            ui.SetLocation(hOffset, offset, buttonWidth, 2);
+            ui.SetLocation(hOffset, offset, buttonWidth, buttonHeight);
             ui.SetText(eb.GetLabel(), eb.colour);
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(delegate { onButton(numTmp); });
-            new UIElementBorder(ui, eb.colour);
-            offset += 2.5f;
+            ui.SetBGColor(Color.clear);
+            new UIButtonBackGround(ui, 1);
+            if (buttons.Count > 3)
+            {
+                offset += buttonHeight + .5f;
+            }
         }
 
         // Do we have a cancel button?
         if (eventData.qEvent.cancelable)
         {
+            if (buttons.Count == 1)
+            {
+                hOffsetCancel = UIScaler.GetHCenter(-(buttonWidth + 1));
+                offsetCancel = UIScaler.GetRelWidth(6) + 6f;
+            }
+            else
+            {
+                hOffsetCancel = UIScaler.GetHCenter(-2);
+                offsetCancel = offset + (2.5f * buttons.Count);
+            }
             ui = new UIElement();
-            ui.SetLocation(hOffsetCancel, offsetCancel, 8, 2);
+            ui.SetLocation(hOffsetCancel, offsetCancel, buttonWidth, 2);
             ui.SetText(CommonStringKeys.CANCEL);
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(onCancel);
-            new UIElementBorder(ui);
+            ui.SetBGColor(Color.clear);
+            new UIButtonBackGround(ui, 1);
         }
     }
 
@@ -124,72 +153,67 @@ public class DialogWindow {
         // Draw text
         UIElement ui = new UIElement();
         float offset = ui.GetStringHeight(text, 28);
-        if (offset < 4)
+        if (offset < 10f)
         {
-            offset = 4;
+            offset = 10;
         }
-        ui.SetLocation(UIScaler.GetHCenter(-14f), 0.5f, 28, offset);
+        ui.SetLocation(UIScaler.GetHCenter(-14f), 10f, 28, 4);
         ui.SetText(text);
-        new UIElementBorder(ui);
+        new UIElementBorderDialog(ui, CommonString.dialogOne);
         offset += 1;
 
-        ui = new UIElement();
-        ui.SetLocation(11, offset, 2, 2);
-        new UIElementBorder(ui);
-        if (quota == 0)
-        {
-            ui.SetText(CommonStringKeys.MINUS, Color.grey);
-        }
-        else
-        {
-            ui.SetText(CommonStringKeys.MINUS);
-            ui.SetButton(quotaDec);
-        }
-        ui.SetFontSize(UIScaler.GetMediumFont());
-
-        ui = new UIElement();
-        ui.SetLocation(14, offset, 2, 2);
-        ui.SetText(quota.ToString());
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        new UIElementBorder(ui);
-
-        ui = new UIElement();
-        ui.SetLocation(17, offset, 2, 2);
-        new UIElementBorder(ui);
-        if (quota >= 10)
-        {
-            ui.SetText(CommonStringKeys.PLUS, Color.grey);
-        }
-        else
-        {
-            ui.SetText(CommonStringKeys.PLUS);
-            ui.SetButton(quotaInc);
-        }
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        
         // Only one button, action depends on quota
         ui = new UIElement();
-        ui.SetLocation(UIScaler.GetWidthUnits() - 19, offset, 8, 2);
+        ui.SetLocation(UIScaler.GetHCenter(-3), offset * 1.6f, 6, 2);
         ui.SetText(eventData.GetButtons()[0].GetLabel());
         ui.SetFontSize(UIScaler.GetMediumFont());
         ui.SetButton(onQuota);
-        new UIElementBorder(ui);
+        new UIButtonBackGround(ui, 2);
+
+        // Text quota
+        ui = new UIElement();
+        ui.SetLocation(UIScaler.GetHCenter(-1.4f), offset * 1.35f, 3, 3);
+        ui.SetText(quota.ToString());
+        ui.SetFontSize(UIScaler.GetLargeFont());
+        ui.SetFontStyle(FontStyle.Bold);
+        ui.SetBGColor(Color.clear);
+
+        // button -
+        ui = new UIElement();
+        ui.SetLocation(UIScaler.GetHCenter(-5.2f), offset * 1.32f, 3, 3);
+        ui.SetBGColor(Color.clear);
+        if (quota != 0)
+        {
+            ui.SetButton(quotaDec);
+        }
+
+        // button +
+        ui = new UIElement();
+        ui.SetLocation(UIScaler.GetHCenter(2.4f), offset * 1.32f, 3, 3);
+        ui.SetBGColor(Color.clear);
+        if (quota < 10)
+        {
+            ui.SetButton(quotaInc);
+        }
 
         // Do we have a cancel button?
-        if (eventData.qEvent.cancelable)
-        {
-            ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-4f), offset + 2.5f, 8, 2);
-            ui.SetText(CommonStringKeys.CANCEL);
-            ui.SetFontSize(UIScaler.GetMediumFont());
-            ui.SetButton(onCancel);
-            new UIElementBorder(ui);
-        }
+        //  if (eventData.qEvent.cancelable)
+        //  {
+        ui = new UIElement();
+        ui.SetLocation(UIScaler.GetHCenter(-3.3f), offset * 1.82f, 7.1f, 1.65f);
+        ui.SetText(CommonStringKeys.CANCEL);
+        ui.SetFontSize(UIScaler.GetMediumFont());
+        ui.SetButton(onCancel);
+        new UIButtonBackGround(ui, 1);
+        //  }
     }
 
     public void DrawItem()
     {
-        if (eventData.qEvent.highlight) return;
+        if (eventData.qEvent.highlight)
+        {
+            return;
+        }
 
         string item = "";
         int items = 0;
@@ -201,11 +225,17 @@ public class DialogWindow {
                 items++;
             }
         }
-        if (items != 1) return;
+        if (items != 1)
+        {
+            return;
+        }
 
         Game game = Game.Get();
 
-        if (!game.quest.itemSelect.ContainsKey(item)) return;
+        if (!game.quest.itemSelect.ContainsKey(item))
+        {
+            return;
+        }
 
         Texture2D tex = ContentData.FileToTexture(game.cd.items[game.quest.itemSelect[item]].image);
         Sprite sprite = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1, 0, SpriteMeshType.FullRect);
@@ -242,7 +272,7 @@ public class DialogWindow {
             onButton(1);
             return;
         }
-        
+
         if (game.quest.eventQuota.ContainsKey(eventData.qEvent.sectionName))
         {
             game.quest.eventQuota[eventData.qEvent.sectionName] += quota;
@@ -274,7 +304,10 @@ public class DialogWindow {
     public void onButton(int num)
     {
         // Do we have correct hero selection?
-        if (!checkHeroes()) return;
+        if (!checkHeroes())
+        {
+            return;
+        }
 
         Game game = Game.Get();
         // Destroy this dialog to close
@@ -293,7 +326,7 @@ public class DialogWindow {
         game.quest.eventList.Add(eventData.qEvent.sectionName);
 
         // Event manager handles the aftermath
-        game.quest.eManager.EndEvent(num-1);
+        game.quest.eManager.EndEvent(num - 1);
     }
 
     // Check that the correct number of heroes are selected
@@ -313,8 +346,15 @@ public class DialogWindow {
         }
 
         // Check that count matches
-        if (eventData.qEvent.maxHeroes < heroList.Count && eventData.qEvent.maxHeroes != 0) return false;
-        if (eventData.qEvent.minHeroes > heroList.Count) return false;
+        if (eventData.qEvent.maxHeroes < heroList.Count && eventData.qEvent.maxHeroes != 0)
+        {
+            return false;
+        }
+
+        if (eventData.qEvent.minHeroes > heroList.Count)
+        {
+            return false;
+        }
 
         // Clear selection
         foreach (Quest.Hero h in game.quest.heroes)
@@ -339,13 +379,13 @@ public class DialogWindow {
 
     public class EventButton
     {
-        StringKey label = StringKey.NULL;
+        private readonly StringKey label = StringKey.NULL;
         public Color32 colour = Color.white;
 
-        public EventButton(StringKey newLabel,string newColour)
+        public EventButton(StringKey newLabel, string newColour)
         {
             label = newLabel;
-            string colorRGB = ColorUtil.FromName(newColour);      
+            string colorRGB = ColorUtil.FromName(newColour);
 
             // Check format is valid
             if ((colorRGB.Length != 7 && colorRGB.Length != 9) || (colorRGB[0] != '#'))
@@ -354,14 +394,18 @@ public class DialogWindow {
             }
 
             // Hexadecimal to float convert (0x00-0xFF -> 0.0-1.0)
-            colour.r = (byte)System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
-            colour.g = (byte)System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
-            colour.b = (byte)System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
+            colour.r = System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
+            colour.g = System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
+            colour.b = System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
 
             if (colorRGB.Length == 9)
-                colour.a = (byte)System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            {
+                colour.a = System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            }
             else
+            {
                 colour.a = 255; // opaque by default
+            }
         }
 
         public StringKey GetLabel()

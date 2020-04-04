@@ -1,14 +1,13 @@
-using UnityEditor;
-using System.IO;
-using System.Collections;
-using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEngine;
 
-class PerformBuild
+internal class PerformBuild
 {
-    private static string BUILD_LOCATION = "+buildlocation";
+    private static readonly string BUILD_LOCATION = "+buildlocation";
 
-    static string GetBuildLocation(BuildTarget buildTarget)
+    private static string GetBuildLocation(BuildTarget buildTarget)
     {
         string[] args = System.Environment.GetCommandLineArgs();
         int indexOfBuildLocation = System.Array.IndexOf(args, BUILD_LOCATION);
@@ -26,30 +25,36 @@ class PerformBuild
         }
     }
 
-    static string[] GetBuildScenes()
+    private static string[] GetBuildScenes()
     {
         List<string> names = new List<string>();
 
         foreach (EditorBuildSettingsScene e in EditorBuildSettings.scenes)
         {
             if (e == null)
+            {
                 continue;
+            }
 
             if (e.enabled)
+            {
                 names.Add(e.path);
+            }
         }
         return names.ToArray();
     }
 
     [UnityEditor.MenuItem("Perform Build/Android Command Line Build")]
-    static void CommandLineBuildAndroid()
+    private static void CommandLineBuildAndroid()
     {
         Debug.Log("Command line build android version\n------------------\n------------------");
 
         string[] scenes = GetBuildScenes();
         string path = GetBuildLocation(BuildTarget.Android);
         if (scenes == null || scenes.Length == 0 || path == null)
+        {
             return;
+        }
 
         Debug.Log(string.Format("Path: \"{0}\"", path));
         for (int i = 0; i < scenes.Length; ++i)

@@ -1,5 +1,7 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
+using UnityEngine;
+using UnityEngine.UI;
+
 
 namespace Assets.Scripts.UI
 {
@@ -33,7 +35,11 @@ namespace Assets.Scripts.UI
         /// <param name="parent">Parent transform, cannot be changed after construction, defaults to the UI Panel.</param>
         public UIElement(string t = "", Transform parent = null)
         {
-            if (t.Length > 0) tag = t;
+            if (t.Length > 0)
+            {
+                tag = t;
+            }
+
             CreateBG(parent);
         }
 
@@ -49,8 +55,10 @@ namespace Assets.Scripts.UI
         /// Destroy a UI element.</summary>
         public void Destroy()
         {
-            if(bg!=null)
+            if (bg != null)
+            {
                 Object.Destroy(bg);
+            }
         }
 
         /// <summary>
@@ -93,12 +101,18 @@ namespace Assets.Scripts.UI
         /// Internal method called by constructor to set up base GameObject.</summary>
         protected virtual void CreateBG(Transform parent)
         {
-            bg = new GameObject("UIBG");
-            bg.tag = tag;
+            bg = new GameObject("UIBG")
+            {
+                tag = tag
+            };
             UnityEngine.UI.Image uiImage = bg.AddComponent<UnityEngine.UI.Image>();
             // default color
             uiImage.color = new Color(0, 0, 0, (float)0.9);
-            if (parent == null) parent = Game.Get().uICanvas.transform;
+            if (parent == null)
+            {
+                parent = Game.Get().uICanvas.transform;
+            }
+
             bg.transform.SetParent(parent);
         }
 
@@ -119,7 +133,11 @@ namespace Assets.Scripts.UI
         /// Will also set the background color to white.</remarks>
         public void SetImage(Texture2D texture)
         {
-            if (texture == null) return;
+            if (texture == null)
+            {
+                return;
+            }
+
             SetBGColor(Color.white);
             bg.GetComponent<UnityEngine.UI.Image>().sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
         }
@@ -131,11 +149,19 @@ namespace Assets.Scripts.UI
         /// Will also set the background color to white.</remarks>
         public void SetImage(Sprite sprite)
         {
-            if (sprite == null) return;
+            if (sprite == null)
+            {
+                return;
+            }
+
             SetBGColor(Color.white);
             bg.GetComponent<UnityEngine.UI.Image>().sprite = sprite;
         }
 
+        public Image GetImage()
+        {
+            return bg.GetComponent<Image>();
+        }
 
         /// <summary>
         /// Set UI location in UIscaler units.</summary>
@@ -170,7 +196,11 @@ namespace Assets.Scripts.UI
         /// <param name="mode">wrap or overflow</param>
         public virtual void SetTextHorizontalOverflow(HorizontalWrapMode mode)
         {
-            if (text == null) return;
+            if (text == null)
+            {
+                return;
+            }
+
             text.GetComponent<UnityEngine.UI.Text>().horizontalOverflow = mode;
         }
 
@@ -183,7 +213,7 @@ namespace Assets.Scripts.UI
         {
             UnityEngine.UI.Button uiButton = bg.GetComponent<UnityEngine.UI.Button>();
             if (uiButton == null)
-            { 
+            {
                 uiButton = bg.AddComponent<UnityEngine.UI.Button>();
             }
             else
@@ -196,8 +226,8 @@ namespace Assets.Scripts.UI
             if (text != null)
             {
                 uiButton = text.GetComponent<UnityEngine.UI.Button>();
-                if(uiButton==null)
-                { 
+                if (uiButton == null)
+                {
                     uiButton = text.AddComponent<UnityEngine.UI.Button>();
                 }
                 else
@@ -225,7 +255,7 @@ namespace Assets.Scripts.UI
             {
                 uiButton = text.AddComponent<UnityEngine.UI.Button>();
                 uiButton.interactable = true;
-                uiButton.onClick.AddListener(delegate { call(value); } );
+                uiButton.onClick.AddListener(delegate { call(value); });
             }
             buttonCallWithParams = call;
         }
@@ -274,8 +304,10 @@ namespace Assets.Scripts.UI
             UnityEngine.UI.Text uiText = null;
             if (text == null)
             {
-                text = new GameObject("UIText");
-                text.tag = tag;
+                text = new GameObject("UIText")
+                {
+                    tag = tag
+                };
                 uiText = text.AddComponent<UnityEngine.UI.Text>();
                 uiText.alignment = TextAnchor.MiddleCenter;
                 uiText.verticalOverflow = VerticalWrapMode.Overflow;
@@ -301,7 +333,7 @@ namespace Assets.Scripts.UI
                     UnityEngine.UI.Button uiButton = text.AddComponent<UnityEngine.UI.Button>();
                     uiButton.interactable = true;
                     // use button text as parameters
-                    uiButton.onClick.AddListener(delegate { buttonCallWithParams(content); } );
+                    uiButton.onClick.AddListener(delegate { buttonCallWithParams(content); });
                 }
             }
             uiText = text.GetComponent<UnityEngine.UI.Text>();
@@ -365,7 +397,11 @@ namespace Assets.Scripts.UI
         /// The display text as a string or "" if not set.</returns>
         public virtual string GetText()
         {
-            if (text == null) return "";
+            if (text == null)
+            {
+                return "";
+            }
+
             return text.GetComponent<UnityEngine.UI.Text>().text;
         }
 
@@ -375,7 +411,11 @@ namespace Assets.Scripts.UI
         /// The display text color or Color.clear if text is not set.</returns>
         public virtual Color GetTextColor()
         {
-            if (text == null) return Color.clear;
+            if (text == null)
+            {
+                return Color.clear;
+            }
+
             return text.GetComponent<UnityEngine.UI.Text>().color;
         }
 
@@ -385,7 +425,11 @@ namespace Assets.Scripts.UI
         /// True if text not set or empty</returns>
         public virtual bool Empty()
         {
-            if (text == null) return true;
+            if (text == null)
+            {
+                return true;
+            }
+
             return text.GetComponent<UnityEngine.UI.Text>().text.Length == 0;
         }
 
@@ -497,19 +541,23 @@ namespace Assets.Scripts.UI
         /// The required text box height in UIScaler units.</returns>
         public float GetStringHeight(string content, float width)
         {
-            float height = 0f;
+            return GetStringHeight(content, width, UIScaler.GetSmallFont());
+        }
+
+        public float GetStringHeight(string content, float width, int fontSize)
+        {
             if (textHeightObj == null)
             {
                 textHeightObj = new GameObject("TextSizing");
-                textHeightObj.AddComponent<UnityEngine.UI.Text>();
+                textHeightObj.AddComponent<Text>();
                 RectTransform transform = textHeightObj.GetComponent<RectTransform>();
                 transform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, 6000 * UIScaler.GetPixelsPerUnit());
                 transform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, (width - (textPaddingDefault * 2)) * UIScaler.GetPixelsPerUnit());
-                textHeightObj.GetComponent<UnityEngine.UI.Text>().font = Game.Get().gameType.GetFont();
-                textHeightObj.GetComponent<UnityEngine.UI.Text>().fontSize = UIScaler.GetSmallFont();
+                textHeightObj.GetComponent<Text>().font = Game.Get().gameType.GetFont();
+                textHeightObj.GetComponent<Text>().fontSize = fontSize;
             }
-            textHeightObj.GetComponent<UnityEngine.UI.Text>().text = content;
-            height = (textHeightObj.GetComponent<UnityEngine.UI.Text>().preferredHeight / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2);
+            textHeightObj.GetComponent<Text>().text = content;
+            float height = (textHeightObj.GetComponent<Text>().preferredHeight / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2);
             Object.Destroy(textHeightObj);
             textHeightObj = null;
             return height;
@@ -542,10 +590,26 @@ namespace Assets.Scripts.UI
         public bool AtLocationPixels(float x, float y)
         {
             RectTransform transBg = bg.GetComponent<RectTransform>();
-            if (transBg.anchoredPosition.x - (transBg.sizeDelta.x / 2) > x) return false;
-            if (-transBg.anchoredPosition.y - (transBg.sizeDelta.y / 2) > y) return false;
-            if (transBg.anchoredPosition.x + (transBg.sizeDelta.x / 2) < x) return false;
-            if (-transBg.anchoredPosition.y + (transBg.sizeDelta.y / 2) < y) return false;
+            if (transBg.anchoredPosition.x - (transBg.sizeDelta.x / 2) > x)
+            {
+                return false;
+            }
+
+            if (-transBg.anchoredPosition.y - (transBg.sizeDelta.y / 2) > y)
+            {
+                return false;
+            }
+
+            if (transBg.anchoredPosition.x + (transBg.sizeDelta.x / 2) < x)
+            {
+                return false;
+            }
+
+            if (-transBg.anchoredPosition.y + (transBg.sizeDelta.y / 2) < y)
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -565,8 +629,16 @@ namespace Assets.Scripts.UI
         /// <param name="max">Maximum space in UIScaler units</param>
         protected bool VerticalTextSpaceInRange(float min, float max)
         {
-            if (GetVerticalTextSpace() < min) return false;
-            if (GetVerticalTextSpace() > max) return false;
+            if (GetVerticalTextSpace() < min)
+            {
+                return false;
+            }
+
+            if (GetVerticalTextSpace() > max)
+            {
+                return false;
+            }
+
             return true;
         }
 

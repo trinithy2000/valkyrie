@@ -11,14 +11,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
     public class PlistElement
     {
-        protected PlistElement() {}
+        protected PlistElement() { }
 
         // convenience methods
         public string AsString() { return ((PlistElementString)this).value; }
-        public int AsInteger()   { return ((PlistElementInteger)this).value; }
-        public bool AsBoolean()  { return ((PlistElementBoolean)this).value; }
+        public int AsInteger() { return ((PlistElementInteger)this).value; }
+        public bool AsBoolean() { return ((PlistElementBoolean)this).value; }
         public PlistElementArray AsArray() { return (PlistElementArray)this; }
-        public PlistElementDict AsDict()   { return (PlistElementDict)this; }
+        public PlistElementDict AsDict() { return (PlistElementDict)this; }
 
         public PlistElement this[string key]
         {
@@ -50,19 +50,23 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
     public class PlistElementDict : PlistElement
     {
-        public PlistElementDict() : base() {}
+        public PlistElementDict() : base() { }
 
-        private SortedDictionary<string, PlistElement> m_PrivateValue = new SortedDictionary<string, PlistElement>();
-        public IDictionary<string, PlistElement> values { get { return m_PrivateValue; }}
+        private readonly SortedDictionary<string, PlistElement> m_PrivateValue = new SortedDictionary<string, PlistElement>();
+        public IDictionary<string, PlistElement> values { get { return m_PrivateValue; } }
 
-        new public PlistElement this[string key]
+        public new PlistElement this[string key]
         {
-            get {
+            get
+            {
                 if (values.ContainsKey(key))
+                {
                     return values[key];
+                }
+
                 return null;
             }
-            set { this.values[key] = value; }
+            set { values[key] = value; }
         }
 
 
@@ -84,14 +88,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public PlistElementArray CreateArray(string key)
         {
-            var v = new PlistElementArray();
+            PlistElementArray v = new PlistElementArray();
             values[key] = v;
             return v;
         }
 
         public PlistElementDict CreateDict(string key)
         {
-            var v = new PlistElementDict();
+            PlistElementDict v = new PlistElementDict();
             values[key] = v;
             return v;
         }
@@ -99,7 +103,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
     public class PlistElementArray : PlistElement
     {
-        public PlistElementArray() : base() {}
+        public PlistElementArray() : base() { }
         public List<PlistElement> values = new List<PlistElement>();
 
         // convenience methods
@@ -120,14 +124,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public PlistElementArray AddArray()
         {
-            var v = new PlistElementArray();
+            PlistElementArray v = new PlistElementArray();
             values.Add(v);
             return v;
         }
 
         public PlistElementDict AddDict()
         {
-            var v = new PlistElementDict();
+            PlistElementDict v = new PlistElementDict();
             values.Add(v);
             return v;
         }
@@ -147,9 +151,11 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         // Parses a string that contains a XML file. No validation is done.
         internal static XDocument ParseXmlNoDtd(string text)
         {
-            XmlReaderSettings settings = new XmlReaderSettings();
-            settings.ProhibitDtd = false;
-            settings.XmlResolver = null; // prevent DTD download
+            XmlReaderSettings settings = new XmlReaderSettings
+            {
+                ProhibitDtd = false,
+                XmlResolver = null // prevent DTD download
+            };
 
             XmlReader xmlReader = XmlReader.Create(new StringReader(text), settings);
             return XDocument.Load(xmlReader);
@@ -189,49 +195,59 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             switch (xml.Name.LocalName)
             {
                 case "dict":
-                {
-                    List<XElement> children = xml.Elements().ToList();
-                    var el = new PlistElementDict();
-
-                    if (children.Count % 2 == 1)
-                        throw new Exception("Malformed plist file");
-
-                    for (int i = 0; i < children.Count - 1; i++)
                     {
-                        if (children[i].Name != "key")
-                            throw new Exception("Malformed plist file");
-                        string key = GetText(children[i]).Trim();
-                        var newChild = ReadElement(children[i+1]);
-                        if (newChild != null)
+                        List<XElement> children = xml.Elements().ToList();
+                        PlistElementDict el = new PlistElementDict();
+
+                        if (children.Count % 2 == 1)
                         {
-                            i++;
-                            el[key] = newChild;
+                            throw new Exception("Malformed plist file");
                         }
-                    }
-                    return el;
-                }
-                case "array":
-                {
-                    List<XElement> children = xml.Elements().ToList();
-                    var el = new PlistElementArray();
 
-                    foreach (var childXml in children)
-                    {
-                        var newChild = ReadElement(childXml);
-                        if (newChild != null)
-                            el.values.Add(newChild);
+                        for (int i = 0; i < children.Count - 1; i++)
+                        {
+                            if (children[i].Name != "key")
+                            {
+                                throw new Exception("Malformed plist file");
+                            }
+
+                            string key = GetText(children[i]).Trim();
+                            PlistElement newChild = ReadElement(children[i + 1]);
+                            if (newChild != null)
+                            {
+                                i++;
+                                el[key] = newChild;
+                            }
+                        }
+                        return el;
                     }
-                    return el;
-                }
+                case "array":
+                    {
+                        List<XElement> children = xml.Elements().ToList();
+                        PlistElementArray el = new PlistElementArray();
+
+                        foreach (XElement childXml in children)
+                        {
+                            PlistElement newChild = ReadElement(childXml);
+                            if (newChild != null)
+                            {
+                                el.values.Add(newChild);
+                            }
+                        }
+                        return el;
+                    }
                 case "string":
                     return new PlistElementString(GetText(xml));
                 case "integer":
-                {
-                    int r;
-                    if (int.TryParse(GetText(xml), out r))
-                        return new PlistElementInteger(r);
-                    return null;
-                }
+                    {
+                        int r;
+                        if (int.TryParse(GetText(xml), out r))
+                        {
+                            return new PlistElementInteger(r);
+                        }
+
+                        return null;
+                    }
                 case "true":
                     return new PlistElementBoolean(true);
                 case "false":
@@ -254,42 +270,47 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public void ReadFromString(string text)
         {
             XDocument doc = ParseXmlNoDtd(text);
-            version = (string) doc.Root.Attribute("version");
+            version = (string)doc.Root.Attribute("version");
             XElement xml = doc.XPathSelectElement("plist/dict");
 
-            var dict = ReadElement(xml);
+            PlistElement dict = ReadElement(xml);
             if (dict == null)
+            {
                 throw new Exception("Error parsing plist file");
+            }
+
             root = dict as PlistElementDict;
             if (root == null)
+            {
                 throw new Exception("Malformed plist file");
+            }
         }
 
         private static XElement WriteElement(PlistElement el)
         {
             if (el is PlistElementBoolean)
             {
-                var realEl = el as PlistElementBoolean;
+                PlistElementBoolean realEl = el as PlistElementBoolean;
                 return new XElement(realEl.value ? "true" : "false");
             }
             if (el is PlistElementInteger)
             {
-                var realEl = el as PlistElementInteger;
+                PlistElementInteger realEl = el as PlistElementInteger;
                 return new XElement("integer", realEl.value.ToString());
             }
             if (el is PlistElementString)
             {
-                var realEl = el as PlistElementString;
+                PlistElementString realEl = el as PlistElementString;
                 return new XElement("string", realEl.value);
             }
             if (el is PlistElementDict)
             {
-                var realEl = el as PlistElementDict;
-                var dictXml = new XElement("dict");
-                foreach (var kv in realEl.values)
+                PlistElementDict realEl = el as PlistElementDict;
+                XElement dictXml = new XElement("dict");
+                foreach (KeyValuePair<string, PlistElement> kv in realEl.values)
                 {
-                    var keyXml = new XElement("key", kv.Key);
-                    var valueXml = WriteElement(kv.Value);
+                    XElement keyXml = new XElement("key", kv.Key);
+                    XElement valueXml = WriteElement(kv.Value);
                     if (valueXml != null)
                     {
                         dictXml.Add(keyXml);
@@ -300,13 +321,15 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             }
             if (el is PlistElementArray)
             {
-                var realEl = el as PlistElementArray;
-                var arrayXml = new XElement("array");
-                foreach (var v in realEl.values)
+                PlistElementArray realEl = el as PlistElementArray;
+                XElement arrayXml = new XElement("array");
+                foreach (PlistElement v in realEl.values)
                 {
-                    var elXml = WriteElement(v);
+                    XElement elXml = WriteElement(v);
                     if (elXml != null)
+                    {
                         arrayXml.Add(elXml);
+                    }
                 }
                 return arrayXml;
             }
@@ -325,12 +348,12 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public string WriteToString()
         {
-            var el = WriteElement(root);
-            var rootEl = new XElement("plist");
+            XElement el = WriteElement(root);
+            XElement rootEl = new XElement("plist");
             rootEl.Add(new XAttribute("version", version));
             rootEl.Add(el);
 
-            var doc = new XDocument();
+            XDocument doc = new XDocument();
             doc.Add(rootEl);
             return CleanDtdToString(doc);
         }

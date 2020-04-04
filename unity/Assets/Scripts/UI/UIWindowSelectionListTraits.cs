@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
@@ -16,11 +16,10 @@ namespace Assets.Scripts.UI
         protected float scrollPos = 0;
 
         protected UIElementScrollVertical traitScrollArea;
-
-        string val_base_translated = null;
-        string val_source_translated = null;
-        string val_traits_translated = null;
-        string val_type_translated = null;
+        private readonly string val_base_translated = null;
+        private readonly string val_source_translated = null;
+        private readonly string val_traits_translated = null;
+        private readonly string val_type_translated = null;
         public UIWindowSelectionListTraits(UnityEngine.Events.UnityAction<string> call, string title = "") : base(call, title)
         {
             val_base_translated = CommonStringKeys.BASE.Translate();
@@ -38,7 +37,7 @@ namespace Assets.Scripts.UI
         }
 
 
-        override public void Draw()
+        public override void Draw()
         {
             foreach (SelectionItemTraits item in traitItems.Values)
             {
@@ -71,7 +70,7 @@ namespace Assets.Scripts.UI
                 }
             }
 
-            foreach (var exclusion in initialExclusions)
+            foreach (KeyValuePair<string, List<string>> exclusion in initialExclusions)
             {
                 foreach (string item in exclusion.Value)
                 {
@@ -82,7 +81,7 @@ namespace Assets.Scripts.UI
             Update();
         }
 
-        override public void Update()
+        public override void Update()
         {
             bool resetScroll = false;
             if (traitScrollArea == null)
@@ -189,7 +188,10 @@ namespace Assets.Scripts.UI
                             {
                                 display &= g.ActiveItem(item);
                             }
-                            if (display) itemCount++;
+                            if (display)
+                            {
+                                itemCount++;
+                            }
                         }
                         if (itemCount > 0)
                         {
@@ -273,7 +275,10 @@ namespace Assets.Scripts.UI
                     display &= tg.ActiveItem(item);
                 }
 
-                if (!display) continue;
+                if (!display)
+                {
+                    continue;
+                }
 
                 offset = DrawItem(item, itemScrollArea.GetScrollTransform(), offset);
             }
@@ -291,13 +296,20 @@ namespace Assets.Scripts.UI
             }
             ui.SetBGColor(item.GetColor());
             ui.SetText(item.GetDisplay(), Color.black);
-            if (alphaSort) ui.SetTextAlignment(TextAnchor.MiddleLeft);
+            if (alphaSort)
+            {
+                ui.SetTextAlignment(TextAnchor.MiddleLeft);
+            }
+
             return offset + 1.05f;
         }
 
         protected void SelectTrait(TraitGroup group, string trait)
         {
-            if (!group.traits.ContainsKey(trait)) return;
+            if (!group.traits.ContainsKey(trait))
+            {
+                return;
+            }
 
             group.traits[trait].selected = !group.traits[trait].selected;
             group.traits[trait].excluded = false;
@@ -306,12 +318,17 @@ namespace Assets.Scripts.UI
 
         protected void ExcludeTrait(TraitGroup group, string trait, bool update)
         {
-            if (!group.traits.ContainsKey(trait)) return;
+            if (!group.traits.ContainsKey(trait))
+            {
+                return;
+            }
 
             group.traits[trait].excluded = !group.traits[trait].excluded;
             group.traits[trait].selected = false;
-            if(update)
+            if (update)
+            {
                 Update();
+            }
         }
 
         public void AddItem(StringKey stringKey, Dictionary<string, IEnumerable<string>> traits)
@@ -346,10 +363,11 @@ namespace Assets.Scripts.UI
 
         public void AddItem(QuestData.QuestComponent qc)
         {
-            Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-
-            traits.Add(val_type_translated, new string[] { new StringKey("val", qc.typeDynamic.ToUpper()).Translate() });
-            traits.Add(val_source_translated, new string[] { qc.source });
+            Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+            {
+                { val_type_translated, new string[] { new StringKey("val", qc.typeDynamic.ToUpper()).Translate() } },
+                { val_source_translated, new string[] { qc.source } }
+            };
 
             AddItem(new SelectionItemTraits(qc.sectionName, qc.sectionName, traits));
         }
@@ -364,7 +382,7 @@ namespace Assets.Scripts.UI
             AddItem(CreateItem(component), color);
         }
 
-        override public void AddItem(SelectionItem item)
+        public override void AddItem(SelectionItem item)
         {
             string key = item.GetDisplay();
             int duplicateIndex = 0;
@@ -421,10 +439,11 @@ namespace Assets.Scripts.UI
 
         public void AddNewComponentItem(string type)
         {
-            Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-
-            traits.Add(val_type_translated, new string[] { new StringKey("val", type.ToUpper()).Translate() });
-            traits.Add(val_source_translated, new string[] { new StringKey("val", "NEW").Translate() });
+            Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+            {
+                { val_type_translated, new string[] { new StringKey("val", type.ToUpper()).Translate() } },
+                { val_source_translated, new string[] { new StringKey("val", "NEW").Translate() } }
+            };
 
             AddItem(new SelectionItemTraits(new StringKey("val", "NEW_X", new StringKey("val", type.ToUpper())).Translate(), "{NEW:" + type + "}", traits));
         }
@@ -464,15 +483,25 @@ namespace Assets.Scripts.UI
 
         public void ExcludeExpansions()
         {
-            List<string> enabled = new List<string>();
-            enabled.Add(val_base_translated);
+            List<string> enabled = new List<string>
+            {
+                val_base_translated
+            };
             foreach (string anyPack in Game.Get().cd.GetLoadedPackIDs())
             {
                 bool packRequired = false;
-                if (anyPack.Equals("") || anyPack.Equals("base")) packRequired = true;
+                if (anyPack.Equals("") || anyPack.Equals("base"))
+                {
+                    packRequired = true;
+                }
+
                 foreach (string s in Game.Get().quest.qd.quest.packs)
                 {
-                    if (packRequired) break;
+                    if (packRequired)
+                    {
+                        break;
+                    }
+
                     if (anyPack.Equals(s))
                     {
                         packRequired = true;
@@ -487,7 +516,7 @@ namespace Assets.Scripts.UI
 
         public class SelectionItemTraits : SelectionItem
         {
-            Dictionary<string, IEnumerable<string>> _traits = new Dictionary<string, IEnumerable<string>>();
+            private readonly Dictionary<string, IEnumerable<string>> _traits = new Dictionary<string, IEnumerable<string>>();
 
             public SelectionItemTraits(string display, string key) : base(display, key)
             {

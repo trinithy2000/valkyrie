@@ -1,17 +1,13 @@
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.IO;
-using System.Linq;
 using System;
+using System.Collections.Generic;
 
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
-{   
-
-    class ValueAST {}
+{
+    internal class ValueAST { }
 
     // IdentifierAST := <quoted string> \ <string>
-    class IdentifierAST : ValueAST
+    internal class IdentifierAST : ValueAST
     {
         public int value = 0; // token id
     }
@@ -20,7 +16,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
     // KeyValuePairList := KeyValuePair ',' KeyValuePairList
     //                     KeyValuePair ','
     //                     (empty)
-    class TreeAST : ValueAST
+    internal class TreeAST : ValueAST
     {
         public List<KeyValueAST> values = new List<KeyValueAST>();
     }
@@ -29,31 +25,31 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
     // ValueList := ValueAST ',' ValueList
     //              ValueAST ','
     //              (empty)
-    class ArrayAST : ValueAST
+    internal class ArrayAST : ValueAST
     {
         public List<ValueAST> values = new List<ValueAST>();
     }
 
     // KeyValueAST := IdentifierAST '=' ValueAST ';'
     // ValueAST := IdentifierAST | TreeAST | ListAST
-    class KeyValueAST
+    internal class KeyValueAST
     {
         public IdentifierAST key = null;
         public ValueAST value = null; // either IdentifierAST, TreeAST or ListAST
     }
-    
-    class Parser
-    { 
-        TokenList tokens;
-        int currPos;
+
+    internal class Parser
+    {
+        private readonly TokenList tokens;
+        private int currPos;
 
         public Parser(TokenList tokens)
         {
             this.tokens = tokens;
             currPos = SkipComments(0);
         }
-        
-        int SkipComments(int pos)
+
+        private int SkipComments(int pos)
         {
             while (pos < tokens.Count && tokens[pos].type == TokenType.Comment)
             {
@@ -61,19 +57,22 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             }
             return pos;
         }
-       
+
         // returns new position
-        int IncInternal(int pos)
+        private int IncInternal(int pos)
         {
             if (pos >= tokens.Count)
+            {
                 return pos;
+            }
+
             pos++;
-            
+
             return SkipComments(pos);
         }
-        
+
         // Increments current pointer if not past the end, returns previous pos
-        int Inc()
+        private int Inc()
         {
             int prev = currPos;
             currPos = IncInternal(currPos);
@@ -81,91 +80,119 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         }
 
         // Returns the token type of the current token
-        TokenType Tok()
+        private TokenType Tok()
         {
             if (currPos >= tokens.Count)
+            {
                 return TokenType.EOF;
+            }
+
             return tokens[currPos].type;
         }
-        
-        void SkipIf(TokenType type)
+
+        private void SkipIf(TokenType type)
         {
             if (Tok() == type)
+            {
                 Inc();
+            }
         }
-        
-        string GetErrorMsg()
+
+        private string GetErrorMsg()
         {
             return "Invalid PBX project (parsing line " + tokens[currPos].line + ")";
         }
-        
+
         public IdentifierAST ParseIdentifier()
         {
             if (Tok() != TokenType.String && Tok() != TokenType.QuotedString)
+            {
                 throw new Exception(GetErrorMsg());
-            var ast = new IdentifierAST();
-            ast.value = Inc();
+            }
+
+            IdentifierAST ast = new IdentifierAST
+            {
+                value = Inc()
+            };
             return ast;
         }
-        
+
         public TreeAST ParseTree()
         {
             if (Tok() != TokenType.LBrace)
+            {
                 throw new Exception(GetErrorMsg());
+            }
+
             Inc();
-            
-            var ast = new TreeAST();
+
+            TreeAST ast = new TreeAST();
             while (Tok() != TokenType.RBrace && Tok() != TokenType.EOF)
             {
                 ast.values.Add(ParseKeyValue());
             }
             SkipIf(TokenType.RBrace);
-            return ast;  
+            return ast;
         }
-        
+
         public ArrayAST ParseList()
         {
             if (Tok() != TokenType.LParen)
+            {
                 throw new Exception(GetErrorMsg());
+            }
+
             Inc();
-            
-            var ast = new ArrayAST();
+
+            ArrayAST ast = new ArrayAST();
             while (Tok() != TokenType.RParen && Tok() != TokenType.EOF)
             {
                 ast.values.Add(ParseValue());
                 SkipIf(TokenType.Comma);
             }
             SkipIf(TokenType.RParen);
-            return ast;  
+            return ast;
         }
-        
+
         // throws on error
         public KeyValueAST ParseKeyValue()
         {
-            var ast = new KeyValueAST();
-            ast.key = ParseIdentifier();
-          
+            KeyValueAST ast = new KeyValueAST
+            {
+                key = ParseIdentifier()
+            };
+
             if (Tok() != TokenType.Eq)
+            {
                 throw new Exception(GetErrorMsg());
+            }
+
             Inc(); // skip '='
-                       
+
             ast.value = ParseValue();
             SkipIf(TokenType.Semicolon);
 
             return ast;
         }
-        
+
         // throws on error
         public ValueAST ParseValue()
         {
             if (Tok() == TokenType.String || Tok() == TokenType.QuotedString)
+            {
                 return ParseIdentifier();
+            }
             else if (Tok() == TokenType.LBrace)
+            {
                 return ParseTree();
+            }
             else if (Tok() == TokenType.LParen)
+            {
                 return ParseList();
+            }
+
             throw new Exception(GetErrorMsg());
         }
-    } 
-    
+    }
+
 } // namespace UnityEditor.iOS.Xcode

@@ -1,24 +1,30 @@
-﻿using UnityEngine;
-using UnityEngine.EventSystems;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
 
 // Class to control the game camera
 // Used to pan/zoom around the board
-public class CameraController : MonoBehaviour {
+public class CameraController : MonoBehaviour
+{
 
     // True if the board is selected and we can zoom into the scene
-    bool scrollEnabled = false;
+    private bool scrollEnabled = false;
+
     // How fast to move the screen when arrows used
-    static float keyScrollRate = 0.3f;
+    private static readonly float keyScrollRate = 0.3f;
+
     // How much to zoom in/out with wheel
-    static int mouseWheelScrollRate = 15;
+    private static readonly int mouseWheelScrollRate = 15;
+
     // Max zoom in
-    static int maxZoom = -1;
+    private static readonly int maxZoom = -1;
+
     // Max zoom out
-    static int minZoom = -25;
+    private static readonly int minZoom = -25;
+
     // Pinch zoom speed
-    static float pinchZoomSpeed = 0.05f;
+    private static readonly float pinchZoomSpeed = 0.05f;
 
     public bool minLimit = false;
     public bool maxLimit = false;
@@ -53,7 +59,7 @@ public class CameraController : MonoBehaviour {
     public Game game;
 
     // Called by Unity
-    void Awake()
+    private void Awake()
     {
         mouseDownCamPosition = gameObject.transform.position;
         camTarget = gameObject.transform.position;
@@ -61,10 +67,12 @@ public class CameraController : MonoBehaviour {
         game = Game.Get();
     }
 
-    bool ScrollEnabled()
+    private bool ScrollEnabled()
     {
-        PointerEventData pointer = new PointerEventData(EventSystem.current);
-        pointer.position = Input.mousePosition;
+        PointerEventData pointer = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
 
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointer, raycastResults);
@@ -72,7 +80,10 @@ public class CameraController : MonoBehaviour {
         {
             foreach (RaycastResult hit in raycastResults)
             {
-                if (!hit.gameObject.tag.Equals(Game.BOARD)) return false;
+                if (!hit.gameObject.tag.Equals(Game.BOARD))
+                {
+                    return false;
+                }
             }
         }
         return true;
@@ -80,7 +91,7 @@ public class CameraController : MonoBehaviour {
 
     // FixedUpdate is not tied to frame rate
     // Scrolling by keys go here to be at a fixed rate
-    void FixedUpdate ()
+    private void FixedUpdate()
     {
         if (scrollEnabled)
         {
@@ -111,7 +122,7 @@ public class CameraController : MonoBehaviour {
 
                 // Find the position in the previous frame of each touch.
                 Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
-                Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition; 
+                Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
 
                 // Find the magnitude of the vector (the distance) between the touches in each frame.
                 float prevTouchDeltaMag = (touchZero.position - touchOne.position).magnitude;
@@ -129,9 +140,14 @@ public class CameraController : MonoBehaviour {
 
                 // Limit how high/low the camera can go
                 if (gameObject.transform.position.z > maxZoom)
+                {
                     gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, maxZoom);
+                }
+
                 if (gameObject.transform.position.z < minZoom)
+                {
                     gameObject.transform.position = new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, minZoom);
+                }
             }
         }
 
@@ -170,20 +186,34 @@ public class CameraController : MonoBehaviour {
         Vector3 pos = gameObject.transform.position;
         if (minLimit)
         {
-            if (pos.x < minPanX) pos.x = minPanX;
-            if (pos.y < minPanY) pos.y = minPanY;
+            if (pos.x < minPanX)
+            {
+                pos.x = minPanX;
+            }
+
+            if (pos.y < minPanY)
+            {
+                pos.y = minPanY;
+            }
         }
         if (maxLimit)
         {
-            if (pos.x > maxPanX) pos.x = maxPanX;
-            if (pos.y > maxPanY) pos.y = maxPanY;
+            if (pos.x > maxPanX)
+            {
+                pos.x = maxPanX;
+            }
+
+            if (pos.y > maxPanY)
+            {
+                pos.y = maxPanY;
+            }
         }
         gameObject.transform.position = pos;
     }
 
     // Called by unity every frame
     // Scrolling by mouse/scripts goes here, rate is fixed, display needs to be smooth
-    void Update()
+    private void Update()
     {
         scrollEnabled = ScrollEnabled();
 
@@ -216,19 +246,34 @@ public class CameraController : MonoBehaviour {
         Vector3 pos = gameObject.transform.position;
         if (minLimit)
         {
-            if (pos.x < minPanX) pos.x = minPanX;
-            if (pos.y < minPanY) pos.y = minPanY;
+            if (pos.x < minPanX)
+            {
+                pos.x = minPanX;
+            }
+
+            if (pos.y < minPanY)
+            {
+                pos.y = minPanY;
+            }
         }
         if (maxLimit)
         {
-            if (pos.x > maxPanX) pos.x = maxPanX;
-            if (pos.y > maxPanY) pos.y = maxPanY;
+            if (pos.x > maxPanX)
+            {
+                pos.x = maxPanX;
+            }
+
+            if (pos.y > maxPanY)
+            {
+                pos.y = maxPanY;
+            }
         }
         gameObject.transform.position = pos;
 
         // any shift to cancel targets
         if (Input.GetKey(KeyCode.LeftShift) ||
-            Input.GetKey(KeyCode.RightShift)) {
+            Input.GetKey(KeyCode.RightShift))
+        {
             targetSet = false;
         }
 
@@ -321,13 +366,27 @@ public class CameraController : MonoBehaviour {
 
         if (cc.minLimit)
         {
-            if (cc.camTarget.x < cc.minPanX) cc.camTarget.x = cc.minPanX;
-            if (cc.camTarget.y < cc.minPanY) cc.camTarget.y = cc.minPanY;
+            if (cc.camTarget.x < cc.minPanX)
+            {
+                cc.camTarget.x = cc.minPanX;
+            }
+
+            if (cc.camTarget.y < cc.minPanY)
+            {
+                cc.camTarget.y = cc.minPanY;
+            }
         }
         if (cc.maxLimit)
         {
-            if (cc.camTarget.x > cc.maxPanX) cc.camTarget.x = cc.maxPanX;
-            if (cc.camTarget.y > cc.maxPanY) cc.camTarget.y = cc.maxPanY;
+            if (cc.camTarget.x > cc.maxPanX)
+            {
+                cc.camTarget.x = cc.maxPanX;
+            }
+
+            if (cc.camTarget.y > cc.maxPanY)
+            {
+                cc.camTarget.y = cc.maxPanY;
+            }
         }
     }
 

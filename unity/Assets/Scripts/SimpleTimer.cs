@@ -1,6 +1,5 @@
-﻿using UnityEngine;
-using System.Collections;
-using System;
+﻿using System;
+using UnityEngine;
 
 public class SimpleTimer : MonoBehaviour
 {
@@ -13,14 +12,16 @@ public class SimpleTimer : MonoBehaviour
         triggerEnd = f;
     }
 
-    void Update()
+    private void Update()
     {
         targetTime -= Time.deltaTime;
 
         if (targetTime <= 0.0f)
         {
             if (triggerEnd != null)
+            {
                 triggerEnd();
+            }
         }
     }
 }

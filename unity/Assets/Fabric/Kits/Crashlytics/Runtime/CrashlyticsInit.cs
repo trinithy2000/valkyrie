@@ -1,16 +1,11 @@
 ﻿namespace Fabric.Internal.Crashlytics
 {
-	using UnityEngine;
-	using System;
-	using System.Runtime.InteropServices;
-	using System.IO;
-	using Fabric.Internal.Runtime;
-	using Fabric.Crashlytics;
+    using UnityEngine;
 
-	public class CrashlyticsInit : MonoBehaviour
-	{
-		// Since we do not support platforms other than Android and iOS,
-		// we'll do nothing in Play/Editor mode.
+    public class CrashlyticsInit : MonoBehaviour
+    {
+        // Since we do not support platforms other than Android and iOS,
+        // we'll do nothing in Play/Editor mode.
 #if !UNITY_EDITOR
 		private static readonly string kitName = "Crashlytics";
 
@@ -111,5 +106,5 @@
 			}
 		}
 #endif
-	}
+    }
 }

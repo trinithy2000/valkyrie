@@ -1,14 +1,14 @@
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 
 // Tokens are events that are tied to a token placed on the board
 public class ShopInterface : Quest.BoardComponent
 {
-    GameObject panel;
-    QuestData.Event eventData;
+    private readonly GameObject panel;
+    private readonly QuestData.Event eventData;
 
     // Construct with quest info and reference to Game
     public ShopInterface(List<string> items, Game gameObject, string eventName) : base(gameObject)
@@ -40,7 +40,10 @@ public class ShopInterface : Quest.BoardComponent
     public override void Remove()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.SHOP))
+        {
             Object.Destroy(go);
+        }
+
         game.quest.activeShop = "";
     }
 
@@ -70,14 +73,18 @@ public class ShopInterface : Quest.BoardComponent
             }
 
             // Hexadecimal to float convert (0x00-0xFF -> 0.0-1.0)
-            colour.r = (byte)System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
-            colour.g = (byte)System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
-            colour.b = (byte)System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
+            colour.r = System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
+            colour.g = System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
+            colour.b = System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
 
             if (colorRGB.Length == 9)
-                colour.a = (byte)System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            {
+                colour.a = System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            }
             else
+            {
                 colour.a = 255; // opaque by default
+            }
 
             int tmp = i;
             UIElement ui = new UIElement(Game.SHOP);
@@ -93,7 +100,11 @@ public class ShopInterface : Quest.BoardComponent
 
     public void OnButton(int i)
     {
-        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null) return;
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
+
         game.quest.Save();
         game.quest.eManager.EndEvent(eventData, i);
     }
@@ -180,7 +191,10 @@ public class ShopInterface : Quest.BoardComponent
         foreach (string s in game.quest.items)
         {
             string itemName = s;
-            if (game.cd.items[itemName].ContainsTrait("relic")) continue;
+            if (game.cd.items[itemName].ContainsTrait("relic"))
+            {
+                continue;
+            }
 
             ui = new UIElement(Game.SHOP, scrollArea.GetScrollTransform());
             ui.SetLocation(0.5f, vOffset + 4.5f, 8, 2);
@@ -268,10 +282,16 @@ public class ShopInterface : Quest.BoardComponent
 
     public void Buy(string item)
     {
-        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null) return;
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
 
         ItemData itemData = game.cd.items[item];
-        if (game.quest.vars.GetValue("$%gold") < GetPurchasePrice(itemData)) return;
+        if (game.quest.vars.GetValue("$%gold") < GetPurchasePrice(itemData))
+        {
+            return;
+        }
 
         game.quest.vars.SetValue("$%gold", game.quest.vars.GetValue("$%gold") - GetPurchasePrice(itemData));
         game.quest.shops[eventData.sectionName].Remove(item);
@@ -281,7 +301,10 @@ public class ShopInterface : Quest.BoardComponent
 
     public void Sell(string item)
     {
-        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null) return;
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+        {
+            return;
+        }
 
         game.quest.vars.SetValue("$%gold", game.quest.vars.GetValue("$%gold") + GetSellPrice(game.cd.items[item]));
         game.quest.shops[eventData.sectionName].Add(item);

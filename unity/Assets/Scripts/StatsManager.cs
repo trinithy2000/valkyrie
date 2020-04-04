@@ -1,10 +1,7 @@
-using UnityEngine;
-using UnityEngine.Networking;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using Assets.Scripts;
+using UnityEngine;
 
 /*
  * Form : https://goo.gl/forms/jrC9oKh8EPMMdO2l2
@@ -39,8 +36,7 @@ public struct ScenarioStats
     public float scenario_avg_win_ratio;
 }
 
-
-class PublishedGameStats
+internal class PublishedGameStats
 {
     /* Google Form is waiting for the following datas 
      * 
@@ -89,7 +85,7 @@ public class StatsManager
 
     // stats for all scenario, downloaded from JSON
     public Stats_JSONobject stats_json;
-    public Dictionary<string,ScenarioStats> scenarios_stats = null;
+    public Dictionary<string, ScenarioStats> scenarios_stats = null;
 
     public bool error_download = false;
     public string error_download_description = "";
@@ -100,16 +96,23 @@ public class StatsManager
 
     public void PrepareStats(string victory, int rating, string comments)
     {
-        if (gameStats == null) gameStats = new PublishedGameStats();
+        if (gameStats == null)
+        {
+            gameStats = new PublishedGameStats();
+        }
 
         gameStats.Reset();
 
         gameStats.victory = victory;
 
         if (rating == 0)
+        {
             gameStats.rating = "not set";
+        }
         else
+        {
             gameStats.rating = rating.ToString();
+        }
 
         gameStats.comments = comments;
 
@@ -175,11 +178,12 @@ public class StatsManager
             gameStats.vars_list = "---Beginning of vars list is not included to avoid exceeding google sheet max size---" + gameStats.events_list;
         }
 
-        if (quest.duration>=0)
+        if (quest.duration >= 0)
         {
             TimeSpan current_duration = System.DateTime.UtcNow.Subtract(quest.start_time);
             gameStats.duration = quest.duration + (int)current_duration.TotalMinutes;
-        } else
+        }
+        else
         {
             gameStats.duration = 0;
         }
@@ -196,16 +200,16 @@ public class StatsManager
         WWWForm formFields = new WWWForm();
 
         formFields.AddField("entry.1875990408", gameStats.scenario_name);
-        formFields.AddField("entry.989998412",  gameStats.quest_name);
-        formFields.AddField("entry.84574628",   gameStats.victory);
-        formFields.AddField("entry.227102998",  gameStats.rating);
+        formFields.AddField("entry.989998412", gameStats.quest_name);
+        formFields.AddField("entry.84574628", gameStats.victory);
+        formFields.AddField("entry.227102998", gameStats.rating);
         formFields.AddField("entry.2125749314", gameStats.comments);
-        formFields.AddField("entry.170795919",  gameStats.duration.ToString());
-        formFields.AddField("entry.376629889",  gameStats.players_count.ToString());
+        formFields.AddField("entry.170795919", gameStats.duration.ToString());
+        formFields.AddField("entry.376629889", gameStats.players_count.ToString());
         formFields.AddField("entry.1150567176", gameStats.investigators_list);
         formFields.AddField("entry.2106598722", gameStats.language_selected);
         formFields.AddField("entry.1047979960", gameStats.events_list);
-        formFields.AddField("entry.571357850",  gameStats.vars_list);
+        formFields.AddField("entry.571357850", gameStats.vars_list);
 
         // submit async
         HTTPManager.Upload("https://docs.google.com/forms/u/1/d/e/1FAIpQLSfiFPuQOTXJI54LI-WNvn1K6qCkM5xErxJdUUJRhCZthaIqcA/formResponse?hl=en",
@@ -239,8 +243,10 @@ public class StatsManager
         stats_json = JsonUtility.FromJson<Stats_JSONobject>(data);
         scenarios_stats = new Dictionary<string, ScenarioStats>();
 
-        if(stats_json==null)
+        if (stats_json == null)
+        {
             Debug.Log("ERROR: Stat file is empty\n");
+        }
 
         // one entry per scenario
         foreach (ScenarioStats stats in stats_json.scenarios_stats)

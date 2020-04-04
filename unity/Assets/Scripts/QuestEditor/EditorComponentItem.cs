@@ -1,12 +1,11 @@
-﻿using UnityEngine;
-using System.Text;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class EditorComponentItem : EditorComponent
 {
-    QuestData.QItem itemComponent;
+    private QuestData.QItem itemComponent;
 
     public EditorComponentItem(string nameIn) : base()
     {
@@ -17,13 +16,13 @@ public class EditorComponentItem : EditorComponent
         Update();
     }
 
-    override protected void RefreshReference()
+    protected override void RefreshReference()
     {
         base.RefreshReference();
         itemComponent = component as QuestData.QItem;
     }
 
-    override public float AddSubComponents(float offset)
+    public override float AddSubComponents(float offset)
     {
         Game game = Game.Get();
 
@@ -145,15 +144,21 @@ public class EditorComponentItem : EditorComponent
             }
             traitOffset++;
         }
-        if (offset < traitOffset) offset = traitOffset;
+        if (offset < traitOffset)
+        {
+            offset = traitOffset;
+        }
+
         offset++;
 
         offset = AddInspect(offset);
 
         if (itemComponent.starting)
         {
-            if(itemComponent.tests==null)
+            if (itemComponent.tests == null)
+            {
                 itemComponent.tests = new VarTests();
+            }
 
             offset = AddEventVarConditionComponents(offset);
         }
@@ -163,7 +168,10 @@ public class EditorComponentItem : EditorComponent
 
     public float AddInspect(float offset)
     {
-        if (!(game.gameType is MoMGameType)) return offset;
+        if (!(game.gameType is MoMGameType))
+        {
+            return offset;
+        }
 
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 5, 1);
@@ -205,10 +213,12 @@ public class EditorComponentItem : EditorComponent
             return;
         }
         Game game = Game.Get();
-        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate(string s) { SelectAddItem(index, s); }, CommonStringKeys.SELECT_ITEM);
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddItem(index, s); }, CommonStringKeys.SELECT_ITEM);
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.SOURCE.Translate(), new string[] { "Quest" });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.SOURCE.Translate(), new string[] { "Quest" } }
+        };
 
         HashSet<string> usedItems = new HashSet<string>();
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
@@ -292,7 +302,7 @@ public class EditorComponentItem : EditorComponent
             }
         }
 
-        UIWindowSelectionList select = new UIWindowSelectionList(delegate(string s) { SelectAddTrait(pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectAddTrait(pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
         foreach (string s in traits)
         {
             select.AddItem(new StringKey("val", s));
@@ -374,7 +384,7 @@ public class EditorComponentItem : EditorComponent
 
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
         {
-            if(kv.Value.typeDynamic.Equals("Event"))
+            if (kv.Value.typeDynamic.Equals("Event"))
             {
                 select.AddItem(kv.Value);
             }

@@ -8,7 +8,7 @@ using UnityEngine.Networking;
 /// HTTPManager is a simplified class to download/upload text files</summary>
 /// <remarks>
 /// Multiple files can be downloaded at the same time,  with one coroutine per download. Only one GameObject will be created for all connections.</remarks>
-class HTTPManager
+internal class HTTPManager
 {
     private static GameObject network_go = null;
 
@@ -20,8 +20,10 @@ class HTTPManager
     {
         if (network_go == null)
         {
-            network_go = new GameObject("NetworkManager");
-            network_go.tag = Game.BG_TASKS;
+            network_go = new GameObject("NetworkManager")
+            {
+                tag = Game.BG_TASKS
+            };
         }
 
         //Use WebClient Class
@@ -38,8 +40,10 @@ class HTTPManager
     {
         if (network_go == null)
         {
-            network_go = new GameObject("NetworkManager");
-            network_go.tag = Game.BG_TASKS;
+            network_go = new GameObject("NetworkManager")
+            {
+                tag = Game.BG_TASKS
+            };
         }
 
         //Use WebClient Class
@@ -58,8 +62,10 @@ class HTTPManager
     {
         if (network_go == null)
         {
-            network_go = new GameObject("NetworkManager");
-            network_go.tag = Game.BG_TASKS;
+            network_go = new GameObject("NetworkManager")
+            {
+                tag = Game.BG_TASKS
+            };
         }
 
         //Use WebClient Class
@@ -70,11 +76,10 @@ class HTTPManager
 
 }
 
-
-class DataDownloader : MonoBehaviour
+internal class DataDownloader : MonoBehaviour
 {
     private Uri uri = null;
-    private Action<string, bool, Uri> callback_action=null;
+    private Action<string, bool, Uri> callback_action = null;
 
     public void DownloadAsync(string url, Action<string, bool, Uri> action)
     {
@@ -86,30 +91,32 @@ class DataDownloader : MonoBehaviour
 
     private IEnumerator GetData()
     {
-        UnityWebRequest www_get = UnityWebRequest.Get(uri);
-        yield return www_get.SendWebRequest();
+        using (UnityWebRequest www_get = UnityWebRequest.Get(uri))
+        {
+            yield return www_get.SendWebRequest();
 
-        if (www_get.isNetworkError)
-        {
-            // Most probably a connection error
-            Debug.Log("Error downloading data : most probably a connectivity issue (please check your internet connection)");
-            callback_action("ERROR NETWORK", true, uri);
-        }
-        else if (www_get.isHttpError)
-        {
-            // Most probably a connection error
-            Debug.Log("Error downloading data : HTTP error " + www_get.responseCode + " most probably a connection error (server error)");
-            callback_action(www_get.error + " " + www_get.responseCode, true, uri);
-        }
-        else
-        {
-            // download OK
-            callback_action(www_get.downloadHandler.text, false, uri);
+            if (www_get.isNetworkError)
+            {
+                // Most probably a connection error
+                Debug.Log("Error downloading data : most probably a connectivity issue (please check your internet connection)");
+                callback_action("ERROR NETWORK", true, uri);
+            }
+            else if (www_get.isHttpError)
+            {
+                // Most probably a connection error
+                Debug.Log("Error downloading data : HTTP error " + www_get.responseCode + " most probably a connection error (server error)");
+                callback_action(www_get.error + " " + www_get.responseCode, true, uri);
+            }
+            else
+            {
+                // download OK
+                callback_action(www_get.downloadHandler.text, false, uri);
+            }
         }
     }
 }
 
-class DataDownloaderImage : MonoBehaviour
+internal class DataDownloaderImage : MonoBehaviour
 {
     private Uri uri = null;
     private Action<Texture2D, bool, Uri> callback_action_img = null;
@@ -124,31 +131,32 @@ class DataDownloaderImage : MonoBehaviour
 
     private IEnumerator GetData()
     {
-        UnityWebRequest www_get = UnityWebRequestTexture.GetTexture(uri);
-        yield return www_get.SendWebRequest();
+        using (UnityWebRequest www_get = UnityWebRequestTexture.GetTexture(uri))
+        {
+            yield return www_get.SendWebRequest();
 
-        if (www_get.isNetworkError)
-        {
-            // Most probably a connection error
-            Debug.Log("Error downloading data : most probably a connectivity issue (please check your internet connection)");
-            callback_action_img(null, true, uri);
-        }
-        else if (www_get.isHttpError)
-        {
-            // Most probably a connection error
-            Debug.Log("Error downloading data : HTTP error " + www_get.responseCode + " most probably a connection error (server error)");
-            callback_action_img(null, true, uri);
-        }
-        else
-        {
-            // download OK
-            callback_action_img(DownloadHandlerTexture.GetContent(www_get), false, uri);
+            if (www_get.isNetworkError)
+            {
+                // Most probably a connection error
+                Debug.Log("Error downloading data : most probably a connectivity issue (please check your internet connection)");
+                callback_action_img(null, true, uri);
+            }
+            else if (www_get.isHttpError)
+            {
+                // Most probably a connection error
+                Debug.Log("Error downloading data : HTTP error " + www_get.responseCode + " most probably a connection error (server error)");
+                callback_action_img(null, true, uri);
+            }
+            else
+            {
+                // download OK
+                callback_action_img(DownloadHandlerTexture.GetContent(www_get), false, uri);
+            }
         }
     }
 }
 
-
-class DataUploader : MonoBehaviour
+internal class DataUploader : MonoBehaviour
 {
     private Uri uri = null;
     private WWWForm formFields = null;
@@ -165,27 +173,27 @@ class DataUploader : MonoBehaviour
 
     private IEnumerator PostForm()
     {
-        UnityWebRequest www_post = UnityWebRequest.Post(uri, formFields);
-
-        yield return www_post.SendWebRequest();
-
-        if (www_post.isNetworkError)
+        using (UnityWebRequest www_post = UnityWebRequest.Post(uri, formFields))
         {
-            // Most probably a connection error
-            callback_action("ERROR NETWORK", true);
-            Debug.Log("Error uploading data : most probably a connectivity issue (please check your internet connection)");
-        }
-        else if (www_post.isHttpError)
-        {
-            // Most probably a connection error
-            callback_action(www_post.error + " " + www_post.responseCode, true);
-            Debug.Log("Error uploading data : most probably a connection error (server error)");
-        }
-        else
-        {
-            // download OK
-            callback_action(www_post.downloadHandler.text, false);
-        }
+            yield return www_post.SendWebRequest();
 
+            if (www_post.isNetworkError)
+            {
+                // Most probably a connection error
+                callback_action("ERROR NETWORK", true);
+                Debug.Log("Error uploading data : most probably a connectivity issue (please check your internet connection)");
+            }
+            else if (www_post.isHttpError)
+            {
+                // Most probably a connection error
+                callback_action(www_post.error + " " + www_post.responseCode, true);
+                Debug.Log("Error uploading data : most probably a connection error (server error)");
+            }
+            else
+            {
+                // download OK
+                callback_action(www_post.downloadHandler.text, false);
+            }
+        }
     }
 }

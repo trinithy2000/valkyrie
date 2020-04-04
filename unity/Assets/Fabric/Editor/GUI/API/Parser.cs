@@ -1,75 +1,81 @@
 ﻿namespace Fabric.Internal.Editor.API
 {
-	using UnityEditor;
-	using System.Collections.Generic; 
-	using System.Collections;
-	using System.IO;
-	using Fabric.Internal.Editor.Model;
-	using Fabric.Internal.ThirdParty.MiniJSON;
+    using Fabric.Internal.Editor.Model;
+    using Fabric.Internal.ThirdParty.MiniJSON;
+    using System.Collections.Generic;
+    using System.IO;
+    using UnityEditor;
 
-	public class Parser
-	{
-		public static List<Organization> ParseOrganizations(Stream stream)
-		{
-			List<Organization> organizations = new List<Organization> ();
-			
-			using (StreamReader reader = new StreamReader (stream)) {
-				string json = reader.ReadToEnd ();
-				List<object> response = Json.Deserialize (json) as List<object>;
+    public class Parser
+    {
+        public static List<Organization> ParseOrganizations(Stream stream)
+        {
+            List<Organization> organizations = new List<Organization>();
 
-				foreach (var obj in response) {
-					Dictionary<string, object> orgData = (Dictionary<string, object>) obj;
-					string id = orgData["id"] as string;
-					string name = orgData["name"] as string;
-					string apiKey = orgData["api_key"] as string;
-					string buildSecret = orgData["build_secret"] as string;
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string json = reader.ReadToEnd();
+                List<object> response = Json.Deserialize(json) as List<object>;
 
-					organizations.Add (new Organization (name, id, apiKey, buildSecret));
-				}
-			}
-			
-			return organizations;
-		}
+                foreach (object obj in response)
+                {
+                    Dictionary<string, object> orgData = (Dictionary<string, object>)obj;
+                    string id = orgData["id"] as string;
+                    string name = orgData["name"] as string;
+                    string apiKey = orgData["api_key"] as string;
+                    string buildSecret = orgData["build_secret"] as string;
 
-		public static List<App> ParseApps(Stream stream, BuildTarget platform)
-		{
-			List<App> apps = new List<App> ();
+                    organizations.Add(new Organization(name, id, apiKey, buildSecret));
+                }
+            }
 
-			using (StreamReader reader = new StreamReader (stream)) {
-				string json = reader.ReadToEnd ();
-				List<object> response = Json.Deserialize (json) as List<object>;
+            return organizations;
+        }
 
-				foreach (var obj in response) {
-					Dictionary<string, object> appData = (Dictionary<string, object>) obj;
-					string name = appData["name"] as string;
-					string bundleId = appData["bundle_identifier"] as string;
-					string iconUrl = appData["icon_url"] as string;
-					string dashboardUrl = appData["dashboard_url"] as string;
-					Dictionary<string, object> productList = appData["map_of_available_products"] as Dictionary<string, object>;
+        public static List<App> ParseApps(Stream stream, BuildTarget platform)
+        {
+            List<App> apps = new List<App>();
 
-					if (productList != null) {
-						apps.Add (new App (name, bundleId, iconUrl, platform, dashboardUrl, ParseProducts (productList)));
-					}
-				}
-			}
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string json = reader.ReadToEnd();
+                List<object> response = Json.Deserialize(json) as List<object>;
 
-			return apps;
-		}
+                foreach (object obj in response)
+                {
+                    Dictionary<string, object> appData = (Dictionary<string, object>)obj;
+                    string name = appData["name"] as string;
+                    string bundleId = appData["bundle_identifier"] as string;
+                    string iconUrl = appData["icon_url"] as string;
+                    string dashboardUrl = appData["dashboard_url"] as string;
+                    Dictionary<string, object> productList = appData["map_of_available_products"] as Dictionary<string, object>;
 
-		private static List<App.Kit> ParseProducts(Dictionary<string, object> productList)
-		{
-			List<App.Kit> kits = new List<App.Kit> ();
+                    if (productList != null)
+                    {
+                        apps.Add(new App(name, bundleId, iconUrl, platform, dashboardUrl, ParseProducts(productList)));
+                    }
+                }
+            }
 
-			foreach (KeyValuePair<string, object> product in productList) {
-				string name = product.Key;
-				bool present = (bool) product.Value;
+            return apps;
+        }
 
-				if (present) {
-					kits.Add (new App.Kit { Name = name });
-				}
-			}
+        private static List<App.Kit> ParseProducts(Dictionary<string, object> productList)
+        {
+            List<App.Kit> kits = new List<App.Kit>();
 
-			return kits;
-		}
-	}
+            foreach (KeyValuePair<string, object> product in productList)
+            {
+                string name = product.Key;
+                bool present = (bool)product.Value;
+
+                if (present)
+                {
+                    kits.Add(new App.Kit { Name = name });
+                }
+            }
+
+            return kits;
+        }
+    }
 }

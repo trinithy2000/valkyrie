@@ -1,7 +1,6 @@
 ﻿
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using UnityEngine;
 using ValkyrieTools;
 
 namespace Assets.Scripts.Content
@@ -75,7 +74,7 @@ namespace Assets.Scripts.Content
                 string dict = output.Substring(pos + 1, 3);
 
                 // Get key result
-                string result = DictQuery(dict,lookup);
+                string result = DictQuery(dict, lookup);
 
                 // We (unity) don't support underlines
                 // Unity uses <> not []
@@ -114,7 +113,10 @@ namespace Assets.Scripts.Content
             string output = input.fullKey;
             // While there are more lookups
 
-            if (!Regex.Match(output, LookupRegexKey()).Success) return false;
+            if (!Regex.Match(output, LookupRegexKey()).Success)
+            {
+                return false;
+            }
 
             int pos = Regex.Match(output, LookupRegexKey()).Index;
             // Can be nested
@@ -145,7 +147,7 @@ namespace Assets.Scripts.Content
             string dict = output.Substring(pos + 1, 3);
 
             // Get key result
-            return CheckDictQuery(dict,lookup);
+            return CheckDictQuery(dict, lookup);
         }
 
         /// <summary>
@@ -159,7 +161,9 @@ namespace Assets.Scripts.Content
         {
             // Fast translation if nothing to transform
             if (input.IndexOf('{') == -1)
+            {
                 return DictKeyLookup(dict, input);
+            }
 
             int bracketLevel = 0;
             int lastSection = 0;
@@ -192,7 +196,7 @@ namespace Assets.Scripts.Content
             elements.Add(input.Substring(lastSection, input.Length - lastSection));
 
             // Look up the first element (key)
-            string fetched = DictKeyLookup(dict,elements[0]);
+            string fetched = DictKeyLookup(dict, elements[0]);
 
             // Find and replace with other elements
             for (int i = 2; i < elements.Count; i += 2)
@@ -235,7 +239,11 @@ namespace Assets.Scripts.Content
             elements.Add(input.Substring(lastSection, input.Length - lastSection));
 
             DictionaryI18n currentDict = selectDictionary(dict);
-            if (currentDict == null) return false;
+            if (currentDict == null)
+            {
+                return false;
+            }
+
             return currentDict.KeyExists(elements[0]);
         }
 
@@ -274,7 +282,10 @@ namespace Assets.Scripts.Content
         /// <returns>dictionary selected</returns>
         public static DictionaryI18n selectDictionary(string dict)
         {
-            if (!dicts.ContainsKey(dict)) return null;
+            if (!dicts.ContainsKey(dict))
+            {
+                return null;
+            }
 
             return dicts[dict];
         }

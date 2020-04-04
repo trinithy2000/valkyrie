@@ -17,30 +17,38 @@ namespace Assets.Scripts.UI
         {
             base.CreateBG(parent);
 
-            scrollBG = new GameObject("scrollBG");
-            scrollBG.tag = tag;
+            scrollBG = new GameObject("scrollBG")
+            {
+                tag = tag
+            };
             scrollBG.AddComponent<UnityEngine.UI.Image>().color = Color.clear;
             scrollBG.transform.SetParent(bg.transform);
             scrollBG.AddComponent<UnityEngine.UI.RectMask2D>();
             UnityEngine.UI.ScrollRect scrollRect = scrollBG.AddComponent<UnityEngine.UI.ScrollRect>();
 
-            scrollArea = new GameObject("scroll");
-            scrollArea.tag = tag;
+            scrollArea = new GameObject("scroll")
+            {
+                tag = tag
+            };
             scrollArea.AddComponent<RectTransform>();
             scrollArea.transform.SetParent(scrollBG.transform);
 
-            scrollBar = new GameObject("scrollbar");
-            scrollBar.tag = tag;
+            scrollBar = new GameObject("scrollbar")
+            {
+                tag = tag
+            };
             scrollBar.AddComponent<RectTransform>();
             scrollBar.transform.SetParent(bg.transform);
             UnityEngine.UI.Scrollbar scrollBarCmp = scrollBar.AddComponent<UnityEngine.UI.Scrollbar>();
             scrollBarCmp.direction = UnityEngine.UI.Scrollbar.Direction.BottomToTop;
             scrollRect.verticalScrollbar = scrollBarCmp;
 
-            scrollBarHandle = new GameObject("scrollbarhandle");
-            scrollBarHandle.tag = tag;
+            scrollBarHandle = new GameObject("scrollbarhandle")
+            {
+                tag = tag
+            };
             scrollBarHandle.AddComponent<UnityEngine.UI.Image>();
-            scrollBarHandle.GetComponent<UnityEngine.UI.Image>().color = new Color(0.7f, 0.7f, 0.7f);
+            scrollBarHandle.GetComponent<UnityEngine.UI.Image>().color = Color.clear;
             scrollBarHandle.transform.SetParent(scrollBar.transform);
 
             scrollBarCmp.handleRect = scrollBarHandle.GetComponent<RectTransform>();

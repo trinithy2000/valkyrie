@@ -1,9 +1,9 @@
 ﻿using Assets.Scripts.Content;
-using UnityEngine;
 using FFGAppImport;
-using ValkyrieTools;
-using System.Threading;
 using System.IO;
+using System.Threading;
+using UnityEngine;
+using ValkyrieTools;
 
 namespace Assets.Scripts.UI.Screens
 {
@@ -12,15 +12,15 @@ namespace Assets.Scripts.UI.Screens
     // and import controls
     public class GameSelectionScreen
     {
-        FFGImport fcD2E;
-        FFGImport fcMoM;
+        private FFGImport fcD2E;
+        private FFGImport fcMoM;
 #if IA
         FFGImport fcIA;
 #endif
         protected string importType = "";
-        Thread importThread;
+        private Thread importThread;
 
-        private static readonly StringKey D2E_NAME = new StringKey("val","D2E_NAME");
+        private static readonly StringKey D2E_NAME = new StringKey("val", "D2E_NAME");
         private static readonly StringKey D2E_APP_NOT_FOUND = new StringKey("val", "D2E_APP_NOT_FOUND");
 
         private static readonly StringKey MOM_NAME = new StringKey("val", "MOM_NAME");
@@ -96,8 +96,10 @@ namespace Assets.Scripts.UI.Screens
             Sprite bannerSprite;
             Texture2D newTex = Resources.Load("sprites/banner") as Texture2D;
 
-            GameObject banner = new GameObject("banner");
-            banner.tag = Game.DIALOG;
+            GameObject banner = new GameObject("banner")
+            {
+                tag = Game.DIALOG
+            };
 
             banner.transform.SetParent(game.uICanvas.transform);
 
@@ -135,10 +137,11 @@ namespace Assets.Scripts.UI.Screens
                 if (D2E_import_available)
                 {
                     message = D2E_NAME.Translate();
-                } else
+                }
+                else
                 {
                     message = D2E_NAME.Translate() + System.Environment.NewLine + D2E_APP_NOT_FOUND.Translate();
-                    fontSize = (int) (UIScaler.GetMediumFont() / 1.05f);
+                    fontSize = (int)(UIScaler.GetMediumFont() / 1.05f);
                 }
                 ui.SetText(message, startColor);
             }
@@ -173,13 +176,13 @@ namespace Assets.Scripts.UI.Screens
                 {
                     // install and locate button for other systems
                     ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits()/ 2) - 13, offset + 3.2f, 12, 1.3f);
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.2f, 12, 1.3f);
                     ui.SetText(CONTENT_INSTALL_VIA_STEAM, Color.red);
                     ui.SetButton(delegate { GotoWebBrowser(D2E_APP_URL_STEAM); });
                     new UIElementBorder(ui, Color.red);
 
                     ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() /2) + 1, offset + 3.2f, 12, 1.3f);
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.2f, 12, 1.3f);
                     ui.SetText(CONTENT_LOCATE, Color.red);
                     ui.SetButton(delegate { Import("D2E", true); });
                     new UIElementBorder(ui, Color.red);
@@ -260,7 +263,7 @@ namespace Assets.Scripts.UI.Screens
                 }
             }
 
-            
+
 #if IA
             // Draw IA button
             startColor = Color.white;
@@ -354,30 +357,41 @@ namespace Assets.Scripts.UI.Screens
         }
 
         // Import content
-        public void Import(string type, bool manual_path_selection=false)
+        public void Import(string type, bool manual_path_selection = false)
         {
             string path = null;
 
-            ValkyrieDebug.Log("INFO: Import "+type);
+            ValkyrieDebug.Log("INFO: Import " + type);
 
 
             if (manual_path_selection)
             {
-                string app_filename="";
-                if (type.Equals("D2E")) app_filename = "Road to Legend";
-                if (type.Equals("MoM")) app_filename = "Mansions of Madness";
+                string app_filename = "";
+                if (type.Equals("D2E"))
+                {
+                    app_filename = "Road to Legend";
+                }
+
+                if (type.Equals("MoM"))
+                {
+                    app_filename = "Mansions of Madness";
+                }
 
                 string[] array_path = SFB.StandaloneFileBrowser.OpenFilePanel("Select file " + app_filename + ".exe", "", "exe", false);
 
                 // return when pressing back
                 if (array_path.Length == 0)
+                {
                     return;
+                }
 
                 path = Path.Combine(Path.GetDirectoryName(array_path[0]), app_filename + "_Data");
 
                 // return if wrong file is selected
                 if (!Directory.Exists(path))
+                {
                     return;
+                }
             }
 
             Destroyer.Destroy();
@@ -483,8 +497,16 @@ namespace Assets.Scripts.UI.Screens
 
         public void Update()
         {
-            if (importThread == null) return;
-            if (importThread.IsAlive) return;
+            if (importThread == null)
+            {
+                return;
+            }
+
+            if (importThread.IsAlive)
+            {
+                return;
+            }
+
             importThread = null;
             ExtractBundles();
             // TODO: Delete Obb dir for Android build here
@@ -505,7 +527,11 @@ namespace Assets.Scripts.UI.Screens
                 foreach (string file in bundles)
                 {
                     AssetBundle bundle = AssetBundle.LoadFromFile(file);
-                    if (bundle == null) continue;
+                    if (bundle == null)
+                    {
+                        continue;
+                    }
+
                     ValkyrieDebug.Log("Loading assets from '" + file + "'");
                     foreach (TextAsset asset in bundle.LoadAllAssets<TextAsset>())
                     {
@@ -547,7 +573,7 @@ namespace Assets.Scripts.UI.Screens
         {
             StringKey NEW_VERSION_AVAILABLE = new StringKey("val", "NEW_VERSION_AVAILABLE");
 
-            if ( VersionManager.VersionNewer(Game.Get().version, VersionManager.online_version) )
+            if (VersionManager.VersionNewer(Game.Get().version, VersionManager.online_version))
             {
                 float string_width = 0f;
                 UIElement ui = new UIElement();
@@ -556,7 +582,7 @@ namespace Assets.Scripts.UI.Screens
                 ui.SetLocation(UIScaler.GetRight() - 3 - string_width, UIScaler.GetBottom(-3), string_width + 2, 2);
                 ui.SetText(NEW_VERSION_AVAILABLE, Color.green);
                 ui.SetFontSize(UIScaler.GetMediumFont());
-                ui.SetButton(delegate { GotoWebBrowser(VersionManager.GetlatestReleaseURL()); } );
+                ui.SetButton(delegate { GotoWebBrowser(VersionManager.GetlatestReleaseURL()); });
                 ui.SetBGColor(new Color(0, 0.03f, 0f));
                 new UIElementBorder(ui, Color.green);
             }

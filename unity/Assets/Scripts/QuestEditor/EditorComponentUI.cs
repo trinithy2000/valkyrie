@@ -1,20 +1,19 @@
-﻿using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 public class EditorComponentUI : EditorComponentEvent
 {
-    QuestData.UI uiComponent;
-
-    UIElementEditable locXUIE;
-    UIElementEditable locYUIE;
-    UIElementEditable sizeUIE;
-    UIElementEditable aspectUIE;
-    UIElementEditable textSizeUIE;
-    UIElementEditable backgroundColourUIE;
-    UIElementEditablePaneled textUIE;
+    private QuestData.UI uiComponent;
+    private UIElementEditable locXUIE;
+    private UIElementEditable locYUIE;
+    private UIElementEditable sizeUIE;
+    private UIElementEditable aspectUIE;
+    private UIElementEditable textSizeUIE;
+    private readonly UIElementEditable backgroundColourUIE;
+    private UIElementEditablePaneled textUIE;
 
     private readonly StringKey SELECT_IMAGE = new StringKey("val", "SELECT_IMAGE");
 
@@ -22,16 +21,16 @@ public class EditorComponentUI : EditorComponentEvent
     {
     }
 
-    override public float AddPosition(float offset)
+    public override float AddPosition(float offset)
     {
         return offset;
     }
 
-    override public void Highlight()
+    public override void Highlight()
     {
     }
 
-    override public float AddSubEventComponents(float offset)
+    public override float AddSubEventComponents(float offset)
     {
         uiComponent = component as QuestData.UI;
 
@@ -215,8 +214,10 @@ public class EditorComponentUI : EditorComponentEvent
         if (panel == null)
         {
             // Create UI Panel
-            panel = new GameObject("QuestUICanvas");
-            panel.tag = Game.BOARD;
+            panel = new GameObject("QuestUICanvas")
+            {
+                tag = Game.BOARD
+            };
             panel.transform.SetParent(game.uICanvas.transform);
             panel.transform.SetAsFirstSibling();
             panel.AddComponent<RectTransform>();
@@ -225,13 +226,17 @@ public class EditorComponentUI : EditorComponentEvent
         }
 
         // Create objects
-        GameObject unityObject = new GameObject("greyzonea");
-        unityObject.tag = Game.EDITOR;
+        GameObject unityObject = new GameObject("greyzonea")
+        {
+            tag = Game.EDITOR
+        };
         unityObject.transform.SetParent(panel.transform);
         UnityEngine.UI.Image panela = unityObject.AddComponent<UnityEngine.UI.Image>();
         panela.color = new Color(1f, 1f, 1f, 0.3f);
-        unityObject = new GameObject("greyzoneb");
-        unityObject.tag = Game.EDITOR;
+        unityObject = new GameObject("greyzoneb")
+        {
+            tag = Game.EDITOR
+        };
         unityObject.transform.SetParent(panel.transform);
         UnityEngine.UI.Image panelb = unityObject.AddComponent<UnityEngine.UI.Image>();
         panelb.color = new Color(1f, 1f, 1f, 0.3f);
@@ -242,8 +247,8 @@ public class EditorComponentUI : EditorComponentEvent
         {
             // Size bars for wider screens
             // Position and Scale assume a 16x9 aspect
-            float templateWidth = (float)Screen.height * 16f / 10f;
-            float hOffset = (float)Screen.width - templateWidth;
+            float templateWidth = Screen.height * 16f / 10f;
+            float hOffset = Screen.width - templateWidth;
             panela.rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 0, Screen.height);
 
             if (uiComponent.hAlign < 0)
@@ -265,8 +270,8 @@ public class EditorComponentUI : EditorComponentEvent
         {
             // letterboxing for taller screens
             // Position and Scale assume a 16x9 aspect
-            float templateHeight = (float)Screen.width * 9f / 16f;
-            float vOffset = (float)Screen.height - templateHeight;
+            float templateHeight = Screen.width * 9f / 16f;
+            float vOffset = Screen.height - templateHeight;
             panela.rectTransform.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, 0, Screen.width);
 
             if (uiComponent.vAlign < 0)
@@ -286,7 +291,7 @@ public class EditorComponentUI : EditorComponentEvent
         }
     }
 
-    override public float AddEventTrigger(float offset)
+    public override float AddEventTrigger(float offset)
     {
         return offset;
     }
@@ -296,8 +301,10 @@ public class EditorComponentUI : EditorComponentEvent
         UIWindowSelectionListImage select = new UIWindowSelectionListImage(SelectImage, SELECT_IMAGE.Translate());
         select.AddItem("{NONE}", "");
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.SOURCE.Translate(), new string[] { CommonStringKeys.FILE.Translate() });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.SOURCE.Translate(), new string[] { CommonStringKeys.FILE.Translate() } }
+        };
         string relativePath = new FileInfo(Path.GetDirectoryName(Game.Get().quest.qd.questPath)).FullName;
         foreach (string s in Directory.GetFiles(relativePath, "*.png", SearchOption.AllDirectories))
         {

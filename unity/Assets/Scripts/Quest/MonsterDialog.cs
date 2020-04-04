@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Class for creation of monster selection options
 public class MonsterDialog
@@ -117,7 +116,7 @@ public class MonsterDialog
         game.quest.vars.SetValue("#monsters", game.quest.monsters.Count);
 
         game.audioControl.PlayTrait("defeated");
-        
+
         // Trigger defeated event
         game.quest.eManager.EventTriggerType("Defeated" + monster.monsterData.sectionName);
         // If unique trigger defeated unique event

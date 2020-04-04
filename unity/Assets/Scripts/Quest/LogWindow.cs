@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.Content;
-﻿using UnityEngine;
-using System.Collections.Generic;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 // Next stage button is used by MoM to move between investigators and monsters
 public class LogWindow
@@ -33,37 +33,41 @@ public class LogWindow
         game.logWindow = this;
         // white background because font rendering is broken
         UIElement ui = new UIElement(Game.LOGS);
-        ui.SetLocation(textStart, 0.5f, textWidth, 24.5f);
-        ui.SetBGColor(Color.white);
+        ui.SetLocation(textStart, 0.5f, textWidth, 25f);
+        ui.SetImage(CommonImageKeys.mom_bgnd_pergam);
+
         ui = new UIElement(Game.LOGS);
         ui.SetLocation(textStart + textWidth, 0.5f, 1, 24.5f);
 
         UIElementScrollVertical scrollArea = new UIElementScrollVertical(Game.LOGS);
-        scrollArea.SetLocation(textStart, 0.5f, textWidth + 1, 24.5f);
+        scrollArea.SetLocation(textStart + 1, 2.2f, textWidth - 1, 21.5f);
         scrollArea.SetBGColor(Color.clear);
-        new UIElementBorder(scrollArea);
 
         float offset = 0.5f;
         foreach (Quest.LogEntry e in game.quest.log)
         {
             string entry = e.GetEntry(developerToggle).Trim('\n');
-            if (entry.Length == 0) continue;
+            if (entry.Length == 0)
+            {
+                continue;
+            }
+
             ui = new UIElement(scrollArea.GetScrollTransform());
             float height = ui.GetStringHeight(entry, textWidth);
-            ui.SetLocation(0, offset, textWidth, height);
+            ui.SetLocation(0, offset, textWidth - 2, height);
             ui.SetText(entry, Color.black);
-            ui.SetBGColor(Color.white);
+            ui.SetBGColor(Color.clear);
 
             offset += height;
         }
         scrollArea.SetScrollSize(offset);
 
         ui = new UIElement(Game.LOGS);
-        ui.SetLocation(UIScaler.GetHCenter(-3f), 25, 6, 2);
+        ui.SetLocation(UIScaler.GetHCenter(-3.2f), 26, 6, 2);
         ui.SetText(CommonStringKeys.CLOSE);
         ui.SetFontSize(UIScaler.GetMediumFont());
         ui.SetButton(Destroyer.Logs);
-        new UIElementBorder(ui);
+        new UIButtonBackGround(ui, 1);
 
         if (developerToggle)
         {

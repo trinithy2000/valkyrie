@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Window with Monster activation
 public class ActivateDialogMoM : ActivateDialog
@@ -13,11 +12,13 @@ public class ActivateDialogMoM : ActivateDialog
     {
     }
 
-    override public void CreateWindow(bool singleStep = false)
+    public override void CreateWindow(bool singleStep = false)
     {
         // If a dialog window is open we force it closed (this shouldn't happen)
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             Object.Destroy(go);
+        }
 
         // ability box - name header
         UIElement ui = new UIElement();
@@ -127,7 +128,7 @@ public class ActivateDialogMoM : ActivateDialog
         MonsterDialogMoM.DrawMonster(monster);
     }
 
-    override public void activated()
+    public override void activated()
     {
         Destroyer.Dialog();
         Game.Get().roundControl.MonsterActivated();

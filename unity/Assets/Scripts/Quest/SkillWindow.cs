@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.Content;
-using UnityEngine;
-using System.Collections.Generic;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
 
 // Next stage button is used by MoM to move between investigators and monsters
 public class SkillWindow
@@ -37,12 +37,22 @@ public class SkillWindow
         // Count number of selected heroes
         foreach (Quest.Hero h in game.quest.heroes)
         {
-            if (h.heroData != null) heroCount++;
+            if (h.heroData != null)
+            {
+                heroCount++;
+            }
         }
 
         float xOffset = UIScaler.GetHCenter(-11);
-        if (heroCount < 4) xOffset += 3f;
-        if (heroCount < 3) xOffset += 3f;
+        if (heroCount < 4)
+        {
+            xOffset += 3f;
+        }
+
+        if (heroCount < 3)
+        {
+            xOffset += 3f;
+        }
 
         int availableXP = 0;
         for (int i = 0; i < heroCount; i++)
@@ -149,8 +159,15 @@ public class SkillWindow
         availableXP = game.quest.heroes[hero].AvailableXP();
         foreach (SkillData s in game.cd.skills.Values)
         {
-            if (s.xp == 0) continue;
-            if (game.quest.heroes[hero].className.Length == 0) continue;
+            if (s.xp == 0)
+            {
+                continue;
+            }
+
+            if (game.quest.heroes[hero].className.Length == 0)
+            {
+                continue;
+            }
 
             Color buttonColor = new Color(0.4f, 0.4f, 0.4f);
             if (game.quest.heroes[hero].skills.Contains(s.sectionName))
@@ -165,7 +182,10 @@ public class SkillWindow
             string skill = s.sectionName;
             if (s.sectionName.IndexOf("Skill" + game.quest.heroes[hero].className.Substring("Class".Length)) == 0)
             {
-                if (hybridClass.Length > 0 && s.xp == 3) continue;
+                if (hybridClass.Length > 0 && s.xp == 3)
+                {
+                    continue;
+                }
 
                 ui = new UIElement();
                 ui.SetLocation(xOffsetArray[s.xp], yOffset + (s.xp * 5), 8, 4);
@@ -177,9 +197,16 @@ public class SkillWindow
                 continue;
             }
 
-            if (hybridClass.Length == 0) continue;
-            if (s.sectionName.IndexOf("Skill" + hybridClass.Substring("Class".Length)) != 0) continue;
-            
+            if (hybridClass.Length == 0)
+            {
+                continue;
+            }
+
+            if (s.sectionName.IndexOf("Skill" + hybridClass.Substring("Class".Length)) != 0)
+            {
+                continue;
+            }
+
             ui = new UIElement();
             ui.SetLocation(UIScaler.GetHCenter(-25f) + (s.xp * 11f), yOffset + 15, 8, 4);
             ui.SetText(s.name, buttonColor);
@@ -207,7 +234,11 @@ public class SkillWindow
         }
         else
         {
-            if (game.quest.heroes[hero].AvailableXP() < game.cd.skills[skill].xp) return;
+            if (game.quest.heroes[hero].AvailableXP() < game.cd.skills[skill].xp)
+            {
+                return;
+            }
+
             skills.Add(skill);
         }
         Update(hero);

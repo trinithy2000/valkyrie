@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
@@ -12,8 +12,8 @@ namespace Assets.Scripts.UI
         protected SortedList<int, SelectionItem> items = new SortedList<int, SelectionItem>();
         protected SortedList<string, SelectionItem> alphaItems = new SortedList<string, SelectionItem>();
 
-        static protected bool alphaSort = false;
-        static protected bool reverseSort = false;
+        protected static bool alphaSort = false;
+        protected static bool reverseSort = false;
 
         public UIWindowSelectionList(UnityEngine.Events.UnityAction<string> call, string title = "")
         {
@@ -57,7 +57,7 @@ namespace Assets.Scripts.UI
             AddItem(new SelectionItem(display, key, color));
         }
 
-        virtual public void AddItem(SelectionItem item)
+        public virtual void AddItem(SelectionItem item)
         {
             items.Add(items.Count, item);
             string key = item.GetDisplay();
@@ -69,12 +69,12 @@ namespace Assets.Scripts.UI
             alphaItems.Add(key, item);
         }
 
-        virtual public void Draw()
+        public virtual void Draw()
         {
             Update();
         }
 
-        virtual public void Update()
+        public virtual void Update()
         {
             // Border
             UIElement ui = new UIElement();
@@ -146,7 +146,7 @@ namespace Assets.Scripts.UI
             }
 
             int lineNum = 0;
-            foreach(SelectionItem item in toDisplay)
+            foreach (SelectionItem item in toDisplay)
             {
                 // Print the name but select the key
                 string key = item.GetKey();
@@ -200,9 +200,9 @@ namespace Assets.Scripts.UI
 
         public class SelectionItem
         {
-            string _display = "";
-            string _key = "";
-            Color _color = Color.white;
+            private readonly string _display = "";
+            private readonly string _key = "";
+            private Color _color = Color.white;
 
             public SelectionItem(string display, string key)
             {

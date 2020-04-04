@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
 
 // This class controls the list of monsters
 public class MonsterCanvas : MonoBehaviour
@@ -17,7 +17,7 @@ public class MonsterCanvas : MonoBehaviour
     // We keep a collection of the icons here
     public List<MonsterIcon> icons;
 
-    void Awake()
+    private void Awake()
     {
         icons = new List<MonsterIcon>();
     }
@@ -27,7 +27,9 @@ public class MonsterCanvas : MonoBehaviour
     {
         // Clean up everything marked as 'monsters'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.MONSTERS))
+        {
             Object.Destroy(go);
+        }
 
         // New list
         icons = new List<MonsterIcon>();
@@ -99,7 +101,7 @@ public class MonsterCanvas : MonoBehaviour
         // If at buttom
         UIElement ui = new UIElement(Game.MONSTERS);
         ui.SetLocation(UIScaler.GetRight(-4.25f), 26.1f, 4, 1);
-        if (game.quest.monsters.Count - offset <  6)
+        if (game.quest.monsters.Count - offset < 6)
         {
             ui.SetText(DOWN_ARROW, Color.gray);
             new UIElementBorder(ui, Color.gray);
@@ -123,7 +125,7 @@ public class MonsterCanvas : MonoBehaviour
         game.monsterCanvas.UpdateList();
     }
 
-    public static void noAction()
+    public static void NoAction()
     {
     }
 
@@ -139,19 +141,17 @@ public class MonsterCanvas : MonoBehaviour
     // class for tracking monster sprites
     public class MonsterIcon
     {
-        Quest.Monster m;
-
-        Game game;
-
-        Sprite iconSprite;
-        Sprite frameSprite;
-        Sprite duplicateSprite;
-        UnityEngine.UI.Image icon;
-        UnityEngine.UI.Image iconFrame;
-        UnityEngine.UI.Image iconDupe;
+        private readonly Quest.Monster m;
+        private readonly Game game;
+        private readonly Sprite iconSprite;
+        private readonly Sprite frameSprite;
+        private readonly Sprite duplicateSprite;
+        private Image icon;
+        private Image iconFrame;
+        private Image iconDupe;
 
         // Location of the monster in the list
-        int index;
+        private readonly int index;
 
         public MonsterIcon(Quest.Monster monster, int i = 0)
         {
@@ -163,13 +163,13 @@ public class MonsterCanvas : MonoBehaviour
             // Get monster image and grame
             Texture2D newTex = ContentData.FileToTexture(m.monsterData.image);
             // FIXME: should be game type specific
-            Texture2D frameTex = Resources.Load("sprites/borders/Frame_Monster_1x1") as Texture2D;
-            Texture2D dupeTex = Resources.Load("sprites/monster_duplicate_" + m.duplicate) as Texture2D;
+            Texture2D frameTex = CommonImageKeys.d2e_border_frame_monster_1x1;
+            Texture2D dupeTex = CommonImageKeys.ObtD2eDupe(m.duplicate);
             iconSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
             frameSprite = Sprite.Create(frameTex, new Rect(0, 0, frameTex.width, frameTex.height), Vector2.zero, 1);
             if (dupeTex != null)
             {
-               duplicateSprite = Sprite.Create(dupeTex, new Rect(0, 0, dupeTex.width, dupeTex.height), Vector2.zero, 1);
+                duplicateSprite = Sprite.Create(dupeTex, new Rect(0, 0, dupeTex.width, dupeTex.height), Vector2.zero, 1);
             }
         }
 
@@ -189,8 +189,10 @@ public class MonsterCanvas : MonoBehaviour
                 return;
             }
 
-            GameObject mImg = new GameObject("monsterImg" + m.monsterData.name);
-            mImg.tag = Game.MONSTERS;
+            GameObject mImg = new GameObject("monsterImg" + m.monsterData.name)
+            {
+                tag = Game.MONSTERS
+            };
             mImg.transform.SetParent(game.uICanvas.transform);
 
             RectTransform trans = mImg.AddComponent<RectTransform>();
@@ -210,8 +212,10 @@ public class MonsterCanvas : MonoBehaviour
             if (game.gameType is D2EGameType)
             {
                 icon.rectTransform.sizeDelta = new Vector2(monsterSize * UIScaler.GetPixelsPerUnit() * 0.83f, monsterSize * UIScaler.GetPixelsPerUnit() * 0.83f);
-                GameObject mImgFrame = new GameObject("monsterFrame" + m.monsterData.name);
-                mImgFrame.tag = Game.MONSTERS;
+                GameObject mImgFrame = new GameObject("monsterFrame" + m.monsterData.name)
+                {
+                    tag = Game.MONSTERS
+                };
                 mImgFrame.transform.SetParent(game.uICanvas.transform);
 
                 RectTransform transFrame = mImgFrame.AddComponent<RectTransform>();
@@ -240,7 +244,7 @@ public class MonsterCanvas : MonoBehaviour
             else
             {
                 // MoM
-                if(game.quest.phase == Quest.MoMPhase.investigator)
+                if (game.quest.phase == Quest.MoMPhase.investigator)
                 {
                     DrawAwareness(top_position_y + ((index - offset) * offset_y));
                 }
@@ -253,8 +257,10 @@ public class MonsterCanvas : MonoBehaviour
             iconDupe = null;
             if (duplicateSprite != null)
             {
-                GameObject mImgDupe = new GameObject("monsterDupe" + m.monsterData.name);
-                mImgDupe.tag = Game.MONSTERS;
+                GameObject mImgDupe = new GameObject("monsterDupe" + m.monsterData.name)
+                {
+                    tag = Game.MONSTERS
+                };
                 mImgDupe.transform.SetParent(game.uICanvas.transform);
 
                 RectTransform dupeFrame = mImgDupe.AddComponent<RectTransform>();
@@ -276,7 +282,11 @@ public class MonsterCanvas : MonoBehaviour
 
         public void DrawHorror(float offset)
         {
-            if (m.monsterData.horror == 0) return;
+            if (m.monsterData.horror == 0)
+            {
+                return;
+            }
+
             UIElement ui = new UIElement(Game.MONSTERS);
             ui.SetLocation(UIScaler.GetRight(-2.25f), offset + 2, 2, 2);
             ui.SetText(m.monsterData.horror.ToString(), Color.blue);
@@ -287,7 +297,11 @@ public class MonsterCanvas : MonoBehaviour
 
         public void DrawAwareness(float offset)
         {
-            if (m.monsterData.awareness == 0) return;
+            if (m.monsterData.awareness == 0)
+            {
+                return;
+            }
+
             UIElement ui = new UIElement(Game.MONSTERS);
             ui.SetLocation(UIScaler.GetRight(-2.25f), offset, 2, 2);
             ui.SetText(m.monsterData.awareness.ToString(), Color.green);
@@ -300,7 +314,10 @@ public class MonsterCanvas : MonoBehaviour
         {
             // MoM doesn't do colours
             // Bad test
-            if (iconFrame == null) return;
+            if (iconFrame == null)
+            {
+                return;
+            }
 
             // Set colour based on monster state
             if (m.activated && m.unique)
@@ -361,10 +378,12 @@ public class MonsterCanvas : MonoBehaviour
         {
             // If there are any other dialogs open just finish
             if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+            {
                 return;
+            }
 
             Game game = Game.Get();
-            if (game.gameType.TypeName()=="MoM")
+            if (game.gameType.TypeName() == "MoM")
             {
                 new MonsterDialogMoM(m);
             }

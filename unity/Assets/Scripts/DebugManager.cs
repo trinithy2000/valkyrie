@@ -1,20 +1,19 @@
-﻿using System.Collections;
+﻿using Fabric.Crashlytics;
 using UnityEngine;
-using Fabric.Crashlytics;
 
 public class DebugManager : MonoBehaviour
 {
-    static public void Enable()
+    public static void Enable()
     {
         Application.logMessageReceivedThreaded += HandleLog;
     }
 
-    static public void Disable()
+    public static void Disable()
     {
         Application.logMessageReceivedThreaded -= HandleLog;
     }
 
-    static void HandleLog(string logString, string stackTrace, LogType type)
+    private static void HandleLog(string logString, string stackTrace, LogType type)
     {
 
         // only capture log from main thread, otherwise crashes
@@ -24,7 +23,7 @@ public class DebugManager : MonoBehaviour
         }
     }
 
-    static public void Crash()
+    public static void Crash()
     {
         Crashlytics.Crash();
     }

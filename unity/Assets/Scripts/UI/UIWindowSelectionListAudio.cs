@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using System.IO;
+using UnityEngine;
 
 namespace Assets.Scripts.UI
 {
@@ -35,7 +35,7 @@ namespace Assets.Scripts.UI
             ui.SetBGColor(new Color(0.6f, 0.6f, 1));
             ui.SetText("►", Color.black);
             // this character is strange
-            ui.SetFontSize(Mathf.RoundToInt((float)UIScaler.GetSmallFont() * 0.5f));
+            ui.SetFontSize(Mathf.RoundToInt(UIScaler.GetSmallFont() * 0.5f));
 
             return offset + 1.05f;
         }

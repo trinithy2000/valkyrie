@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 // Editable text box for use in quest editor
-public class QuestEditorTextEdit {
+public class QuestEditorTextEdit
+{
 
     public string value = "";
     public StringKey title;
@@ -44,7 +45,7 @@ public class QuestEditorTextEdit {
         // Text background
         ui = new UIElement();
         ui.SetLocation(UIScaler.GetHCenter(-9f), 2.9f, 18, 1);
-        ui.SetBGColor(new Color(0.3f,0.3f,0.3f));
+        ui.SetBGColor(new Color(0.3f, 0.3f, 0.3f));
 
         Game game = Game.Get();
         GameObject textObj = new GameObject("textEdit");
@@ -71,7 +72,7 @@ public class QuestEditorTextEdit {
 
         uiText.color = Color.white;
         uiText.font = game.gameType.GetFont();
-        uiText.material = uiText.font.material; 
+        uiText.material = uiText.font.material;
         uiText.fontSize = UIScaler.GetSmallFont();
 
         iField = inputObj.AddComponent<PanCancelInputField>();

@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 public class ChangePhaseWindow
 {
@@ -12,12 +11,12 @@ public class ChangePhaseWindow
     private static readonly StringKey PHASE_MYTHOS = new StringKey("val", "PHASE_MYTHOS");
 
     private static GameObject gameobject_timer = null;
-    private static SimpleTimer timer=null;
+    private static SimpleTimer timer = null;
 
     // Object default configuration
-    public static float heroSize = 5f;
-    public static float offset_size = 6f;
-    public static float transition_duration = 3;
+    public static float heroSize = 8f;
+    public static float offset_size = UIScaler.GetRelWidth(6.2f);
+    public static float transition_duration = 3.3f;
 
     public static void DisplayTransitionWindow(Quest.MoMPhase phase)
     {
@@ -29,15 +28,22 @@ public class ChangePhaseWindow
 
         // dot NOT display transition screen while we are in Editor mode
         if (game.testMode)
+        {
             return;
+        }
 
         // Background picture in full screen
         UIElement bg = new UIElement(Game.TRANSITION);
         Texture2D bgTex;
         if (phase == Quest.MoMPhase.investigator)
+        {
             bgTex = ContentData.FileToTexture(game.cd.images[IMG_BG_INVESTIGATORS_PHASE].image);
+        }
         else
+        {
             bgTex = ContentData.FileToTexture(game.cd.images[IMG_BG_MYTHOS_PHASE].image);
+        }
+
         bg.SetImage(bgTex);
         bg.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
 
@@ -75,8 +81,9 @@ public class ChangePhaseWindow
                     Texture2D newTex = ContentData.FileToTexture(h.heroData.image);
 
                     ui = new UIElement(Game.TRANSITION, bg.GetTransform());
-                    ui.SetLocation(UIScaler.GetHCenter(offset), UIScaler.GetVCenter(), heroSize, heroSize);
+                    ui.SetLocation(UIScaler.GetHCenter(offset), UIScaler.GetVCenter(-UIScaler.GetRelHeight(10)), heroSize, heroSize + 1);
                     ui.SetImage(newTex);
+                    new UICharacterBorders(ui, h.heroData.name);
 
                     offset += offset_size;
                 }
@@ -88,7 +95,7 @@ public class ChangePhaseWindow
         }
 
         // Launch timer to remove this window in 'transition_duration' seconds
-        if (gameobject_timer==null)
+        if (gameobject_timer == null)
         {
             gameobject_timer = new GameObject("TIMER");
             timer = gameobject_timer.AddComponent<SimpleTimer>();

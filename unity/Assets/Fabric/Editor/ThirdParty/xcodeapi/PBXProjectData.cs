@@ -1,30 +1,28 @@
-using System.Collections.Generic;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.IO;
-using System;
 using Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 {
-	using Utils = Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX.Utils;
-
-    using PBXBuildFileSection           = KnownSectionBase<PBXBuildFileData>;
-    using PBXFileReferenceSection       = KnownSectionBase<PBXFileReferenceData>;
-    using PBXGroupSection               = KnownSectionBase<PBXGroupData>;
-    using PBXContainerItemProxySection  = KnownSectionBase<PBXContainerItemProxyData>;
-    using PBXReferenceProxySection      = KnownSectionBase<PBXReferenceProxyData>;
-    using PBXSourcesBuildPhaseSection   = KnownSectionBase<PBXSourcesBuildPhaseData>;
-    using PBXFrameworksBuildPhaseSection= KnownSectionBase<PBXFrameworksBuildPhaseData>;
-    using PBXResourcesBuildPhaseSection = KnownSectionBase<PBXResourcesBuildPhaseData>;
+    using PBXBuildFileSection = KnownSectionBase<PBXBuildFileData>;
+    using PBXContainerItemProxySection = KnownSectionBase<PBXContainerItemProxyData>;
     using PBXCopyFilesBuildPhaseSection = KnownSectionBase<PBXCopyFilesBuildPhaseData>;
+    using PBXFileReferenceSection = KnownSectionBase<PBXFileReferenceData>;
+    using PBXFrameworksBuildPhaseSection = KnownSectionBase<PBXFrameworksBuildPhaseData>;
+    using PBXGroupSection = KnownSectionBase<PBXGroupData>;
+    using PBXNativeTargetSection = KnownSectionBase<PBXNativeTargetData>;
+    using PBXReferenceProxySection = KnownSectionBase<PBXReferenceProxyData>;
+    using PBXResourcesBuildPhaseSection = KnownSectionBase<PBXResourcesBuildPhaseData>;
     using PBXShellScriptBuildPhaseSection = KnownSectionBase<PBXShellScriptBuildPhaseData>;
-    using PBXVariantGroupSection        = KnownSectionBase<PBXVariantGroupData>;
-    using PBXNativeTargetSection        = KnownSectionBase<PBXNativeTargetData>;
-    using PBXTargetDependencySection    = KnownSectionBase<PBXTargetDependencyData>;
-    using XCBuildConfigurationSection   = KnownSectionBase<XCBuildConfigurationData>;
-    using XCConfigurationListSection    = KnownSectionBase<XCConfigurationListData>;
-    using UnknownSection                = KnownSectionBase<PBXObjectData>;
+    using PBXSourcesBuildPhaseSection = KnownSectionBase<PBXSourcesBuildPhaseData>;
+    using PBXTargetDependencySection = KnownSectionBase<PBXTargetDependencyData>;
+    using PBXVariantGroupSection = KnownSectionBase<PBXVariantGroupData>;
+    using UnknownSection = KnownSectionBase<PBXObjectData>;
+    using Utils = Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX.Utils;
+    using XCBuildConfigurationSection = KnownSectionBase<XCBuildConfigurationData>;
+    using XCConfigurationListSection = KnownSectionBase<XCConfigurationListData>;
 
     internal class PBXProjectData
     {
@@ -73,14 +71,17 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public void BuildFilesAdd(string targetGuid, PBXBuildFileData buildFile)
         {
             if (!m_FileGuidToBuildFileMap.ContainsKey(targetGuid))
+            {
                 m_FileGuidToBuildFileMap[targetGuid] = new Dictionary<string, PBXBuildFileData>();
+            }
+
             m_FileGuidToBuildFileMap[targetGuid][buildFile.fileRef] = buildFile;
             buildFiles.AddEntry(buildFile);
         }
 
         public void BuildFilesRemove(string targetGuid, string fileGuid)
         {
-            var buildFile = BuildFilesGetForSourceFile(targetGuid, fileGuid);
+            PBXBuildFileData buildFile = BuildFilesGetForSourceFile(targetGuid, fileGuid);
             if (buildFile != null)
             {
                 m_FileGuidToBuildFileMap[targetGuid].Remove(buildFile.fileRef);
@@ -91,14 +92,20 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public PBXBuildFileData BuildFilesGetForSourceFile(string targetGuid, string fileGuid)
         {
             if (!m_FileGuidToBuildFileMap.ContainsKey(targetGuid))
+            {
                 return null;
+            }
+
             if (!m_FileGuidToBuildFileMap[targetGuid].ContainsKey(fileGuid))
+            {
                 return null;
+            }
+
             return m_FileGuidToBuildFileMap[targetGuid][fileGuid];
         }
-        
-        public IEnumerable<PBXBuildFileData> BuildFilesGetAll() 
-        { 
+
+        public IEnumerable<PBXBuildFileData> BuildFilesGetAll()
+        {
             return buildFiles.GetObjects();
         }
 
@@ -119,14 +126,20 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public PBXFileReferenceData FileRefsGetByRealPath(string path, PBXSourceTree sourceTree)
         {
             if (m_RealPathToFileRefMap[sourceTree].ContainsKey(path))
+            {
                 return m_RealPathToFileRefMap[sourceTree][path];
+            }
+
             return null;
         }
 
         public PBXFileReferenceData FileRefsGetByProjectPath(string path)
         {
             if (m_ProjectPathToFileRefMap.ContainsKey(path))
+            {
                 return m_ProjectPathToFileRefMap[path];
+            }
+
             return null;
         }
 
@@ -136,8 +149,11 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             fileRefs.RemoveEntry(guid);
             m_ProjectPathToFileRefMap.Remove(m_FileRefGuidToProjectPathMap[guid]);
             m_FileRefGuidToProjectPathMap.Remove(guid);
-            foreach (var tree in FileTypeUtils.AllAbsoluteSourceTrees())
+            foreach (PBXSourceTree tree in FileTypeUtils.AllAbsoluteSourceTrees())
+            {
                 m_RealPathToFileRefMap[tree].Remove(fileRef.path);
+            }
+
             m_GuidToParentGroupMap.Remove(guid);
         }
 
@@ -161,7 +177,10 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public PBXGroupData GroupsGetByProjectPath(string sourceGroup)
         {
             if (m_ProjectPathToGroupMap.ContainsKey(sourceGroup))
+            {
                 return m_ProjectPathToGroupMap[sourceGroup];
+            }
+
             return null;
         }
 
@@ -189,45 +208,66 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         public FileGUIDListBase BuildSectionAny(PBXNativeTargetData target, string path, bool isFolderRef)
         {
             string ext = Path.GetExtension(path);
-            var phase = FileTypeUtils.GetFileType(ext, isFolderRef);
-            switch (phase) {
+            PBXFileType phase = FileTypeUtils.GetFileType(ext, isFolderRef);
+            switch (phase)
+            {
                 case PBXFileType.Framework:
-                    foreach (var guid in target.phases)
+                    foreach (string guid in target.phases)
+                    {
                         if (frameworks.HasEntry(guid))
+                        {
                             return frameworks[guid];
+                        }
+                    }
+
                     break;
                 case PBXFileType.Resource:
-                    foreach (var guid in target.phases)
+                    foreach (string guid in target.phases)
+                    {
                         if (resources.HasEntry(guid))
+                        {
                             return resources[guid];
+                        }
+                    }
+
                     break;
                 case PBXFileType.Source:
-                    foreach (var guid in target.phases)
+                    foreach (string guid in target.phases)
+                    {
                         if (sources.HasEntry(guid))
+                        {
                             return sources[guid];
+                        }
+                    }
+
                     break;
                 case PBXFileType.CopyFile:
-                    foreach (var guid in target.phases)
+                    foreach (string guid in target.phases)
+                    {
                         if (copyFiles.HasEntry(guid))
+                        {
                             return copyFiles[guid];
+                        }
+                    }
+
                     break;
             }
             return null;
         }
 
-        void RefreshBuildFilesMapForBuildFileGuidList(Dictionary<string, PBXBuildFileData> mapForTarget,
+        private void RefreshBuildFilesMapForBuildFileGuidList(Dictionary<string, PBXBuildFileData> mapForTarget,
                                                       FileGUIDListBase list)
         {
             foreach (string guid in list.files)
             {
-                var buildFile = buildFiles[guid];
+                PBXBuildFileData buildFile = buildFiles[guid];
                 mapForTarget[buildFile.fileRef] = buildFile;
             }
         }
 
-        void RefreshMapsForGroupChildren(string projectPath, string realPath, PBXSourceTree realPathTree, PBXGroupData parent)
+        private void RefreshMapsForGroupChildren(string projectPath, string realPath, PBXSourceTree realPathTree, PBXGroupData parent)
         {
-            var children = new List<string>(parent.children);
+            List<string> children = new List<string>(parent.children);
             foreach (string guid in children)
             {
                 PBXFileReferenceData fileRef = fileRefs[guid];
@@ -284,21 +324,32 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             }
         }
 
-        void RefreshAuxMaps()
+        private void RefreshAuxMaps()
         {
-            foreach (var targetEntry in nativeTargets.GetEntries())
+            foreach (KeyValuePair<string, PBXNativeTargetData> targetEntry in nativeTargets.GetEntries())
             {
-                var map = new Dictionary<string, PBXBuildFileData>();
+                Dictionary<string, PBXBuildFileData> map = new Dictionary<string, PBXBuildFileData>();
                 foreach (string phaseGuid in targetEntry.Value.phases)
                 {
                     if (frameworks.HasEntry(phaseGuid))
+                    {
                         RefreshBuildFilesMapForBuildFileGuidList(map, frameworks[phaseGuid]);
+                    }
+
                     if (resources.HasEntry(phaseGuid))
+                    {
                         RefreshBuildFilesMapForBuildFileGuidList(map, resources[phaseGuid]);
+                    }
+
                     if (sources.HasEntry(phaseGuid))
+                    {
                         RefreshBuildFilesMapForBuildFileGuidList(map, sources[phaseGuid]);
+                    }
+
                     if (copyFiles.HasEntry(phaseGuid))
+                    {
                         RefreshBuildFilesMapForBuildFileGuidList(map, copyFiles[phaseGuid]);
+                    }
                 }
                 m_FileGuidToBuildFileMap[targetEntry.Key] = map;
             }
@@ -358,8 +409,11 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             m_ProjectPathToFileRefMap = new Dictionary<string, PBXFileReferenceData>();
             m_FileRefGuidToProjectPathMap = new Dictionary<string, string>();
             m_RealPathToFileRefMap = new Dictionary<PBXSourceTree, Dictionary<string, PBXFileReferenceData>>();
-            foreach (var tree in FileTypeUtils.AllAbsoluteSourceTrees())
+            foreach (PBXSourceTree tree in FileTypeUtils.AllAbsoluteSourceTrees())
+            {
                 m_RealPathToFileRefMap.Add(tree, new Dictionary<string, PBXFileReferenceData>());
+            }
+
             m_ProjectPathToGroupMap = new Dictionary<string, PBXGroupData>();
             m_GroupGuidToProjectPathMap = new Dictionary<string, string>();
             m_GuidToParentGroupMap = new Dictionary<string, PBXGroupData>();
@@ -367,19 +421,23 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         private void BuildCommentMapForBuildFiles(GUIDToCommentMap comments, List<string> guids, string sectName)
         {
-            foreach (var guid in guids)
+            foreach (string guid in guids)
             {
-                var buildFile = BuildFilesGet(guid);
+                PBXBuildFileData buildFile = BuildFilesGet(guid);
                 if (buildFile != null)
                 {
-                    var fileRef = FileRefsGet(buildFile.fileRef);
+                    PBXFileReferenceData fileRef = FileRefsGet(buildFile.fileRef);
                     if (fileRef != null)
+                    {
                         comments.Add(guid, String.Format("{0} in {1}", fileRef.name, sectName));
+                    }
                     else
                     {
-                        var reference = references[buildFile.fileRef];
+                        PBXReferenceProxyData reference = references[buildFile.fileRef];
                         if (reference != null)
+                        {
                             comments.Add(guid, String.Format("{0} in {1}", reference.path, sectName));
+                        }
                     }
                 }
             }
@@ -391,57 +449,86 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
             // buildFiles are handled below
             // filerefs are handled below
-            foreach (var e in groups.GetObjects())
+            foreach (PBXGroupData e in groups.GetObjects())
+            {
                 comments.Add(e.guid, e.name);
-            foreach (var e in containerItems.GetObjects())
+            }
+
+            foreach (PBXContainerItemProxyData e in containerItems.GetObjects())
+            {
                 comments.Add(e.guid, "PBXContainerItemProxy");
-            foreach (var e in references.GetObjects())
+            }
+
+            foreach (PBXReferenceProxyData e in references.GetObjects())
+            {
                 comments.Add(e.guid, e.path);
-            foreach (var e in sources.GetObjects())
+            }
+
+            foreach (PBXSourcesBuildPhaseData e in sources.GetObjects())
             {
                 comments.Add(e.guid, "Sources");
                 BuildCommentMapForBuildFiles(comments, e.files, "Sources");
             }
-            foreach (var e in resources.GetObjects())
+            foreach (PBXResourcesBuildPhaseData e in resources.GetObjects())
             {
                 comments.Add(e.guid, "Resources");
                 BuildCommentMapForBuildFiles(comments, e.files, "Resources");
             }
-            foreach (var e in frameworks.GetObjects())
+            foreach (PBXFrameworksBuildPhaseData e in frameworks.GetObjects())
             {
                 comments.Add(e.guid, "Frameworks");
                 BuildCommentMapForBuildFiles(comments, e.files, "Frameworks");
             }
-            foreach (var e in copyFiles.GetObjects())
+            foreach (PBXCopyFilesBuildPhaseData e in copyFiles.GetObjects())
             {
                 string sectName = e.name;
                 if (sectName == null)
+                {
                     sectName = "CopyFiles";
+                }
+
                 comments.Add(e.guid, sectName);
                 BuildCommentMapForBuildFiles(comments, e.files, sectName);
             }
-            foreach (var e in shellScripts.GetObjects())
+            foreach (PBXShellScriptBuildPhaseData e in shellScripts.GetObjects())
+            {
                 comments.Add(e.guid, "ShellScript");
-            foreach (var e in targetDependencies.GetObjects())
+            }
+
+            foreach (PBXTargetDependencyData e in targetDependencies.GetObjects())
+            {
                 comments.Add(e.guid, "PBXTargetDependency");
-            foreach (var e in nativeTargets.GetObjects())
+            }
+
+            foreach (PBXNativeTargetData e in nativeTargets.GetObjects())
             {
                 comments.Add(e.guid, e.name);
                 comments.Add(e.buildConfigList, String.Format("Build configuration list for PBXNativeTarget \"{0}\"", e.name));
             }
-            foreach (var e in variantGroups.GetObjects())
+            foreach (PBXVariantGroupData e in variantGroups.GetObjects())
+            {
                 comments.Add(e.guid, e.name);
-            foreach (var e in buildConfigs.GetObjects())
+            }
+
+            foreach (XCBuildConfigurationData e in buildConfigs.GetObjects())
+            {
                 comments.Add(e.guid, e.name);
-            foreach (var e in project.GetObjects())
+            }
+
+            foreach (PBXProjectObjectData e in project.GetObjects())
             {
                 comments.Add(e.guid, "Project object");
                 comments.Add(e.buildConfigList, "Build configuration list for PBXProject \"Unity-iPhone\""); // FIXME: project name is hardcoded
             }
-            foreach (var e in fileRefs.GetObjects())
+            foreach (PBXFileReferenceData e in fileRefs.GetObjects())
+            {
                 comments.Add(e.guid, e.name);
+            }
+
             if (m_RootElements.Contains("rootObject") && m_RootElements["rootObject"] is PBXElementString)
+            {
                 comments.Add(m_RootElements["rootObject"].AsString(), "Project object");
+            }
 
             return comments;
         }
@@ -449,7 +536,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         private static PBXElementDict ParseContent(string content)
         {
             TokenList tokens = Lexer.Tokenize(content);
-            var parser = new Parser(tokens);
+            Parser parser = new Parser(tokens);
             TreeAST ast = parser.ParseTree();
             return Serializer.ParseTreeAST(ast, tokens, content);
         }
@@ -460,9 +547,11 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             m_RootElements = ParseContent(sr.ReadToEnd());
 
             if (!m_RootElements.Contains("objects"))
+            {
                 throw new Exception("Invalid PBX project file: no objects element");
+            }
 
-            var objects = m_RootElements["objects"].AsDict();
+            PBXElementDict objects = m_RootElements["objects"].AsDict();
             m_RootElements.Remove("objects");
             m_RootElements.SetString("objects", "OBJMARKER");
 
@@ -472,31 +561,33 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
                 m_RootElements.Remove("objectVersion");
             }
 
-            var allGuids = new List<string>();
+            List<string> allGuids = new List<string>();
             string prevSectionName = null;
-            foreach (var kv in objects.values)
+            foreach (KeyValuePair<string, PBXElement> kv in objects.values)
             {
                 allGuids.Add(kv.Key);
-                var el = kv.Value;
+                PBXElement el = kv.Value;
 
                 if (!(el is PBXElementDict) || !el.AsDict().Contains("isa"))
                 {
                     m_UnknownObjects.values.Add(kv.Key, el);
                     continue;
                 }
-                var dict = el.AsDict();
-                var sectionName = dict["isa"].AsString();
+                PBXElementDict dict = el.AsDict();
+                string sectionName = dict["isa"].AsString();
 
                 if (m_Section.ContainsKey(sectionName))
                 {
-                    var section = m_Section[sectionName];
+                    SectionBase section = m_Section[sectionName];
                     section.AddObject(kv.Key, dict);
                 }
                 else
                 {
                     UnknownSection section;
                     if (m_UnknownSections.ContainsKey(sectionName))
+                    {
                         section = m_UnknownSections[sectionName];
+                    }
                     else
                     {
                         section = new UnknownSection(sectionName);
@@ -527,30 +618,40 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public string WriteToString()
         {
-            var commentMap = BuildCommentMap();
-            var emptyChecker = new PropertyCommentChecker();
-            var emptyCommentMap = new GUIDToCommentMap();
+            GUIDToCommentMap commentMap = BuildCommentMap();
+            PropertyCommentChecker emptyChecker = new PropertyCommentChecker();
+            GUIDToCommentMap emptyCommentMap = new GUIDToCommentMap();
 
             // since we need to add custom comments, the serialization is much more complex
             StringBuilder objectsSb = new StringBuilder();
             if (m_ObjectVersion != null) // objectVersion comes right before objects
+            {
                 objectsSb.AppendFormat("objectVersion = {0};\n\t", m_ObjectVersion);
+            }
+
             objectsSb.Append("objects = {");
             foreach (string sectionName in m_SectionOrder)
             {
                 if (m_Section.ContainsKey(sectionName))
+                {
                     m_Section[sectionName].WriteSection(objectsSb, commentMap);
+                }
                 else if (m_UnknownSections.ContainsKey(sectionName))
+                {
                     m_UnknownSections[sectionName].WriteSection(objectsSb, commentMap);
+                }
             }
-            foreach (var kv in m_UnknownObjects.values)
+            foreach (KeyValuePair<string, PBXElement> kv in m_UnknownObjects.values)
+            {
                 Serializer.WriteDictKeyValue(objectsSb, kv.Key, kv.Value, 2, false, emptyChecker, emptyCommentMap);
+            }
+
             objectsSb.Append("\n\t};");
 
             StringBuilder contentSb = new StringBuilder();
             contentSb.Append("// !$*UTF8*$!\n");
             Serializer.WriteDict(contentSb, m_RootElements, 0, false,
-                                 new PropertyCommentChecker(new string[]{"rootObject/*"}), commentMap);
+                                 new PropertyCommentChecker(new string[] { "rootObject/*" }), commentMap);
             contentSb.Append("\n");
             string content = contentSb.ToString();
 
@@ -559,34 +660,43 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         }
 
         // This method walks the project structure and removes invalid entries.
-        void RepairStructure(List<string> allGuids)
+        private void RepairStructure(List<string> allGuids)
         {
-            var guidSet = new Dictionary<string, bool>(); // emulate HashSet on .Net 2.0
-            foreach (var guid in allGuids)
+            Dictionary<string, bool> guidSet = new Dictionary<string, bool>(); // emulate HashSet on .Net 2.0
+            foreach (string guid in allGuids)
+            {
                 guidSet.Add(guid, false);
+            }
 
             while (RepairStructureImpl(guidSet) == true)
+            {
                 ;
+            }
         }
 
         /* Iterates the given guid list and removes all guids that are not in allGuids dictionary.
         */
-        static void RemoveMissingGuidsFromGuidList(PBX.GUIDList guidList, Dictionary<string, bool> allGuids)
+        private static void RemoveMissingGuidsFromGuidList(PBX.GUIDList guidList, Dictionary<string, bool> allGuids)
         {
             List<string> guidsToRemove = null;
-            foreach (var guid in guidList)
+            foreach (string guid in guidList)
             {
                 if (!allGuids.ContainsKey(guid))
                 {
                     if (guidsToRemove == null)
+                    {
                         guidsToRemove = new List<string>();
+                    }
+
                     guidsToRemove.Add(guid);
                 }
             }
             if (guidsToRemove != null)
             {
-                foreach (var guid in guidsToRemove)
+                foreach (string guid in guidsToRemove)
+                {
                     guidList.RemoveGUID(guid);
+                }
             }
         }
 
@@ -594,23 +704,26 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             Also removes the guids of the removed elements from allGuids dictionary.
             Returns true if any objects were removed.
         */
-        static bool RemoveObjectsFromSection<T>(KnownSectionBase<T> section,
+        private static bool RemoveObjectsFromSection<T>(KnownSectionBase<T> section,
                                                 Dictionary<string, bool> allGuids,
                                                 Func<T, bool> checker) where T : PBXObjectData, new()
         {
             List<string> guidsToRemove = null;
-            foreach (var kv in section.GetEntries())
+            foreach (KeyValuePair<string, T> kv in section.GetEntries())
             {
                 if (checker(kv.Value))
                 {
                     if (guidsToRemove == null)
+                    {
                         guidsToRemove = new List<string>();
+                    }
+
                     guidsToRemove.Add(kv.Key);
                 }
             }
             if (guidsToRemove != null)
             {
-                foreach (var guid in guidsToRemove)
+                foreach (string guid in guidsToRemove)
                 {
                     section.RemoveEntry(guid);
                     allGuids.Remove(guid);
@@ -621,7 +734,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
         }
 
         // Returns true if changes were done and one should call RepairStructureImpl again
-        bool RepairStructureImpl(Dictionary<string, bool> allGuids)
+        private bool RepairStructureImpl(Dictionary<string, bool> allGuids)
         {
             bool changed = false;
 
@@ -632,51 +745,69 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
             // PBXGroup
             changed |= RemoveObjectsFromSection(groups, allGuids, o => o.children == null);
-            foreach (var o in groups.GetObjects())
+            foreach (PBXGroupData o in groups.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.children, allGuids);
+            }
 
             // PBXContainerItem / containerItems not cleaned
             // PBXReferenceProxy / references not cleaned
 
             // PBXSourcesBuildPhase
             changed |= RemoveObjectsFromSection(sources, allGuids, o => o.files == null);
-            foreach (var o in sources.GetObjects())
+            foreach (PBXSourcesBuildPhaseData o in sources.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.files, allGuids);
+            }
             // PBXFrameworksBuildPhase
             changed |= RemoveObjectsFromSection(frameworks, allGuids, o => o.files == null);
-            foreach (var o in frameworks.GetObjects())
+            foreach (PBXFrameworksBuildPhaseData o in frameworks.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.files, allGuids);
+            }
             // PBXResourcesBuildPhase
             changed |= RemoveObjectsFromSection(resources, allGuids, o => o.files == null);
-            foreach (var o in resources.GetObjects())
+            foreach (PBXResourcesBuildPhaseData o in resources.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.files, allGuids);
+            }
             // PBXCopyFilesBuildPhase
             changed |= RemoveObjectsFromSection(copyFiles, allGuids, o => o.files == null);
-            foreach (var o in copyFiles.GetObjects())
+            foreach (PBXCopyFilesBuildPhaseData o in copyFiles.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.files, allGuids);
+            }
             // PBXShellScriptsBuildPhase
             changed |= RemoveObjectsFromSection(shellScripts, allGuids, o => o.files == null);
-            foreach (var o in shellScripts.GetObjects())
+            foreach (PBXShellScriptBuildPhaseData o in shellScripts.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.files, allGuids);
+            }
 
             // PBXNativeTarget
             changed |= RemoveObjectsFromSection(nativeTargets, allGuids, o => o.phases == null);
-            foreach (var o in nativeTargets.GetObjects())
+            foreach (PBXNativeTargetData o in nativeTargets.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.phases, allGuids);
+            }
 
             // PBXTargetDependency / targetDependencies not cleaned
 
             // PBXVariantGroup
             changed |= RemoveObjectsFromSection(variantGroups, allGuids, o => o.children == null);
-            foreach (var o in variantGroups.GetObjects())
+            foreach (PBXVariantGroupData o in variantGroups.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.children, allGuids);
+            }
 
             // XCBuildConfiguration / buildConfigs not cleaned
 
             // XCConfigurationList
             changed |= RemoveObjectsFromSection(configs, allGuids, o => o.buildConfigs == null);
-            foreach (var o in configs.GetObjects())
+            foreach (XCConfigurationListData o in configs.GetObjects())
+            {
                 RemoveMissingGuidsFromGuidList(o.buildConfigs, allGuids);
+            }
 
             // PBXProject project not cleaned
             return changed;

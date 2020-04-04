@@ -1,12 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Assets.Scripts.UI;
 using System.Collections.Generic;
-using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+using UnityEngine;
 
 // Hero selection options
 // This comes up when selection a hero icon to pick hero
-public class HeroSelection {
+public class HeroSelection
+{
 
     public Dictionary<string, List<UIElement>> buttons;
 
@@ -14,7 +13,7 @@ public class HeroSelection {
     public HeroSelection()
     {
         Draw();
-	}
+    }
 
     public void Draw()
     {
@@ -26,67 +25,59 @@ public class HeroSelection {
         List<string> heroList = new List<string>(game.cd.heroes.Keys);
         heroList.Sort();
 
-        UIElementScrollVertical scrollArea = new UIElementScrollVertical(Game.HEROSELECT);
-        scrollArea.SetLocation(4.5f, 4, UIScaler.GetWidthUnits() - 5.5f, 22f);
+        UIElement ui = new UIElement();
 
-        new UIElementBorder(scrollArea);
+        if (game.gameType is MoMGameType)
+        {
+            ui.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            ui.SetImage(CommonImageKeys.mom_bgnd_Investigator);
+            ui.GetTransform().SetAsFirstSibling();
+        }
+
+        UIElementScrollVertical scrollArea;
 
         float offset = 0;
-        bool left = true;
+        bool up = true;
         buttons = new Dictionary<string, List<UIElement>>();
-        UIElement ui = null;
+        ui = null;
+
+        scrollArea = new UICharactersScroll(Game.HEROSELECT);
+        scrollArea.SetLocation(UIScaler.GetHCenter(-UIScaler.GetRelWidth(2.6f)), 4.5f, UIScaler.GetRelWidth(1.3f), 42f);
+        scrollArea.SetBGColor(Color.clear);
+
         foreach (string hero in heroList)
         {
             buttons.Add(hero, new List<UIElement>());
-
             // Should be game type specific
             Texture2D newTex = ContentData.FileToTexture(game.cd.heroes[hero].image);
-
             ui = new UIElement(Game.HEROSELECT, scrollArea.GetScrollTransform());
-            if (left)
-            {
-                ui.SetLocation(3.25f, offset + 1.5f, UIScaler.GetWidthUnits() - 19, 1.5f);
-            }
-            else
-            {
-                ui.SetLocation(7.75f, offset + 1.5f, UIScaler.GetWidthUnits() - 18, 1.5f);
-            }
-            ui.SetBGColor(Color.white);
-            ui.SetButton(delegate { Select(hero); });
-            buttons[hero].Add(ui);
 
-            ui = new UIElement(Game.HEROSELECT, scrollArea.GetScrollTransform());
-            if (left)
+            float[] values =
             {
-                ui.SetLocation(1, offset, 4.25f, 4.25f);
-            }
+                GameUtils.ReturnValueGameType<float>(.2f,1f),
+                GameUtils.ReturnValueGameType<float>(8,6.1f),
+                GameUtils.ReturnValueGameType<float>(9,6.1f),
+                GameUtils.ReturnValueGameType<float>(9.5f,10.5f)
+            };
+
+            if (up)
+                ui.SetLocation(1 + offset, values[0], values[1], values[2]);
             else
-            {
-                ui.SetLocation(UIScaler.GetWidthUnits() - 11.25f, offset, 4.25f, 4.25f);
-            }
+                ui.SetLocation(-3 + offset, values[3], values[1], values[2]);
+
+            ui.SetBGColor(Color.clear);
             ui.SetImage(newTex);
             ui.SetButton(delegate { Select(hero); });
             buttons[hero].Add(ui);
 
-            ui = new UIElement(Game.HEROSELECT, scrollArea.GetScrollTransform());
-            if (left)
-            {
-                ui.SetLocation(6.25f, offset + 1.5f, UIScaler.GetWidthUnits() - 19, 1.5f);
-            }
-            else
-            {
-                ui.SetLocation(8.75f, offset + 1.5f, UIScaler.GetWidthUnits() - 20, 1.5f);
-            }
-            ui.SetBGColor(Color.white);
-            ui.SetText(game.cd.heroes[hero].name, Color.black);
-            ui.SetTextAlignment(TextAnchor.MiddleLeft);
-            ui.SetFontSize(UIScaler.GetMediumFont());
-            ui.SetButton(delegate { Select(hero); });
-            buttons[hero].Add(ui);
+            new UICharacterBorders(ui, game.cd.heroes[hero].name);
 
-            left = !left;
-            offset += 2.25f;
+            up = !up;
+
+            offset += GameUtils.ReturnValueGameType<float>(4f, 4.4f);
+
         }
+
         scrollArea.SetScrollSize(offset + 2);
     }
 

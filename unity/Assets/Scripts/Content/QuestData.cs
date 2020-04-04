@@ -1,8 +1,8 @@
-﻿using UnityEngine;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using Assets.Scripts.Content;
+using UnityEngine;
 using ValkyrieTools;
 
 // Class to manage all static data for the current quest
@@ -15,9 +15,10 @@ public class QuestData
     public Dictionary<string, ActivationData> questActivations;
 
     // List of ini files containing quest data
-    List<string> iniFiles;
+    private List<string> iniFiles;
+
     // List of localization files containing quest texts
-    List<string> localizationFiles;
+    private List<string> localizationFiles;
 
     // Location of the quest.ini file
     public string questPath = "";
@@ -27,8 +28,7 @@ public class QuestData
 
     // Data from 'Quest' section
     public Quest quest;
-
-    Game game;
+    private Game game;
 
     // Create from quest loader entry
     public QuestData(QuestData.Quest q)
@@ -43,7 +43,7 @@ public class QuestData
         questPath = path;
         LoadQuestData();
     }
-    
+
     // Populate data
     public void LoadQuestData()
     {
@@ -56,7 +56,7 @@ public class QuestData
         // Read the main quest file
         IniData questIniData = IniRead.ReadFromIni(questPath);
         // Failure to read quest is fatal
-        if(questIniData == null)
+        if (questIniData == null)
         {
             ValkyrieDebug.Log("Failed to load quest from: \"" + questPath + "\"");
             Application.Quit();
@@ -151,10 +151,10 @@ public class QuestData
     }
 
     // Add a section from an ini file to the quest data.  Duplicates are not allowed
-    void AddData(string name, Dictionary<string, string> content, string source)
+    private void AddData(string name, Dictionary<string, string> content, string source)
     {
         // Fatal error on duplicates
-        if(components.ContainsKey(name))
+        if (components.ContainsKey(name))
         {
             ValkyrieDebug.Log("Duplicate component in quest: " + name);
             Application.Quit();
@@ -229,7 +229,7 @@ public class QuestData
     // Class for Tile components (use TileSide content data)
     public class Tile : QuestComponent
     {
-        new public static string type = "Tile";
+        public static new string type = "Tile";
         public int rotation = 0;
         public string tileSideName;
 
@@ -273,7 +273,7 @@ public class QuestData
         }
 
         // Save to ini string (used by editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -290,7 +290,7 @@ public class QuestData
     // Doors are like tokens but placed differently and have different defaults
     public class Door : Event
     {
-        new public static string type = "Door";
+        public static new string type = "Door";
         public int rotation = 0;
         public GameObject gameObject;
         public string colourName = "white";
@@ -325,7 +325,7 @@ public class QuestData
         }
 
         // Save to string
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -345,7 +345,7 @@ public class QuestData
     // Tokens are events that are tied to a token placed on the board
     public class Token : Event
     {
-        new public static string type = "Token";
+        public static new string type = "Token";
         public int rotation = 0;
         public string tokenName;
 
@@ -383,7 +383,7 @@ public class QuestData
         }
 
         // Save to string (for editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -401,7 +401,7 @@ public class QuestData
     // UI is an image/button that is displayed to the user
     public class UI : Event
     {
-        new public static string type = "UI";
+        public static new string type = "UI";
         public string imageName = "";
         public bool verticalUnits = false;
         public int hAlign = 0;
@@ -469,7 +469,7 @@ public class QuestData
             {
                 textBackgroundColor = data["textbackgroundcolor"];
             }
-            
+
             if (data.ContainsKey("halign"))
             {
                 if (data["halign"].Equals("left"))
@@ -501,7 +501,7 @@ public class QuestData
         }
 
         // Save to string (for editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -564,7 +564,7 @@ public class QuestData
     // Spawn items are monster group placement events
     public class Spawn : Event
     {
-        new public static string type = "Spawn";
+        public static new string type = "Spawn";
         // Array of placements by hero count
         public string[][] placement;
         public bool unique = false;
@@ -660,7 +660,7 @@ public class QuestData
         }
 
         // When changing the name placement event need to update in array
-        override public void ChangeReference(string oldName, string newName)
+        public override void ChangeReference(string oldName, string newName)
         {
             base.ChangeReference(oldName, newName);
 
@@ -691,7 +691,7 @@ public class QuestData
         }
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -735,17 +735,17 @@ public class QuestData
                     r = r.Substring(0, r.Length - 1) + nl;
                 }
             }
-            if(unique)
+            if (unique)
             {
                 r += "unique=true" + nl;
                 r += "uniquehealth=" + uniqueHealthBase + nl;
                 r += "uniquehealthhero=" + uniqueHealthHero + nl;
             }
-            if(uniqueHealthBase != 0 && !unique)
+            if (uniqueHealthBase != 0 && !unique)
             {
                 r += "uniquehealth=" + uniqueHealthBase + nl;
             }
-            if(uniqueHealthHero != 0 && !unique)
+            if (uniqueHealthHero != 0 && !unique)
             {
                 r += "uniquehealthhero=" + uniqueHealthHero + nl;
             }
@@ -757,7 +757,7 @@ public class QuestData
     // Events are used to create dialogs that control the quest
     public class Event : QuestComponent
     {
-        new public static string type = "Event";
+        public static new string type = "Event";
 
         public bool display = true;
         public List<StringKey> buttons;
@@ -781,7 +781,7 @@ public class QuestData
 
         public string text_key { get { return genKey("text"); } }
 
-        virtual public StringKey text { get { return genQuery("text"); } }
+        public virtual StringKey text { get { return genQuery("text"); } }
 
         // Create a new event with name (editor)
         public Event(string s) : base(s)
@@ -943,7 +943,7 @@ public class QuestData
         }
 
         // Check all references when a component name is changed
-        override public void ChangeReference(string oldName, string newName)
+        public override void ChangeReference(string oldName, string newName)
         {
             if (sectionName.Equals(oldName) && newName != "")
             {
@@ -1013,7 +1013,7 @@ public class QuestData
         }
 
         // Save event to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -1140,7 +1140,7 @@ public class QuestData
     public class MPlace : QuestComponent
     {
         public bool master = false;
-        new public static string type = "MPlace";
+        public static new string type = "MPlace";
         public bool rotate = false;
 
         // Create a new mplace with name (editor)
@@ -1169,7 +1169,7 @@ public class QuestData
         }
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -1188,7 +1188,7 @@ public class QuestData
     // Puzzle component
     public class Puzzle : Event
     {
-        new public static string type = "Puzzle";
+        public static new string type = "Puzzle";
         public string puzzleClass = "slide";
         public string skill = "{observation}";
         public int puzzleLevel = 4;
@@ -1205,7 +1205,7 @@ public class QuestData
             buttonColors.Add("white");
             buttons.Add(genQuery("button1"));
             LocalizationRead.updateScenarioText(genKey("button1"),
-                new StringKey("val","PUZZLE_GUESS").Translate());
+                new StringKey("val", "PUZZLE_GUESS").Translate());
         }
 
         // Construct from ini data
@@ -1241,7 +1241,7 @@ public class QuestData
         }
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -1296,7 +1296,7 @@ public class QuestData
         public VarTests tests = null;
         public List<VarOperation> operations = null;
 
-        private static char DOT = '.';
+        private static readonly char DOT = '.';
         public string genKey(string element)
         {
             return new StringBuilder(sectionName).Append(DOT).Append(element).ToString();
@@ -1316,7 +1316,7 @@ public class QuestData
         }
 
         // Construct from ini data
-        public QuestComponent(string nameIn, Dictionary<string, string> data, string sourceIn, int format=-1)
+        public QuestComponent(string nameIn, Dictionary<string, string> data, string sourceIn, int format = -1)
         {
             typeDynamic = type;
             sectionName = nameIn;
@@ -1374,7 +1374,11 @@ public class QuestData
                 int i = 0;
                 foreach (string s in array)
                 {
-                    if (i > 0) tests.Add(new VarTestsLogicalOperator("AND"));
+                    if (i > 0)
+                    {
+                        tests.Add(new VarTestsLogicalOperator("AND"));
+                    }
+
                     tests.Add(new VarOperation(s));
                     i++;
                 }
@@ -1388,7 +1392,10 @@ public class QuestData
             int count = 0;
             foreach (string s in array)
             {
-                if (!s.Equals(element)) count++;
+                if (!s.Equals(element))
+                {
+                    count++;
+                }
             }
 
             // Create new array
@@ -1408,20 +1415,20 @@ public class QuestData
         }
 
         // Used to rename components
-        virtual public void ChangeReference(string oldName, string newName)
+        public virtual void ChangeReference(string oldName, string newName)
         {
 
         }
 
         // Used to delete components
-        virtual public void RemoveReference(string refName)
+        public virtual void RemoveReference(string refName)
         {
             // Rename to "" is taken to be delete
             ChangeReference(refName, "");
         }
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = "[" + sectionName + "]" + nl;
@@ -1457,7 +1464,7 @@ public class QuestData
     // Monster defined in the quest
     public class CustomMonster : QuestComponent
     {
-        new public static string type = "CustomMonster";
+        public static new string type = "CustomMonster";
         // A bast type is used for default values
         public string baseMonster = "";
         public string imagePath = "";
@@ -1503,7 +1510,7 @@ public class QuestData
             {
                 baseMonster = data["base"];
             }
-            
+
             traits = new string[0];
             if (data.ContainsKey("traits"))
             {
@@ -1561,7 +1568,7 @@ public class QuestData
 
             if (data.ContainsKey("attacks"))
             {
-                foreach(string typeEntry in data["attacks"].Split(" ".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries))
+                foreach (string typeEntry in data["attacks"].Split(" ".ToCharArray(), System.StringSplitOptions.RemoveEmptyEntries))
                 {
                     string type = typeEntry;
                     int typeCount = 1;
@@ -1606,7 +1613,7 @@ public class QuestData
         }
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             StringBuilder r = new StringBuilder().Append(base.ToString());
 
@@ -1616,7 +1623,7 @@ public class QuestData
             }
             if (traits.Length > 0)
             {
-                r.Append("traits=").AppendLine(string.Join(" ",traits));
+                r.Append("traits=").AppendLine(string.Join(" ", traits));
             }
             if (imagePath.Length > 0)
             {
@@ -1667,7 +1674,7 @@ public class QuestData
         }
 
         // When changing the name placement event need to update in array
-        override public void ChangeReference(string oldName, string newName)
+        public override void ChangeReference(string oldName, string newName)
         {
             for (int i = 0; i < activations.Length; i++)
             {
@@ -1707,7 +1714,7 @@ public class QuestData
     // Quest defined Monster activation
     public class Activation : QuestComponent
     {
-        new public static string type = "Activation";
+        public static new string type = "Activation";
         public bool minionFirst = false;
         public bool masterFirst = false;
 
@@ -1746,7 +1753,7 @@ public class QuestData
         }
 
         // Save to string
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -1767,7 +1774,7 @@ public class QuestData
     // Scenario starting item
     public class QItem : QuestComponent
     {
-        new public static string type = "QItem";
+        public static new string type = "QItem";
         public string[] itemName;
         public string[] traits;
         public string[] traitpool;
@@ -1831,7 +1838,7 @@ public class QuestData
         }
 
         // Save to string
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             string r = base.ToString();
@@ -1876,7 +1883,7 @@ public class QuestData
         }
 
         // When changing the name placement event need to update in array
-        override public void ChangeReference(string oldName, string newName)
+        public override void ChangeReference(string oldName, string newName)
         {
             if (inspect.Equals(oldName))
             {
@@ -1991,9 +1998,11 @@ public class QuestData
         public Quest(Dictionary<string, string> iniData)
         {
             if (LocalizationRead.dicts.ContainsKey("qst"))
-            { 
+            {
                 localizationDict = LocalizationRead.dicts["qst"];
-            } else {
+            }
+            else
+            {
                 localizationDict = new DictionaryI18n(new string[1] { ".," + Game.Get().currentLang }, defaultLanguage);
             }
             valid = Populate(iniData);
@@ -2074,7 +2083,10 @@ public class QuestData
             {
                 int.TryParse(iniData["minhero"], out minHero);
             }
-            if (minHero < 1) minHero = 1;
+            if (minHero < 1)
+            {
+                minHero = 1;
+            }
 
             maxHero = Game.Get().gameType.DefaultHeroes();
             if (iniData.ContainsKey("maxhero"))
@@ -2114,11 +2126,11 @@ public class QuestData
             }
 
             languages_name = new Dictionary<string, string>();
-            if (iniData.ContainsKey("name."+defaultLanguage))
+            if (iniData.ContainsKey("name." + defaultLanguage))
             {
-                foreach(KeyValuePair<string,string> kv in iniData)
+                foreach (KeyValuePair<string, string> kv in iniData)
                 {
-                    if(kv.Key.Contains("name."))
+                    if (kv.Key.Contains("name."))
                     {
                         languages_name.Add(kv.Key.Substring(5), kv.Value);
                     }
@@ -2166,7 +2178,7 @@ public class QuestData
 
 
         // Save to string (editor)
-        override public string ToString()
+        public override string ToString()
         {
             string nl = System.Environment.NewLine;
             StringBuilder r = new StringBuilder();
@@ -2208,14 +2220,14 @@ public class QuestData
                 r.Append("image=").AppendLine(image);
             }
 
-            if(version != "")
+            if (version != "")
             {
                 r.Append("version=").AppendLine(version);
             }
 
             foreach (KeyValuePair<string, string> kv in languages_name)
             {
-                r.Append("name."+ kv.Key + "=").AppendLine(kv.Value);
+                r.Append("name." + kv.Key + "=").AppendLine(kv.Value);
             }
 
             foreach (KeyValuePair<string, string> kv in languages_synopsys)
@@ -2276,7 +2288,9 @@ public class QuestData
             }
 
             if (authors_short_translation.Length > 80)
+            {
                 authors_short_translation = authors_short_translation.Substring(0, 75) + "(...)";
+            }
 
             return authors_short_translation;
         }

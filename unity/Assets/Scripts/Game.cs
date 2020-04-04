@@ -1,16 +1,16 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
-using Assets.Scripts.UI.Screens;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using Assets.Scripts;
-using ValkyrieTools;
+using Assets.Scripts.UI.Screens;
 using Ionic.Zip;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
+using ValkyrieTools;
 
 // General controller for the game
 // There is one object of this class and it is used to find most game components
-public class Game : MonoBehaviour {
+public class Game : MonoBehaviour
+{
 
     public static readonly string MONSTERS = "monsters";
     public static readonly string HEROSELECT = "heroselect";
@@ -26,7 +26,7 @@ public class Game : MonoBehaviour {
     public static readonly string ENDGAME = "endgame";
     public static readonly string BG_TASKS = "bg_tasks";
     public static readonly string LOGS = "logs";
-
+  
     // This is populated at run time from the text asset
     public string version = "";
 
@@ -112,7 +112,7 @@ public class Game : MonoBehaviour {
     }
 
     // Unity fires off this function
-    void Awake()
+    private void Awake()
     {
         // save main thread Id
         mainThread = System.Threading.Thread.CurrentThread;
@@ -155,16 +155,22 @@ public class Game : MonoBehaviour {
 
         string vSet = config.data.Get("UserConfig", "editorTransparency");
         if (vSet == "")
+        {
             editorTransparency = 0.3f;
+        }
         else
+        {
             float.TryParse(vSet, out editorTransparency);
+        }
 
         string s_debug_tests = config.data.Get("Debug", "tests");
         if (s_debug_tests != "")
         {
             s_debug_tests = s_debug_tests.ToLower();
             if (s_debug_tests == "true" || s_debug_tests == "1")
+            {
                 debugTests = true;
+            }
         }
 
         // On android extract streaming assets for use
@@ -175,8 +181,15 @@ public class Game : MonoBehaviour {
             {
                 foreach (ZipEntry e in jar)
                 {
-                    if (!e.FileName.StartsWith("assets")) continue;
-                    if (e.FileName.StartsWith("assets/bin")) continue;
+                    if (!e.FileName.StartsWith("assets"))
+                    {
+                        continue;
+                    }
+
+                    if (e.FileName.StartsWith("assets/bin"))
+                    {
+                        continue;
+                    }
 
                     e.Extract(ContentData.ContentPath() + "../..", ExtractExistingFileAction.OverwriteSilently);
                 }
@@ -219,7 +232,7 @@ public class Game : MonoBehaviour {
         }
 
         // Pull up the quest selection page
-        if(questSelectionScreen==null)
+        if (questSelectionScreen == null)
         {
             go_questSelectionScreen = new GameObject("QuestSelectionScreen");
             questSelectionScreen = go_questSelectionScreen.AddComponent<QuestSelectionScreen>();
@@ -246,43 +259,120 @@ public class Game : MonoBehaviour {
     // This is called when a quest is selected
     public void StartQuest(QuestData.Quest q)
     {
-        if(Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
-        { 
+      
+        if (Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
+        {
             // extract the full package
-            QuestLoader.ExtractSinglePackageFull(ContentData.DownloadPath()+ Path.DirectorySeparatorChar + Path.GetFileName(q.path) );
+            QuestLoader.ExtractSinglePackageFull(ContentData.DownloadPath() + Path.DirectorySeparatorChar + Path.GetFileName(q.path));
         }
 
         // Fetch all of the quest data and initialise the quest
         quest = new Quest(q);
 
-        // Draw the hero icons, which are buttons for selection
-        heroCanvas.SetupUI();
-
-        // Add a finished button to start the quest
-        UIElement ui = new UIElement(Game.HEROSELECT);
-        ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, 2);
-        ui.SetText(CommonStringKeys.FINISHED, Color.green);
-        ui.SetFont(gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetMediumFont());
-        ui.SetButton(EndSelection);
-        new UIElementBorder(ui, Color.green);
-
-        // Add a title to the page
-        ui = new UIElement(Game.HEROSELECT);
-        ui.SetLocation(8, 1, UIScaler.GetWidthUnits() - 16, 3);
-        ui.SetText(new StringKey("val","SELECT",gameType.HeroesName()));
-        ui.SetFont(gameType.GetHeaderFont());
-        ui.SetFontSize(UIScaler.GetLargeFont());
-
         heroCanvas.heroSelection = new HeroSelection();
 
+        Texture2D[] arrow = {
+            GameUtils.ReturnValueGameType<Texture2D>(
+                CommonImageKeys.mom_btn_arrow_gold,
+                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, -90)
+            ),
+            GameUtils.ReturnValueGameType<Texture2D>(
+                CommonScriptFuntions.RotateImage(CommonImageKeys.mom_btn_arrow_gold, 180),
+                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90)
+            )
+        };
+
+        float[] values =
+        {
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetLeft(3.5f),UIScaler.GetLeft(2f)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(2) - 6,UIScaler.GetRelHeight(2) - 5),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelWidth(15),UIScaler.GetRelWidth(10)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(3),UIScaler.GetRelHeight(5))
+        };
+
+        UIElement ui = new UIElement();
+
+        ui.SetLocation(values[0], values[1], values[2], values[3]);
+        ui.SetImage(arrow[0]);
+
+        values[0] = GameUtils.ReturnValueGameType<float>(UIScaler.GetRight(-6), UIScaler.GetRight(-7));
+
+        ui = new UIElement();
+        ui.SetLocation(values[0], values[1], values[2], values[3]);
+        ui.SetImage(arrow[1]);
+
+        ui = new UIElement();
+
+        if (GameUtils.IsMoMGameType())
+        {
+            ui.SetLocation(UIScaler.GetHCenter(-UIScaler.GetRelWidth(2.4f)), UIScaler.GetBottom(-UIScaler.GetRelHeight(4)), UIScaler.GetRelWidth(1.2f), UIScaler.GetRelHeight(4));
+            ui.SetImage(CommonImageKeys.mom_heroTry);
+
+        }
+        else if (GameUtils.IsD2EGameType())
+        {
+            ui.SetLocation(UIScaler.GetHCenter(-UIScaler.GetRelWidth(3.3f)), UIScaler.GetBottom(-UIScaler.GetRelHeight(4.7f)), UIScaler.GetRelWidth(1.9f), UIScaler.GetRelHeight(3.65f));
+            ui.SetImage(CommonImageKeys.d2e_bar_heroTry);
+
+        }
+        ui.GetTransform().SetAsLastSibling();
+        
+        // Draw the hero icons, which are buttons for selection
+        heroCanvas.SetupUI(ui);
+
         ui = new UIElement(Game.HEROSELECT);
-        ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, 2);
-        ui.SetText(CommonStringKeys.BACK, Color.red);
-        ui.SetFont(gameType.GetHeaderFont());
+        ui.SetText(new StringKey("val", "SELECT", gameType.HeroesName()), GameUtils.ReturnValueGameType<Color>(Color.black, Color.white));
+        ui.SetLocation(UIScaler.GetRelWidth(4), GameUtils.ReturnValueGameType<float>(.2f, .6f), UIScaler.GetRelWidth(2), 4);
+
+        ui.SetFont(game.gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetMediumFont());
-        ui.SetButton(Destroyer.QuestSelect);
-        new UIElementBorder(ui, Color.red);
+        ui.SetBGColor(Color.clear);
+        new UITitleBackGround(ui, CommonString.title);
+
+        if (GameUtils.IsMoMGameType())
+        {
+            // Add a finished button to start the quest
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetRight(-UIScaler.GetRelWidth(5)), UIScaler.GetBottom(-6.5f), 7.5f, 5f);
+            ui.SetText(CommonStringKeys.OBT_OBJECTS, new Color(0.439f, 0.366f, 0.209f));
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetTextAlignment(TextAnchor.MiddleCenter);
+            ui.SetButton(EndSelection);
+
+            Texture2D texture = CommonScriptFuntions.RotateImage(CommonImageKeys.mom_btn_chr_menu, 180);
+            ui.SetImage(texture);
+
+            // Add a finished button to return the quest
+
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetLeft(UIScaler.GetRelWidth(16)), UIScaler.GetBottom(-6.5f), 7.5f, 5f);
+            ui.SetText(CommonStringKeys.RET_SELECT_QUEST, new Color(0.439f, 0.366f, 0.209f));
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetButton(Destroyer.QuestSelect);
+            ui.SetImage(CommonImageKeys.mom_btn_chr_menu);
+            ui.SetTextAlignment(TextAnchor.MiddleCenter);
+        }
+        else if (GameUtils.IsD2EGameType())
+        {
+            // Add a finished button to start the quest
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetRight(-UIScaler.GetRelWidth(4)), UIScaler.GetBottom(-3.5f), 7.5f, 3f);
+            ui.SetText(CommonStringKeys.CONFIRM, Color.green);
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetImage(CommonImageKeys.d2e_btn_green);
+            ui.SetButton(EndSelection);
+
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetLeft(UIScaler.GetRelWidth(16)), UIScaler.GetBottom(-3.5f), 7.5f, 3f);
+            ui.SetText(CommonStringKeys.CANCEL, Color.red);
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetImage(CommonImageKeys.d2e_btn_red);
+            ui.SetButton(Destroyer.QuestSelect);
+        }
     }
 
     // HeroCanvas validates selection and starts quest if everything is good
@@ -292,7 +382,10 @@ public class Game : MonoBehaviour {
         int count = 0;
         foreach (Quest.Hero h in Game.Get().quest.heroes)
         {
-            if (h.heroData != null) count++;
+            if (h.heroData != null)
+            {
+                count++;
+            }
         }
         // Starting morale is number of heros
         quest.vars.SetValue("$%morale", count);
@@ -306,7 +399,10 @@ public class Game : MonoBehaviour {
         List<string> music = new List<string>();
         foreach (AudioData ad in cd.audio.Values)
         {
-            if (ad.ContainsTrait("quest")) music.Add(ad.file);
+            if (ad.ContainsTrait("quest"))
+            {
+                music.Add(ad.file);
+            }
         }
         audioControl.PlayDefaultQuestMusic(music);
 
@@ -327,7 +423,7 @@ public class Game : MonoBehaviour {
     }
 
     // On quitting
-    void OnApplicationQuit ()
+    private void OnApplicationQuit()
     {
         // This exists for the editor, because quitting doesn't actually work.
         Destroyer.Destroy();
@@ -336,10 +432,10 @@ public class Game : MonoBehaviour {
     }
 
     //  This is here because the editor doesn't get an update, so we are passing through mouse clicks to the editor
-    void Update()
+    private void Update()
     {
         updateList.RemoveAll(delegate (IUpdateListener o) { return o == null; });
-        for(int i = 0; i < updateList.Count; i++)
+        for (int i = 0; i < updateList.Count; i++)
         {
             if (!updateList[i].Update())
             {
@@ -350,7 +446,7 @@ public class Game : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(0))
         {
-            foreach(IUpdateListener iul in updateList)
+            foreach (IUpdateListener iul in updateList)
             {
                 iul.Click();
             }
@@ -412,8 +508,8 @@ public class Game : MonoBehaviour {
     {
         try
         {
-        SetDisplayAutoRotationPreferences((int)ORIENTATION_PREFERENCE.ORIENTATION_PREFERENCE_LANDSCAPE |
-            (int)ORIENTATION_PREFERENCE.ORIENTATION_PREFERENCE_LANDSCAPE_FLIPPED);
+            SetDisplayAutoRotationPreferences((int)ORIENTATION_PREFERENCE.ORIENTATION_PREFERENCE_LANDSCAPE |
+                (int)ORIENTATION_PREFERENCE.ORIENTATION_PREFERENCE_LANDSCAPE_FLIPPED);
         }
 
         catch (System.EntryPointNotFoundException e)
@@ -447,4 +543,28 @@ public interface IUpdateListener
     /// </summary>
     /// <returns>True to keep this in the update list, false to remove.</returns>
     bool Update();
+}
+
+
+public class GameUtils
+{
+    public static T ReturnValueGameType<T>(T mom, T d2e)
+    {
+        if (IsMoMGameType())
+            return mom;
+        else if (IsD2EGameType())
+            return d2e;
+        else
+            return default(T);
+    }
+
+    public static bool IsD2EGameType()
+    {
+        return Game.Get().gameType is D2EGameType;
+    }
+
+    public static bool IsMoMGameType()
+    {
+        return Game.Get().gameType is MoMGameType;
+    }
 }

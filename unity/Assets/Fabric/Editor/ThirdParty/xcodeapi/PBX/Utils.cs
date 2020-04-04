@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.IO;
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
 {
     internal class GUIDToCommentMap
     {
-        private Dictionary<string, string> m_Dict = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> m_Dict = new Dictionary<string, string>();
 
         public string this[string guid]
         {
-            get {
+            get
+            {
                 if (m_Dict.ContainsKey(guid))
+                {
                     return m_Dict[guid];
+                }
+
                 return null;
             }
         }
@@ -22,7 +24,10 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         public void Add(string guid, string comment)
         {
             if (m_Dict.ContainsKey(guid))
+            {
                 return;
+            }
+
             m_Dict.Add(guid, comment);
         }
 
@@ -30,12 +35,15 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         {
             m_Dict.Remove(guid);
         }
-        
+
         public string Write(string guid)
         {
             string comment = this[guid];
             if (comment == null)
+            {
                 return guid;
+            }
+
             return String.Format("{0} /* {1} */", guid, comment);
         }
 
@@ -43,7 +51,9 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         {
             string comment = this[guid];
             if (comment == null)
+            {
                 sb.Append(guid);
+            }
             else
             {
                 // {0} /* {1} */
@@ -83,18 +93,23 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
 
     internal class PBXStream
     {
-        static bool DontNeedQuotes(string src)
+        private static bool DontNeedQuotes(string src)
         {
             // using a regex instead of explicit matching slows down common cases by 40%
             if (src.Length == 0)
+            {
                 return false;
+            }
 
             bool hasSlash = false;
             for (int i = 0; i < src.Length; ++i)
             {
                 char c = src[i];
                 if (Char.IsLetterOrDigit(c) || c == '.' || c == '*' || c == '_')
+                {
                     continue;
+                }
+
                 if (c == '/')
                 {
                     hasSlash = true;
@@ -105,17 +120,22 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             if (hasSlash)
             {
                 if (src.Contains("//") || src.Contains("/*") || src.Contains("*/"))
+                {
                     return false;
+                }
             }
             return true;
         }
-  
+
         // Quotes the given string if it contains special characters. Note: if the string already
         // contains quotes, then they are escaped and the entire string quoted again
         public static string QuoteStringIfNeeded(string src)
         {
             if (DontNeedQuotes(src))
+            {
                 return src;
+            }
+
             return "\"" + src.Replace("\\", "\\\\").Replace("\"", "\\\"").Replace("\n", "\\n") + "\"";
         }
 
@@ -123,7 +143,10 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         public static string UnquoteString(string src)
         {
             if (!src.StartsWith("\"") || !src.EndsWith("\""))
+            {
                 return src;
+            }
+
             return src.Substring(1, src.Length - 2).Replace("\\\\", "\u569f").Replace("\\\"", "\"")
                                                    .Replace("\\n", "\n").Replace("\u569f", "\\"); // U+569f is a rarely used Chinese character
         }
@@ -144,14 +167,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         {
             public FileTypeDesc(string typeName, PBXFileType type)
             {
-                this.name = typeName;
+                name = typeName;
                 this.type = type;
-                this.isExplicit = false;
+                isExplicit = false;
             }
 
             public FileTypeDesc(string typeName, PBXFileType type, bool isExplicit)
             {
-                this.name = typeName;
+                name = typeName;
                 this.type = type;
                 this.isExplicit = isExplicit;
             }
@@ -206,23 +229,34 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         internal static bool IsFileTypeExplicit(string ext)
         {
             if (types.ContainsKey(ext))
+            {
                 return types[ext].isExplicit;
+            }
+
             return false;
         }
 
         public static PBXFileType GetFileType(string ext, bool isFolderRef)
         {
             if (isFolderRef)
+            {
                 return PBXFileType.Resource;
+            }
+
             if (!types.ContainsKey(ext))
+            {
                 return PBXFileType.Resource;
+            }
+
             return types[ext].type;
         }
 
         public static string GetTypeName(string ext)
         {
             if (types.ContainsKey(ext))
+            {
                 return types[ext].name;
+            }
             // Xcode actually checks the file contents to determine the file type.
             // Text files have "text" type and all other files have "file" type.
             // Since we can't reasonably determine whether the file in question is
@@ -233,20 +267,29 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         public static bool IsBuildableFile(string ext)
         {
             if (!types.ContainsKey(ext))
+            {
                 return true;
+            }
+
             if (types[ext].type != PBXFileType.NotBuildable)
+            {
                 return true;
+            }
+
             return false;
         }
 
         public static bool IsBuildable(string ext, bool isFolderReference)
         {
             if (isFolderReference)
+            {
                 return true;
+            }
+
             return IsBuildableFile(ext);
         }
 
-        private static readonly Dictionary<PBXSourceTree, string> sourceTree = new Dictionary<PBXSourceTree, string> 
+        private static readonly Dictionary<PBXSourceTree, string> sourceTree = new Dictionary<PBXSourceTree, string>
         {
             { PBXSourceTree.Absolute,   "<absolute>" },
             { PBXSourceTree.Group,      "<group>" },
@@ -255,8 +298,8 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             { PBXSourceTree.Sdk,        "SDKROOT" },
             { PBXSourceTree.Source,     "SOURCE_ROOT" },
         };
-        
-        private static readonly Dictionary<string, PBXSourceTree> stringToSourceTreeMap = new Dictionary<string, PBXSourceTree> 
+
+        private static readonly Dictionary<string, PBXSourceTree> stringToSourceTreeMap = new Dictionary<string, PBXSourceTree>
         {
             { "<absolute>",         PBXSourceTree.Absolute },
             { "<group>",            PBXSourceTree.Group },
@@ -270,12 +313,15 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         {
             return sourceTree[tree];
         }
-        
+
         // returns PBXSourceTree.Source on error
         internal static PBXSourceTree ParseSourceTree(string tree)
         {
             if (stringToSourceTreeMap.ContainsKey(tree))
+            {
                 return stringToSourceTreeMap[tree];
+            }
+
             return PBXSourceTree.Source;
         }
 
@@ -285,7 +331,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
                                            PBXSourceTree.Developer, PBXSourceTree.Sdk, PBXSourceTree.Source};
         }
     }
-    
+
     internal class Utils
     {
         /// Replaces '\' with '/'. We need to apply this function to all paths that come from the user
@@ -294,7 +340,10 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         public static string FixSlashesInPath(string path)
         {
             if (path == null)
+            {
                 return null;
+            }
+
             return path.Replace('\\', '/');
         }
 
@@ -307,47 +356,70 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
                 resTree = tree1;
                 return;
             }
-            
+
             resPath = path2;
             resTree = tree2;
         }
-        
+
         public static string CombinePaths(string path1, string path2)
         {
             if (path2.StartsWith("/"))
+            {
                 return path2;
+            }
+
             if (path1.EndsWith("/"))
+            {
                 return path1 + path2;
+            }
+
             if (path1 == "")
+            {
                 return path2;
+            }
+
             if (path2 == "")
+            {
                 return path1;
+            }
+
             return path1 + "/" + path2;
         }
-        
+
         public static string GetDirectoryFromPath(string path)
         {
             int pos = path.LastIndexOf('/');
             if (pos == -1)
+            {
                 return "";
+            }
             else
+            {
                 return path.Substring(0, pos);
+            }
         }
-        
+
         public static string GetFilenameFromPath(string path)
         {
             int pos = path.LastIndexOf('/');
             if (pos == -1)
+            {
                 return path;
+            }
             else
+            {
                 return path.Substring(pos + 1);
+            }
         }
 
         public static string[] SplitPath(string path)
         {
             if (string.IsNullOrEmpty(path))
-                return new string[]{};
-            return path.Split(new[]{'/'}, StringSplitOptions.RemoveEmptyEntries);
+            {
+                return new string[] { };
+            }
+
+            return path.Split(new[] { '/' }, StringSplitOptions.RemoveEmptyEntries);
         }
     }
 

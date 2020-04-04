@@ -1,21 +1,18 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using UnityEngine;
 
 public class EditorComponentDoor : EditorComponentEvent
 {
     private readonly StringKey COLOR = new StringKey("val", "COLOR");
-
-    QuestData.Door doorComponent;
+    private QuestData.Door doorComponent;
     // List to select door colour
 
     public EditorComponentDoor(string nameIn) : base(nameIn)
     {
     }
 
-    override public float AddPosition(float offset)
+    public override float AddPosition(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 4, 1);
@@ -30,7 +27,7 @@ public class EditorComponentDoor : EditorComponentEvent
         return offset + 2;
     }
 
-    override public float AddSubEventComponents(float offset)
+    public override float AddSubEventComponents(float offset)
     {
         doorComponent = component as QuestData.Door;
 
@@ -57,7 +54,7 @@ public class EditorComponentDoor : EditorComponentEvent
         return offset;
     }
 
-    override public float AddEventTrigger(float offset)
+    public override float AddEventTrigger(float offset)
     {
         return offset;
     }

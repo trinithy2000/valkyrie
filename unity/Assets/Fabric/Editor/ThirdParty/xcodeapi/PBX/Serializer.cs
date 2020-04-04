@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.IO;
-using System.Linq;
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
-{    
-    class PropertyCommentChecker
+{
+    internal class PropertyCommentChecker
     {
-        private int m_Level;
+        private readonly int m_Level;
         private bool m_All;
-        private List<List<string>> m_Props;
-        
+        private readonly List<List<string>> m_Props;
+
         /*  The argument is an array of matcher strings each of which determine 
                 whether a property with a certain path needs to be decorated with a
                 comment.
@@ -54,22 +51,28 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             m_Level = 0;
             m_All = false;
             m_Props = new List<List<string>>();
-            foreach (var prop in props)
+            foreach (string prop in props)
             {
                 m_Props.Add(new List<string>(prop.Split('/')));
             }
         }
-        
-        bool CheckContained(string prop)
+
+        private bool CheckContained(string prop)
         {
-            if (m_All) 
-                return true;
-            foreach (var list in m_Props)
+            if (m_All)
             {
-                if (list.Count == m_Level+1)
+                return true;
+            }
+
+            foreach (List<string> list in m_Props)
+            {
+                if (list.Count == m_Level + 1)
                 {
                     if (list[m_Level] == prop)
+                    {
                         return true;
+                    }
+
                     if (list[m_Level] == "*")
                     {
                         m_All = true; // short-circuit all at this level
@@ -79,44 +82,51 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             }
             return false;
         }
-        
+
         public bool CheckStringValueInArray(string value) { return CheckContained(value); }
         public bool CheckKeyInDict(string key) { return CheckContained(key); }
-        
+
         public bool CheckStringValueInDict(string key, string value)
         {
-            foreach (var list in m_Props)
+            foreach (List<string> list in m_Props)
             {
                 if (list.Count == m_Level + 2)
                 {
                     if ((list[m_Level] == "*" || list[m_Level] == key) &&
-                        list[m_Level+1] == "*" || list[m_Level+1] == value)
+                        list[m_Level + 1] == "*" || list[m_Level + 1] == value)
+                    {
                         return true;
+                    }
                 }
             }
-            return false;       
+            return false;
         }
-        
+
         public PropertyCommentChecker NextLevel(string prop)
         {
-            var newList = new List<List<string>>();
-            foreach (var list in m_Props)
+            List<List<string>> newList = new List<List<string>>();
+            foreach (List<string> list in m_Props)
             {
-                if (list.Count <= m_Level+1)
+                if (list.Count <= m_Level + 1)
+                {
                     continue;
+                }
+
                 if (list[m_Level] == "*" || list[m_Level] == prop)
+                {
                     newList.Add(list);
+                }
             }
             return new PropertyCommentChecker(m_Level + 1, newList);
         }
     }
 
-    class Serializer 
+    internal class Serializer
     {
         public static PBXElementDict ParseTreeAST(TreeAST ast, TokenList tokens, string text)
         {
-            var el = new PBXElementDict();
-            foreach (var kv in ast.values)
+            PBXElementDict el = new PBXElementDict();
+            foreach (KeyValueAST kv in ast.values)
             {
                 PBXElementString key = ParseIdentifierAST(kv.key, tokens, text);
                 PBXElement value = ParseValueAST(kv.value, tokens, text);
@@ -124,28 +134,37 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             }
             return el;
         }
-        
+
         public static PBXElementArray ParseArrayAST(ArrayAST ast, TokenList tokens, string text)
         {
-            var el = new PBXElementArray();
-            foreach (var v in ast.values)
+            PBXElementArray el = new PBXElementArray();
+            foreach (ValueAST v in ast.values)
             {
                 el.values.Add(ParseValueAST(v, tokens, text));
             }
             return el;
         }
-        
+
         public static PBXElement ParseValueAST(ValueAST ast, TokenList tokens, string text)
         {
             if (ast is TreeAST)
+            {
                 return ParseTreeAST((TreeAST)ast, tokens, text);
+            }
+
             if (ast is ArrayAST)
+            {
                 return ParseArrayAST((ArrayAST)ast, tokens, text);
+            }
+
             if (ast is IdentifierAST)
+            {
                 return ParseIdentifierAST((IdentifierAST)ast, tokens, text);
+            }
+
             return null;
         }
-        
+
         public static PBXElementString ParseIdentifierAST(IdentifierAST ast, TokenList tokens, string text)
         {
             Token tok = tokens[ast.value];
@@ -161,25 +180,29 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
                     return new PBXElementString(value);
                 default:
                     throw new Exception("Internal parser error");
-            }           
+            }
         }
-        
-        static string k_Indent = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-        
-        static string GetIndent(int indent)
+
+        private static readonly string k_Indent = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+
+        private static string GetIndent(int indent)
         {
             return k_Indent.Substring(0, indent);
         }
 
-        static void WriteStringImpl(StringBuilder sb, string s, bool comment, GUIDToCommentMap comments)
+        private static void WriteStringImpl(StringBuilder sb, string s, bool comment, GUIDToCommentMap comments)
         {
             if (comment)
+            {
                 comments.WriteStringBuilder(sb, s);
+            }
             else
+            {
                 sb.Append(PBXStream.QuoteStringIfNeeded(s));
+            }
         }
-                                         
-        public static void WriteDictKeyValue(StringBuilder sb, string key, PBXElement value, int indent, bool compact, 
+
+        public static void WriteDictKeyValue(StringBuilder sb, string key, PBXElement value, int indent, bool compact,
                                              PropertyCommentChecker checker, GUIDToCommentMap comments)
         {
             if (!compact)
@@ -191,29 +214,43 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             sb.Append(" = ");
 
             if (value is PBXElementString)
+            {
                 WriteStringImpl(sb, value.AsString(), checker.CheckStringValueInDict(key, value.AsString()), comments);
+            }
             else if (value is PBXElementDict)
+            {
                 WriteDict(sb, value.AsDict(), indent, compact, checker.NextLevel(key), comments);
+            }
             else if (value is PBXElementArray)
+            {
                 WriteArray(sb, value.AsArray(), indent, compact, checker.NextLevel(key), comments);
+            }
+
             sb.Append(";");
             if (compact)
+            {
                 sb.Append(" ");
+            }
         }
-        
-        public static void WriteDict(StringBuilder sb, PBXElementDict el, int indent, bool compact, 
+
+        public static void WriteDict(StringBuilder sb, PBXElementDict el, int indent, bool compact,
                                      PropertyCommentChecker checker, GUIDToCommentMap comments)
         {
             sb.Append("{");
-            
+
             if (el.Contains("isa"))
-                WriteDictKeyValue(sb, "isa", el["isa"], indent+1, compact, checker, comments);
-            var keys = new List<string>(el.values.Keys);
+            {
+                WriteDictKeyValue(sb, "isa", el["isa"], indent + 1, compact, checker, comments);
+            }
+
+            List<string> keys = new List<string>(el.values.Keys);
             keys.Sort(StringComparer.Ordinal);
-            foreach (var key in keys)
+            foreach (string key in keys)
             {
                 if (key != "isa")
-                    WriteDictKeyValue(sb, key, el[key], indent+1, compact, checker, comments);
+                {
+                    WriteDictKeyValue(sb, key, el[key], indent + 1, compact, checker, comments);
+                }
             }
             if (!compact)
             {
@@ -222,30 +259,39 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             }
             sb.Append("}");
         }
- 
-        public static void WriteArray(StringBuilder sb, PBXElementArray el, int indent, bool compact, 
+
+        public static void WriteArray(StringBuilder sb, PBXElementArray el, int indent, bool compact,
                                       PropertyCommentChecker checker, GUIDToCommentMap comments)
         {
             sb.Append("(");
-            foreach (var value in el.values)
+            foreach (PBXElement value in el.values)
             {
                 if (!compact)
                 {
                     sb.Append("\n");
-                    sb.Append(GetIndent(indent+1));
+                    sb.Append(GetIndent(indent + 1));
                 }
-                
+
                 if (value is PBXElementString)
+                {
                     WriteStringImpl(sb, value.AsString(), checker.CheckStringValueInArray(value.AsString()), comments);
+                }
                 else if (value is PBXElementDict)
-                    WriteDict(sb, value.AsDict(), indent+1, compact, checker.NextLevel("*"), comments);
+                {
+                    WriteDict(sb, value.AsDict(), indent + 1, compact, checker.NextLevel("*"), comments);
+                }
                 else if (value is PBXElementArray)
-                    WriteArray(sb, value.AsArray(), indent+1, compact, checker.NextLevel("*"), comments);
+                {
+                    WriteArray(sb, value.AsArray(), indent + 1, compact, checker.NextLevel("*"), comments);
+                }
+
                 sb.Append(",");
                 if (compact)
+                {
                     sb.Append(" ");
+                }
             }
-            
+
             if (!compact)
             {
                 sb.Append("\n");
@@ -254,6 +300,6 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             sb.Append(")");
         }
     }
-    
+
 } // namespace UnityEditor.iOS.Xcode
 

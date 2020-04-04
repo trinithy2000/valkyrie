@@ -1,7 +1,9 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
 using ValkyrieTools;
+
 
 public class Audio : MonoBehaviour
 {
@@ -17,13 +19,17 @@ public class Audio : MonoBehaviour
     public float musicVolume;
     public List<AudioClip> defaultQuestMusic;
 
-    void Start()
+    private void Start()
     {
         Game game = Game.Get();
         audioSource = gameObject.AddComponent<AudioSource>();
         string vSet = game.config.data.Get("UserConfig", "music");
         float.TryParse(vSet, out musicVolume);
-        if (vSet.Length == 0) musicVolume = 1;
+        if (vSet.Length == 0)
+        {
+            musicVolume = 1;
+        }
+
         audioSource.volume = musicVolume;
 
         gameObject.transform.SetParent(game.cc.gameObject.transform);
@@ -35,7 +41,10 @@ public class Audio : MonoBehaviour
         audioSourceEffect = effectsObject.AddComponent<AudioSource>();
         vSet = game.config.data.Get("UserConfig", "effects");
         float.TryParse(vSet, out effectVolume);
-        if (vSet.Length == 0) effectVolume = 1;
+        if (vSet.Length == 0)
+        {
+            effectVolume = 1;
+        }
     }
 
     private void FixedUpdate()
@@ -61,7 +70,7 @@ public class Audio : MonoBehaviour
     {
         StartCoroutine(PlayMusic(new List<string>(), false));
     }
-    
+
     public void PlayDefaultQuestMusic(List<string> fileNames)
     {
         StartCoroutine(PlayMusic(fileNames, true));
@@ -82,12 +91,18 @@ public class Audio : MonoBehaviour
                 files.Add(ad.file);
             }
         }
-        if (files.Count > 0) StartCoroutine(PlayEffect(files[Random.Range(0, files.Count)]));
+        if (files.Count > 0)
+        {
+            StartCoroutine(PlayEffect(files[Random.Range(0, files.Count)]));
+        }
     }
 
     public void Play(string file)
     {
-        if (file.Length > 0) StartCoroutine(PlayEffect(file));
+        if (file.Length > 0)
+        {
+            StartCoroutine(PlayEffect(file));
+        }
     }
 
     public void PlayTest()
@@ -107,9 +122,10 @@ public class Audio : MonoBehaviour
         foreach (string s in fileNames)
         {
             string fileName = s;
-            var file = new WWW(new System.Uri(fileName).AbsoluteUri);
-            yield return file;
-            newMusic.Add(file.GetAudioClip());
+            UnityWebRequest file = UnityWebRequestMultimedia.GetAudioClip(new System.Uri(fileName).AbsoluteUri, AudioType.OGGVORBIS);
+            yield return file.SendWebRequest();
+            DownloadHandlerAudioClip dlHandler = (DownloadHandlerAudioClip)file.downloadHandler;
+            newMusic.Add(dlHandler.audioClip);
         }
         music = newMusic;
         if (isDefaultQuestMusic)
@@ -119,27 +135,35 @@ public class Audio : MonoBehaviour
 
         musicIndex = 0;
         fetchingMusic = false;
-        if (audioSource.isPlaying) fadeOut = true;
+        if (audioSource.isPlaying)
+        {
+            fadeOut = true;
+        }
     }
 
     public IEnumerator PlayEffect(string fileName)
     {
-        var file = new WWW(new System.Uri(fileName).AbsoluteUri);
-        yield return file;
+
+        UnityWebRequest file = UnityWebRequestMultimedia.GetAudioClip(new System.Uri(fileName).AbsoluteUri, AudioType.OGGVORBIS);
+        yield return file.SendWebRequest();
+        DownloadHandlerAudioClip dlHandler = (DownloadHandlerAudioClip)file.downloadHandler;
+
         if (file.error != null)
         {
             ValkyrieDebug.Log("Warning: Unable to load audio: " + fileName + " Error: " + file.error);
         }
         else
         {
-            audioSourceEffect.PlayOneShot(file.GetAudioClip(), effectVolume);
+            audioSourceEffect.PlayOneShot(dlHandler.audioClip, effectVolume);
         }
     }
 
     public void UpdateMusic()
     {
         if (music.Count == 0)
+        {
             return;
+        }
 
         // if previous music has ended, play or restart default quest music
         if (musicIndex >= music.Count)
@@ -156,7 +180,9 @@ public class Audio : MonoBehaviour
 
     public void StopAudioEffect()
     {
-        if(audioSourceEffect!=null)
+        if (audioSourceEffect != null)
+        {
             audioSourceEffect.Stop();
+        }
     }
 }

@@ -9,17 +9,16 @@ namespace Assets.Scripts.UI.Screens
     // Class for options menu
     public class OptionsScreen
     {
-        private static readonly string IMG_LOW_EDITOR_TRANSPARENCY    = "ImageLowEditorTransparency";
+        private static readonly string IMG_LOW_EDITOR_TRANSPARENCY = "ImageLowEditorTransparency";
         private static readonly string IMG_MEDIUM_EDITOR_TRANSPARENCY = "ImageMediumEditorTransparency";
-        private static readonly string IMG_HIGH_EDITOR_TRANSPARENCY   = "ImageHighEditorTransparency";
+        private static readonly string IMG_HIGH_EDITOR_TRANSPARENCY = "ImageHighEditorTransparency";
 
         private readonly StringKey OPTIONS = new StringKey("val", "OPTIONS");
         private readonly StringKey CHOOSE_LANG = new StringKey("val", "CHOOSE_LANG");
         private readonly StringKey EFFECTS = new StringKey("val", "EFFECTS");
         private readonly StringKey MUSIC = new StringKey("val", "MUSIC");
         private readonly StringKey SET_EDITOR_ALPHA = new StringKey("val", "SET_EDITOR_ALPHA");
-
-        Game game = Game.Get();
+        private readonly Game game = Game.Get();
 
         public UnityEngine.UI.Slider musicSlide;
         public UnityEngine.UI.Slider musicSlideRev;
@@ -82,11 +81,13 @@ namespace Assets.Scripts.UI.Screens
             Texture2D SampleTex = ContentData.FileToTexture(game.cd.images[IMG_LOW_EDITOR_TRANSPARENCY].image);
             Sprite SampleSprite = Sprite.Create(SampleTex, new Rect(0, 0, SampleTex.width, SampleTex.height), Vector2.zero, 1);
             ui = new UIElement(Game.DIALOG);
-            ui.SetLocation(UIScaler.GetHCenter()-3, 8, 6, 6);
+            ui.SetLocation(UIScaler.GetHCenter() - 3, 8, 6, 6);
             ui.SetButton(delegate { UpdateEditorTransparency(0.2f); });
             ui.SetImage(SampleSprite);
-            if(game.editorTransparency == 0.2f)
+            if (game.editorTransparency == 0.2f)
+            {
                 new UIElementBorder(ui, Color.white);
+            }
 
             SampleTex = ContentData.FileToTexture(game.cd.images[IMG_MEDIUM_EDITOR_TRANSPARENCY].image);
             SampleSprite = Sprite.Create(SampleTex, new Rect(0, 0, SampleTex.width, SampleTex.height), Vector2.zero, 1);
@@ -95,8 +96,10 @@ namespace Assets.Scripts.UI.Screens
             ui.SetButton(delegate { UpdateEditorTransparency(0.3f); });
             ui.SetImage(SampleSprite);
             if (game.editorTransparency == 0.3f)
+            {
                 new UIElementBorder(ui, Color.white);
-            
+            }
+
             SampleTex = ContentData.FileToTexture(game.cd.images[IMG_HIGH_EDITOR_TRANSPARENCY].image);
             SampleSprite = Sprite.Create(SampleTex, new Rect(0, 0, SampleTex.width, SampleTex.height), Vector2.zero, 1);
             ui = new UIElement(Game.DIALOG);
@@ -104,8 +107,9 @@ namespace Assets.Scripts.UI.Screens
             ui.SetButton(delegate { UpdateEditorTransparency(0.4f); });
             ui.SetImage(SampleSprite);
             if (game.editorTransparency == 0.4f)
+            {
                 new UIElementBorder(ui, Color.white);
-
+            }
         }
 
         private void CreateAudioElements()
@@ -119,15 +123,20 @@ namespace Assets.Scripts.UI.Screens
             float mVolume;
             string vSet = game.config.data.Get("UserConfig", "music");
             float.TryParse(vSet, out mVolume);
-            if (vSet.Length == 0) mVolume = 1;
+            if (vSet.Length == 0)
+            {
+                mVolume = 1;
+            }
 
             ui = new UIElement();
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 6, 11, 14, 2);
             ui.SetBGColor(Color.clear);
             new UIElementBorder(ui);
 
-            GameObject musicSlideObj = new GameObject("musicSlide");
-            musicSlideObj.tag = Game.DIALOG;
+            GameObject musicSlideObj = new GameObject("musicSlide")
+            {
+                tag = Game.DIALOG
+            };
             musicSlideObj.transform.SetParent(game.uICanvas.transform);
             musicSlide = musicSlideObj.AddComponent<UnityEngine.UI.Slider>();
             RectTransform musicSlideRect = musicSlideObj.GetComponent<RectTransform>();
@@ -135,8 +144,10 @@ namespace Assets.Scripts.UI.Screens
             musicSlideRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, ((0.75f * UIScaler.GetWidthUnits()) - 6) * UIScaler.GetPixelsPerUnit(), 14 * UIScaler.GetPixelsPerUnit());
             musicSlide.onValueChanged.AddListener(delegate { UpdateMusic(); });
 
-            GameObject musicFill = new GameObject("musicfill");
-            musicFill.tag = Game.DIALOG;
+            GameObject musicFill = new GameObject("musicfill")
+            {
+                tag = Game.DIALOG
+            };
             musicFill.transform.SetParent(musicSlideObj.transform);
             musicFill.AddComponent<UnityEngine.UI.Image>();
             musicFill.GetComponent<UnityEngine.UI.Image>().color = Color.white;
@@ -145,8 +156,10 @@ namespace Assets.Scripts.UI.Screens
             musicSlide.fillRect.offsetMax = Vector2.zero;
 
             // Double slide is a hack because I can't get a click in the space to work otherwise
-            GameObject musicSlideObjRev = new GameObject("musicSlideRev");
-            musicSlideObjRev.tag = Game.DIALOG;
+            GameObject musicSlideObjRev = new GameObject("musicSlideRev")
+            {
+                tag = Game.DIALOG
+            };
             musicSlideObjRev.transform.SetParent(game.uICanvas.transform);
             musicSlideRev = musicSlideObjRev.AddComponent<UnityEngine.UI.Slider>();
             RectTransform musicSlideRectRev = musicSlideObjRev.GetComponent<RectTransform>();
@@ -155,8 +168,10 @@ namespace Assets.Scripts.UI.Screens
             musicSlideRev.onValueChanged.AddListener(delegate { UpdateMusicRev(); });
             musicSlideRev.direction = UnityEngine.UI.Slider.Direction.RightToLeft;
 
-            GameObject musicFillRev = new GameObject("musicfillrev");
-            musicFillRev.tag = Game.DIALOG;
+            GameObject musicFillRev = new GameObject("musicfillrev")
+            {
+                tag = Game.DIALOG
+            };
             musicFillRev.transform.SetParent(musicSlideObjRev.transform);
             musicFillRev.AddComponent<UnityEngine.UI.Image>();
             musicFillRev.GetComponent<UnityEngine.UI.Image>().color = Color.clear;
@@ -177,28 +192,37 @@ namespace Assets.Scripts.UI.Screens
             float eVolume;
             vSet = game.config.data.Get("UserConfig", "effects");
             float.TryParse(vSet, out eVolume);
-            if (vSet.Length == 0) eVolume = 1;
+            if (vSet.Length == 0)
+            {
+                eVolume = 1;
+            }
 
             ui = new UIElement();
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 6, 17, 14, 2);
             ui.SetBGColor(Color.clear);
             new UIElementBorder(ui);
 
-            GameObject effectSlideObj = new GameObject("effectSlide");
-            effectSlideObj.tag = Game.DIALOG;
+            GameObject effectSlideObj = new GameObject("effectSlide")
+            {
+                tag = Game.DIALOG
+            };
             effectSlideObj.transform.SetParent(game.uICanvas.transform);
             effectSlide = effectSlideObj.AddComponent<UnityEngine.UI.Slider>();
             RectTransform effectSlideRect = effectSlideObj.GetComponent<RectTransform>();
             effectSlideRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 17 * UIScaler.GetPixelsPerUnit(), 2 * UIScaler.GetPixelsPerUnit());
             effectSlideRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, ((0.75f * UIScaler.GetWidthUnits()) - 6) * UIScaler.GetPixelsPerUnit(), 14 * UIScaler.GetPixelsPerUnit());
             effectSlide.onValueChanged.AddListener(delegate { UpdateEffects(); });
-            EventTrigger.Entry entry = new EventTrigger.Entry();
-            entry.eventID = EventTriggerType.PointerUp;
+            EventTrigger.Entry entry = new EventTrigger.Entry
+            {
+                eventID = EventTriggerType.PointerUp
+            };
             entry.callback.AddListener(delegate { PlayTestSound(); });
             effectSlideObj.AddComponent<EventTrigger>().triggers.Add(entry);
 
-            GameObject effectFill = new GameObject("effectFill");
-            effectFill.tag = Game.DIALOG;
+            GameObject effectFill = new GameObject("effectFill")
+            {
+                tag = Game.DIALOG
+            };
             effectFill.transform.SetParent(effectSlideObj.transform);
             effectFill.AddComponent<UnityEngine.UI.Image>();
             effectFill.GetComponent<UnityEngine.UI.Image>().color = Color.white;
@@ -207,8 +231,10 @@ namespace Assets.Scripts.UI.Screens
             effectSlide.fillRect.offsetMax = Vector2.zero;
 
             // Double slide is a hack because I can't get a click in the space to work otherwise
-            GameObject effectSlideObjRev = new GameObject("effectSlideRev");
-            effectSlideObjRev.tag = Game.DIALOG;
+            GameObject effectSlideObjRev = new GameObject("effectSlideRev")
+            {
+                tag = Game.DIALOG
+            };
             effectSlideObjRev.transform.SetParent(game.uICanvas.transform);
             effectSlideRev = effectSlideObjRev.AddComponent<UnityEngine.UI.Slider>();
             RectTransform effectSlideRectRev = effectSlideObjRev.GetComponent<RectTransform>();
@@ -218,8 +244,10 @@ namespace Assets.Scripts.UI.Screens
             effectSlideRev.direction = UnityEngine.UI.Slider.Direction.RightToLeft;
             effectSlideObjRev.AddComponent<EventTrigger>().triggers.Add(entry);
 
-            GameObject effectFillRev = new GameObject("effectFillRev");
-            effectFillRev.tag = Game.DIALOG;
+            GameObject effectFillRev = new GameObject("effectFillRev")
+            {
+                tag = Game.DIALOG
+            };
             effectFillRev.transform.SetParent(effectSlideObjRev.transform);
             effectFillRev.AddComponent<UnityEngine.UI.Image>();
             effectFillRev.GetComponent<UnityEngine.UI.Image>().color = Color.clear;

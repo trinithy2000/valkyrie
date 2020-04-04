@@ -1,8 +1,8 @@
-﻿using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
-using Assets.Scripts.Content;
+﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
 
 public class EditorComponentEvent : EditorComponent
 {
@@ -25,15 +25,13 @@ public class EditorComponentEvent : EditorComponent
     private readonly StringKey AUDIO = new StringKey("val", "AUDIO");
     private readonly StringKey MUSIC = new StringKey("val", "MUSIC");
     private readonly StringKey CONTINUE = new StringKey("val", "CONTINUE");
-    private readonly StringKey QUOTA = new StringKey("val","QUOTA");
-    private readonly StringKey BUTTONS = new StringKey("val","BUTTONS");
+    private readonly StringKey QUOTA = new StringKey("val", "QUOTA");
+    private readonly StringKey BUTTONS = new StringKey("val", "BUTTONS");
     private readonly StringKey BUTTON = new StringKey("val", "BUTTON");
-    
-    QuestData.Event eventComponent;
-
-    UIElementEditablePaneled eventTextUIE;
-    UIElementEditable quotaUIE;
-    List<UIElementEditable> buttonUIE;
+    private QuestData.Event eventComponent;
+    private UIElementEditablePaneled eventTextUIE;
+    private UIElementEditable quotaUIE;
+    private List<UIElementEditable> buttonUIE;
 
     public EditorComponentEvent(string nameIn) : base()
     {
@@ -44,13 +42,13 @@ public class EditorComponentEvent : EditorComponent
         Update();
     }
 
-    override protected void RefreshReference()
+    protected override void RefreshReference()
     {
         base.RefreshReference();
         eventComponent = component as QuestData.Event;
     }
 
-    override public float AddSubComponents(float offset)
+    public override float AddSubComponents(float offset)
     {
         offset = AddPosition(offset);
 
@@ -199,7 +197,7 @@ public class EditorComponentEvent : EditorComponent
         return offset;
     }
 
-    virtual public float AddPosition(float offset)
+    public virtual float AddPosition(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 4, 1);
@@ -222,7 +220,7 @@ public class EditorComponentEvent : EditorComponent
         return offset + 2;
     }
 
-    virtual public void AddLocationType(float offset)
+    public virtual void AddLocationType(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(14, offset, 4, 1);
@@ -250,12 +248,12 @@ public class EditorComponentEvent : EditorComponent
         }
     }
 
-    virtual public float AddSubEventComponents(float offset)
+    public virtual float AddSubEventComponents(float offset)
     {
         return offset;
     }
 
-    virtual public float AddEventDialog(float offset)
+    public virtual float AddEventDialog(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset++, 20, 1);
@@ -270,7 +268,7 @@ public class EditorComponentEvent : EditorComponent
         return offset + 1;
     }
 
-    virtual public float AddEventTrigger(float offset)
+    public virtual float AddEventTrigger(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 4, 1);
@@ -284,7 +282,7 @@ public class EditorComponentEvent : EditorComponent
         return offset + 2;
     }
 
-    virtual public float AddHeroSelection(float offset)
+    public virtual float AddHeroSelection(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 6, 1);
@@ -329,7 +327,7 @@ public class EditorComponentEvent : EditorComponent
         return offset + 2;
     }
 
-    virtual public float AddNextEventComponents(float offset)
+    public virtual float AddNextEventComponents(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 4, 1);
@@ -372,7 +370,11 @@ public class EditorComponentEvent : EditorComponent
         ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "NEXT_EVENTS")));
 
         string randomButton = "Ordered";
-        if (eventComponent.randomEvents) randomButton = "Random";
+        if (eventComponent.randomEvents)
+        {
+            randomButton = "Random";
+        }
+
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(8, offset, 4, 1);
         ui.SetText(new StringKey("val", randomButton));
@@ -402,13 +404,17 @@ public class EditorComponentEvent : EditorComponent
             StringKey buttonLabel = eventComponent.buttons[buttonTmp - 1];
             string colorRGB = ColorUtil.FromName(eventComponent.buttonColors[buttonTmp - 1]);
             Color32 c = Color.white;
-            c.r = (byte)System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
-            c.g = (byte)System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
-            c.b = (byte)System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
+            c.r = System.Convert.ToByte(colorRGB.Substring(1, 2), 16);
+            c.g = System.Convert.ToByte(colorRGB.Substring(3, 2), 16);
+            c.b = System.Convert.ToByte(colorRGB.Substring(5, 2), 16);
             if (colorRGB.Length == 9)
-                c.a = (byte)System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            {
+                c.a = System.Convert.ToByte(colorRGB.Substring(7, 2), 16);
+            }
             else
+            {
                 c.a = 255; // opaque by default
+            }
 
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(0.5f, offset, 3, 1);
@@ -480,7 +486,7 @@ public class EditorComponentEvent : EditorComponent
 
 
 
-    virtual public void Highlight()
+    public virtual void Highlight()
     {
         if (eventComponent.locationSpecified || eventComponent.maxCam || eventComponent.minCam)
         {
@@ -489,7 +495,7 @@ public class EditorComponentEvent : EditorComponent
         }
     }
 
-    virtual public void PositionTypeCycle()
+    public virtual void PositionTypeCycle()
     {
         if (eventComponent.minCam)
         {
@@ -574,8 +580,10 @@ public class EditorComponentEvent : EditorComponent
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(SelectEventTrigger, new StringKey("val", "SELECT", CommonStringKeys.TRIGGER));
 
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { new StringKey("val", "GENERAL").Translate() });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { new StringKey("val", "GENERAL").Translate() } }
+        };
         select.AddItem("{NONE}", "", traits);
 
         bool startPresent = false;
@@ -616,7 +624,7 @@ public class EditorComponentEvent : EditorComponent
         }
         else
         {
-           select.AddItem("NoMorale", traits);
+            select.AddItem("NoMorale", traits);
         }
 
         if (eliminated)
@@ -625,15 +633,17 @@ public class EditorComponentEvent : EditorComponent
         }
         else
         {
-           select.AddItem("Eliminated", traits);
+            select.AddItem("Eliminated", traits);
         }
 
         select.AddItem("Mythos", traits);
         select.AddItem("EndRound", traits);
         select.AddItem("StartRound", traits);
 
-        traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.MONSTER.Translate() });
+        traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.MONSTER.Translate() } }
+        };
 
         foreach (KeyValuePair<string, MonsterData> kv in game.cd.monsters)
         {
@@ -664,9 +674,10 @@ public class EditorComponentEvent : EditorComponent
             }
         }
 
-        traits = new Dictionary<string, IEnumerable<string>>();
-
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { new StringKey("val", "VARS").Translate() });
+        traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { new StringKey("val", "VARS").Translate() } }
+        };
 
         foreach (string s in vars)
         {
@@ -696,8 +707,10 @@ public class EditorComponentEvent : EditorComponent
 
         select.AddItem("{NONE}", "");
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.FILE.Translate() });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.FILE.Translate() } }
+        };
 
         foreach (string s in Directory.GetFiles(relativePath, "*.ogg", SearchOption.AllDirectories))
         {
@@ -706,9 +719,11 @@ public class EditorComponentEvent : EditorComponent
 
         foreach (KeyValuePair<string, AudioData> kv in game.cd.audio)
         {
-            traits = new Dictionary<string, IEnumerable<string>>();
-            traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "FFG" });
-            traits.Add(CommonStringKeys.TRAITS.Translate(), kv.Value.traits);
+            traits = new Dictionary<string, IEnumerable<string>>
+            {
+                { CommonStringKeys.TYPE.Translate(), new string[] { "FFG" } },
+                { CommonStringKeys.TRAITS.Translate(), kv.Value.traits }
+            };
 
             select.AddItem(kv.Key, traits);
         }
@@ -740,14 +755,16 @@ public class EditorComponentEvent : EditorComponent
         }
         Game game = Game.Get();
 
-        UIWindowSelectionListTraits select = new UIWindowSelectionListAudio(delegate(string s) { SelectMusic(index, s); }, new StringKey("val", "SELECT", new StringKey("val", "AUDIO")));
+        UIWindowSelectionListTraits select = new UIWindowSelectionListAudio(delegate (string s) { SelectMusic(index, s); }, new StringKey("val", "SELECT", new StringKey("val", "AUDIO")));
 
         string relativePath = new FileInfo(Path.GetDirectoryName(Game.Get().quest.qd.questPath)).FullName;
 
         select.AddItem("{NONE}", "");
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.FILE.Translate() });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { CommonStringKeys.FILE.Translate() } }
+        };
 
         foreach (string s in Directory.GetFiles(relativePath, "*.ogg", SearchOption.AllDirectories))
         {
@@ -756,9 +773,11 @@ public class EditorComponentEvent : EditorComponent
 
         foreach (KeyValuePair<string, AudioData> kv in game.cd.audio)
         {
-            traits = new Dictionary<string, IEnumerable<string>>();
-            traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "FFG" });
-            traits.Add(CommonStringKeys.TRAITS.Translate(), kv.Value.traits);
+            traits = new Dictionary<string, IEnumerable<string>>
+            {
+                { CommonStringKeys.TYPE.Translate(), new string[] { "FFG" } },
+                { CommonStringKeys.TRAITS.Translate(), kv.Value.traits }
+            };
 
             select.AddItem(kv.Key, traits);
         }
@@ -816,7 +835,7 @@ public class EditorComponentEvent : EditorComponent
         }
         Game game = Game.Get();
 
-        UIWindowSelectionList select = new UIWindowSelectionList(delegate(string s) { SelectEventHeroCount(max, s); }, new StringKey("val", "SELECT", CommonStringKeys.NUMBER));
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectEventHeroCount(max, s); }, new StringKey("val", "SELECT", CommonStringKeys.NUMBER));
         for (int i = 0; i <= game.gameType.MaxHeroes(); i++)
         {
             select.AddItem(i.ToString());
@@ -847,8 +866,10 @@ public class EditorComponentEvent : EditorComponent
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddVisibility(add, index, s); }, new StringKey("val", "SELECT", new StringKey("val", "COMPONENT")));
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Special" });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { "Special" } }
+        };
 
         select.AddItem("#boardcomponents", traits);
         select.AddItem("#monsters", traits);
@@ -972,7 +993,7 @@ public class EditorComponentEvent : EditorComponent
         }
         string[] oldC = null;
 
-        if(add)
+        if (add)
         {
             oldC = eventComponent.addComponents;
         }
@@ -1061,8 +1082,10 @@ public class EditorComponentEvent : EditorComponent
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(SelectQuotaVar, new StringKey("val", "SELECT", VAR));
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
-        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        {
+            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
+        };
         select.AddItem("{" + CommonStringKeys.NEW.Translate() + "}", "{NEW}", traits);
 
         AddQuestVars(select);
@@ -1135,7 +1158,7 @@ public class EditorComponentEvent : EditorComponent
             return;
         }
 
-        UIWindowSelectionList select = new UIWindowSelectionList(delegate(string s) { SelectButtonColour(number, s); }, CommonStringKeys.SELECT_ITEM);
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectButtonColour(number, s); }, CommonStringKeys.SELECT_ITEM);
 
         foreach (string s in ColorUtil.LookUp().Keys)
         {
@@ -1172,7 +1195,7 @@ public class EditorComponentEvent : EditorComponent
         }
         Game game = Game.Get();
 
-        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate(string s) { SelectAddEvent(index, button, replace, s); }, new StringKey("val", "SELECT", CommonStringKeys.EVENT));
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddEvent(index, button, replace, s); }, new StringKey("val", "SELECT", CommonStringKeys.EVENT));
 
         select.AddNewComponentItem("Event");
         select.AddNewComponentItem("Spawn");

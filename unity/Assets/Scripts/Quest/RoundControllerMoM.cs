@@ -1,15 +1,14 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using Assets.Scripts.Content;
 using System.Collections.Generic;
-using Assets.Scripts.Content;
+using UnityEngine;
 
 // This round controller extends the standard controller for MoM specific round order
 public class RoundControllerMoM : RoundController
 {
-    bool endRoundRequested = false;
+    private bool endRoundRequested = false;
 
     // Investigators have finished
-    override public void HeroActivated()
+    public override void HeroActivated()
     {
         Game game = Game.Get();
 
@@ -33,7 +32,7 @@ public class RoundControllerMoM : RoundController
     }
 
     // Mark a monster as activated
-    override public void MonsterActivated()
+    public override void MonsterActivated()
     {
         Game game = Game.Get();
 
@@ -54,7 +53,7 @@ public class RoundControllerMoM : RoundController
     }
 
     // Activate a monster
-    override public bool ActivateMonster()
+    public override bool ActivateMonster()
     {
         Game game = Game.Get();
 
@@ -66,7 +65,7 @@ public class RoundControllerMoM : RoundController
             if (!game.quest.monsters[i].activated)
             {
                 QuestMonster qm = game.quest.monsters[i].monsterData as QuestMonster;
-                if (qm != null && qm.activations != null && qm.activations.Length == 1 && qm.activations[0].IndexOf("Event") == 0 
+                if (qm != null && qm.activations != null && qm.activations.Length == 1 && qm.activations[0].IndexOf("Event") == 0
                     && game.quest.eManager.events[qm.activations[0]].Disabled())
                 {
                     // monster cannot be activated, mark as activated
@@ -118,11 +117,15 @@ public class RoundControllerMoM : RoundController
 
         // Return if there is an event open
         if (game.quest.eManager.currentEvent != null)
+        {
             return false;
+        }
 
         // Return if there is an event queued
         if (game.quest.eManager.eventStack.Count > 0)
+        {
             return false;
+        }
 
         if (game.quest.phase == Quest.MoMPhase.investigator)
         {
@@ -206,7 +209,7 @@ public class RoundControllerMoM : RoundController
         // Start of round events
         game.quest.eManager.EventTriggerType("StartRound");
         SaveManager.Save(0);
-        
+
         // Display the transition dialog for investigator phase
         ChangePhaseWindow.DisplayTransitionWindow(Quest.MoMPhase.investigator);
 

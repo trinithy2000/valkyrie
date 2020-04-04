@@ -1,12 +1,10 @@
-using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using UnityEngine;
 using ValkyrieTools;
-using Assets.Scripts.Content;
-using Assets.Scripts;
 
 // This class provides functions to load and save games.
-class SaveManager
+internal class SaveManager
 {
     public static string minValkyieVersion = "0.7.3";
 
@@ -14,7 +12,11 @@ class SaveManager
     public static string SaveFile(int num = 0)
     {
         string number = num.ToString();
-        if (num == 0) number = "Auto";
+        if (num == 0)
+        {
+            number = "Auto";
+        }
+
         return Path.Combine(ContentData.GameTypePath, "Save") + Path.DirectorySeparatorChar + "save" + number + ".vSave";
     }
 
@@ -56,28 +58,28 @@ class SaveManager
 
             float scale = 4f / 30f;
             Texture2D outTex = new Texture2D(Mathf.RoundToInt(screenSize.x * scale), Mathf.RoundToInt(screenSize.y * scale), TextureFormat.RGB24, false);
- 
+
             Color[] outColor = new Color[outTex.width * outTex.height];
- 
-            for(int i = 0; i < outColor.Length; i++)
+
+            for (int i = 0; i < outColor.Length; i++)
             {
-                float xX = (float)i % (float)outTex.width;
-                float xY = Mathf.Floor((float)i / (float)outTex.width);
- 
+                float xX = i % (float)outTex.width;
+                float xY = Mathf.Floor(i / (float)outTex.width);
+
                 Vector2 vCenter = new Vector2(xX, xY) / scale;
 
                 int xXFrom = (int)Mathf.Max(Mathf.Floor(vCenter.x - (0.5f / scale)), 0);
                 int xXTo = (int)Mathf.Min(Mathf.Ceil(vCenter.x + (0.5f / scale)), screenSize.x);
                 int xYFrom = (int)Mathf.Max(Mathf.Floor(vCenter.y - (0.5f / scale)), 0);
                 int xYTo = (int)Mathf.Min(Mathf.Ceil(vCenter.y + (0.5f / scale)), screenSize.y);
- 
+
                 Color oColorTemp = new Color();
                 float xGridCount = 0;
-                for(int iy = xYFrom; iy < xYTo; iy++)
+                for (int iy = xYFrom; iy < xYTo; iy++)
                 {
-                    for(int ix = xXFrom; ix < xXTo; ix++)
+                    for (int ix = xXFrom; ix < xXTo; ix++)
                     {
-                        int index = (int)(((float)iy * screenSize.x) + ix);
+                        int index = (int)((iy * screenSize.x) + ix);
                         if (index >= screenColor.Length || index < 0)
                         {
                             continue;
@@ -86,7 +88,7 @@ class SaveManager
                         xGridCount++;
                     }
                 }
-                outColor[i] = oColorTemp / (float)xGridCount;
+                outColor[i] = oColorTemp / xGridCount;
             }
 
             outTex.SetPixels(outColor);
@@ -96,7 +98,7 @@ class SaveManager
             // Check if we should update the zip file or write a new one with quest content
             // first autosave is a new zip file, following autosave just update the zip
             bool zip_update = false;
-            if (num==0 && game.quest.firstAutoSaveDone)
+            if (num == 0 && game.quest.firstAutoSaveDone)
             {
                 zip_update = true;
             }
@@ -107,7 +109,7 @@ class SaveManager
 
             // Quest content can be in original path, or savegame path
             string quest_content_path;
-            if(game.quest.fromSavegame)
+            if (game.quest.fromSavegame)
             {
                 quest_content_path = ContentData.ValkyrieLoadQuestPath;
             }
@@ -178,7 +180,7 @@ class SaveManager
                 {
                     questLoadPath = questLoadPath.Replace(questOriginalPath, ContentData.ValkyrieLoadQuestPath);
                 }
-                
+
                 // Check that quest in save is valid
                 QuestData.Quest q = new QuestData.Quest(questLoadPath);
                 if (!q.valid)
@@ -286,7 +288,11 @@ class SaveManager
         public SaveData(int num = 0)
         {
             Game game = Game.Get();
-            if (!File.Exists(SaveFile(num))) return;
+            if (!File.Exists(SaveFile(num)))
+            {
+                return;
+            }
+
             try
             {
                 if (!Directory.Exists(ContentData.TempValyriePath))

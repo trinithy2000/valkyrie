@@ -1,11 +1,11 @@
 ﻿using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using UnityEngine;
 
 // Special class for the Menu button present while in a quest
-public class MenuButton {
+public class MenuButton
+{
 
-    private StringKey MENU = new StringKey("val", "MENU");
+    private readonly StringKey MENU = new StringKey("val", "MENU");
 
     public MenuButton()
     {
@@ -15,11 +15,11 @@ public class MenuButton {
         // For the editor button is moved to the right
         if (game.editMode)
         {
-            ui.SetLocation(UIScaler.GetRight(-5.5f), UIScaler.GetBottom(-2.5f),5, 2);
+            ui.SetLocation(UIScaler.GetRight(-5.5f), UIScaler.GetBottom(-2.5f), 5, 2);
         }
         else
         {
-            ui.SetLocation(UIScaler.GetRight(-5.5f), 0.5f ,5, 2);
+            ui.SetLocation(UIScaler.GetRight(-5.5f), 0.5f, 5, 2);
         }
         ui.SetText(MENU);
         ui.SetFont(game.gameType.GetHeaderFont());

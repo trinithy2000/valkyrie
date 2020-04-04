@@ -1,8 +1,9 @@
-﻿using UnityEngine;
-using Assets.Scripts.UI.Screens;
+﻿using Assets.Scripts.UI.Screens;
+using UnityEngine;
 
 // This is a helper class because we often need to clean things up.
-public class Destroyer {
+public class Destroyer
+{
 
     // This function takes us back to the main menu
     public static void MainMenu()
@@ -31,39 +32,57 @@ public class Destroyer {
 
         // Clean up everything marked as 'monsters'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.MONSTERS))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up shop
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.SHOP))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'heroselect'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.HEROSELECT))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'board'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.BOARD))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'questui'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.QUESTUI))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'questlist'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.QUESTLIST))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'editor'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.EDITOR))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'uiphase'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.UIPHASE))
+        {
             Object.Destroy(go);
+        }
 
         // Clean up everything marked as 'endgame'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.ENDGAME))
+        {
             Object.Destroy(go);
+        }
 
         Game game = Game.Get();
 
@@ -90,7 +109,9 @@ public class Destroyer {
     {
         // Clean up everything marked as 'dialog'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.LOGS))
+        {
             Object.Destroy(go);
+        }
     }
 
     // All dialogs that are to be acknoledged/cancled are marked as 'dialog' and are often destroyed
@@ -98,7 +119,9 @@ public class Destroyer {
     {
         // Clean up everything marked as 'dialog'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
+        {
             Object.Destroy(go);
+        }
 
         CameraController.panDisable = false;
         Game.Get().logWindow = null;
@@ -110,6 +133,8 @@ public class Destroyer {
     {
         // Clean up everything marked as 'transition'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.TRANSITION))
+        {
             Object.Destroy(go);
+        }
     }
 }

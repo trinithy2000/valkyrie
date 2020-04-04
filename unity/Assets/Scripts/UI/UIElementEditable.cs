@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Assets.Scripts.Content;
 
 namespace Assets.Scripts.UI
 {
@@ -22,8 +21,10 @@ namespace Assets.Scripts.UI
             UnityEngine.UI.Text uiText = null;
             if (text == null)
             {
-                input = new GameObject("UIInput");
-                input.tag = tag;
+                input = new GameObject("UIInput")
+                {
+                    tag = tag
+                };
                 PanCancelInputField uiInput = input.AddComponent<PanCancelInputField>();
                 uiInput.lineType = UnityEngine.UI.InputField.LineType.MultiLineNewline;
                 input.transform.SetParent(bg.transform);
@@ -35,8 +36,10 @@ namespace Assets.Scripts.UI
                 transform.offsetMin = Vector2.zero;
                 transform.offsetMax = Vector2.zero;
 
-                text = new GameObject("UIText");
-                text.tag = tag;
+                text = new GameObject("UIText")
+                {
+                    tag = tag
+                };
                 uiText = text.AddComponent<UnityEngine.UI.Text>();
                 uiText.alignment = TextAnchor.MiddleCenter;
                 uiText.font = Game.Get().gameType.GetFont();
@@ -59,7 +62,7 @@ namespace Assets.Scripts.UI
                 }
             }
 
-            this.SetColor(textColor);
+            SetColor(textColor);
             input.GetComponent<PanCancelInputField>().text = content;
             lastText = content;
         }
@@ -91,7 +94,11 @@ namespace Assets.Scripts.UI
 
         public override string GetText()
         {
-            if (input == null) return "";
+            if (input == null)
+            {
+                return "";
+            }
+
             return input.GetComponent<PanCancelInputField>().text;
         }
 

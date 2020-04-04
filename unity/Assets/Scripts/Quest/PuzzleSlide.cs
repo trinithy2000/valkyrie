@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using ValkyrieTools;
 
 public class PuzzleSlide : Puzzle
@@ -91,7 +90,7 @@ public class PuzzleSlide : Puzzle
         return true;
     }
 
-    override public string ToString(string id)
+    public override string ToString(string id)
     {
         string nl = System.Environment.NewLine;
         // General quest state block
@@ -116,10 +115,26 @@ public class PuzzleSlide : Puzzle
 
         public bool Blocks(int x, int y)
         {
-            if (y < ypos) return false;
-            if (x < xpos) return false;
-            if (y > (ypos + ylen)) return false;
-            if (x > (xpos + xlen)) return false;
+            if (y < ypos)
+            {
+                return false;
+            }
+
+            if (x < xpos)
+            {
+                return false;
+            }
+
+            if (y > (ypos + ylen))
+            {
+                return false;
+            }
+
+            if (x > (xpos + xlen))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -166,10 +181,26 @@ public class PuzzleSlide : Puzzle
 
         public bool Blocks(Block b)
         {
-            if ((b.ypos + b.ylen) < ypos) return false;
-            if ((b.xpos + b.xlen) < xpos) return false;
-            if (b.ypos > (ypos + ylen)) return false;
-            if (b.xpos > (xpos + xlen)) return false;
+            if ((b.ypos + b.ylen) < ypos)
+            {
+                return false;
+            }
+
+            if ((b.xpos + b.xlen) < xpos)
+            {
+                return false;
+            }
+
+            if (b.ypos > (ypos + ylen))
+            {
+                return false;
+            }
+
+            if (b.xpos > (xpos + xlen))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -229,7 +260,7 @@ public class PuzzleSlide : Puzzle
             target = b.target;
         }
 
-        override public string ToString()
+        public override string ToString()
         {
             return rotation.ToString() + ',' + xlen + ',' + ylen + ',' + xpos + ',' + ypos + ',' + target;
         }
@@ -237,18 +268,20 @@ public class PuzzleSlide : Puzzle
 
     public static Dictionary<string, string> HardCodedPuzzle()
     {
-        Dictionary<string, string> content = new Dictionary<string, string>();
-        content.Add("moves", "0");
-        content.Add("block0", "False,1,0,0,2,True");
-        content.Add("block1", "False,2,0,0,1,False");
-        content.Add("block2", "True,0,1,5,0,False");
-        content.Add("block3", "True,0,1,4,1,False");
-        content.Add("block4", "False,3,0,0,5,False");
-        content.Add("block5", "False,2,0,0,4,False");
-        content.Add("block6", "False,1,0,2,0,False");
-        content.Add("block7", "False,4,0,0,3,False");
-        content.Add("block8", "True,0,1,5,2,False");
-        content.Add("block9", "False,1,0,4,4,False");
+        Dictionary<string, string> content = new Dictionary<string, string>
+        {
+            { "moves", "0" },
+            { "block0", "False,1,0,0,2,True" },
+            { "block1", "False,2,0,0,1,False" },
+            { "block2", "True,0,1,5,0,False" },
+            { "block3", "True,0,1,4,1,False" },
+            { "block4", "False,3,0,0,5,False" },
+            { "block5", "False,2,0,0,4,False" },
+            { "block6", "False,1,0,2,0,False" },
+            { "block7", "False,4,0,0,3,False" },
+            { "block8", "True,0,1,5,2,False" },
+            { "block9", "False,1,0,4,4,False" }
+        };
         return content;
     }
 }

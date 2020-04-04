@@ -1,15 +1,17 @@
-﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using ValkyrieTools;
 
 // Class for managing token and door operation
 // One object is created and attached to the token canvas
-public class TokenBoard : MonoBehaviour {
+public class TokenBoard : MonoBehaviour
+{
 
     public List<TokenControl> tc;
+
     // Use this for initialization
-    void Awake() {
+    private void Awake()
+    {
         Clear();
     }
 
@@ -40,31 +42,39 @@ public class TokenBoard : MonoBehaviour {
     // Class for tokens and doors that will get the onClick event
     public class TokenControl
     {
-        Quest.BoardComponent c;
+        private readonly Quest.BoardComponent c;
 
         // Initialise from a door
         public TokenControl(Quest.BoardComponent component)
         {
             // If we are in the editor we don't add the buttons
-            if (Game.Get().editMode) return;
+            if (Game.Get().editMode)
+            {
+                return;
+            }
 
             c = component;
             UnityEngine.UI.Button button = c.unityObject.AddComponent<UnityEngine.UI.Button>();
             button.interactable = true;
-            button.onClick.AddListener(delegate { startEvent(); });
+            button.onClick.AddListener(delegate { StartEvent(); });
         }
 
         // On click the tokens start an event
-        public void startEvent()
+        public void StartEvent()
         {
             Game game = Game.Get();
 
             // If in horror phase ignore token, accept UI element (items)
-            if (c.GetEvent().typeDynamic=="Token"  &&  game.quest.phase != Quest.MoMPhase.investigator) return;
+            if (c.GetEvent().typeDynamic == "Token" && game.quest.phase != Quest.MoMPhase.investigator)
+            {
+                return;
+            }
 
             // If a dialog is open ignore
             if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
+            {
                 return;
+            }
             // Spawn a window with the door/token info
             game.quest.eManager.QueueEvent(c.GetEvent().sectionName);
         }
@@ -79,7 +89,10 @@ public class TokenBoard : MonoBehaviour {
         // Get number of heroes
         foreach (Quest.Hero h in game.quest.heroes)
         {
-            if (h.heroData != null) count++;
+            if (h.heroData != null)
+            {
+                count++;
+            }
         }
 
         if (game.gameType is MoMGameType)
@@ -179,10 +192,10 @@ public class TokenBoard : MonoBehaviour {
         if (game.gameType is D2EGameType)
         {
             // Move to get the top left square corner at 0,0
-            gameObject.transform.Translate(Vector3.right * (float)(sizeX - 1) / 2f, Space.World);
-            gameObject.transform.Translate(Vector3.down * (float)(sizeY - 1) / 2f, Space.World);
-            borderObject.transform.Translate(Vector3.right * (float)(sizeX - 1) / 2f, Space.World);
-            borderObject.transform.Translate(Vector3.down * (float)(sizeY - 1) / 2f, Space.World);
+            gameObject.transform.Translate(Vector3.right * (sizeX - 1) / 2f, Space.World);
+            gameObject.transform.Translate(Vector3.down * (sizeY - 1) / 2f, Space.World);
+            borderObject.transform.Translate(Vector3.right * (sizeX - 1) / 2f, Space.World);
+            borderObject.transform.Translate(Vector3.down * (sizeY - 1) / 2f, Space.World);
 
             image.rectTransform.sizeDelta = new Vector2(sizeX * 0.83f, sizeY * 0.83f);
 
@@ -190,14 +203,14 @@ public class TokenBoard : MonoBehaviour {
             borderObject.AddComponent<RectTransform>();
 
             iconFrame = borderObject.AddComponent<UnityEngine.UI.Image>();
-            Texture2D frameTex = Resources.Load("sprites/borders/Frame_Monster_1x1") as Texture2D;
+            Texture2D frameTex = CommonImageKeys.d2e_border_frame_monster_1x1;
             if (sizeX == 3)
             {
-                frameTex = Resources.Load("sprites/borders/Frame_Monster_2x3") as Texture2D;
+                frameTex = CommonImageKeys.d2e_border_frame_monster_2x3;
             }
             if (sizeX == 2 && sizeY == 1)
             {
-                frameTex = Resources.Load("sprites/borders/Frame_Monster_1x2") as Texture2D;
+                frameTex = CommonImageKeys.d2e_border_frame_monster_1x2;
             }
             iconFrame.sprite = Sprite.Create(frameTex, new Rect(0, 0, frameTex.width, frameTex.height), Vector2.zero, 1);
             iconFrame.rectTransform.sizeDelta = new Vector2(sizeX, sizeY);
@@ -208,9 +221,9 @@ public class TokenBoard : MonoBehaviour {
             QuestData.MPlace mp = game.quest.qd.components[place] as QuestData.MPlace;
             posX = mp.location.x;
             posY = mp.location.y;
-            
-            circleObject.transform.Translate(Vector3.right * (float)(sizeX - 1) / 2f, Space.World);
-            circleObject.transform.Translate(Vector3.down * (float)(sizeY - 1) / 2f, Space.World);
+
+            circleObject.transform.Translate(Vector3.right * (sizeX - 1) / 2f, Space.World);
+            circleObject.transform.Translate(Vector3.down * (sizeY - 1) / 2f, Space.World);
 
             circleObject.AddComponent<CanvasRenderer>();
             circleObject.AddComponent<RectTransform>();
@@ -219,7 +232,7 @@ public class TokenBoard : MonoBehaviour {
             Texture2D circleTex = Resources.Load("sprites/target") as Texture2D;
             if (sizeX == 2 && sizeY == 1)
             {
-                circleTex = Resources.Load("sprites/borders/Empty_Monster_1x2") as Texture2D;
+                circleTex = CommonImageKeys.d2e_border_frame_empty_1x2;
             }
             iconCicle.sprite = Sprite.Create(circleTex, new Rect(0, 0, circleTex.width, circleTex.height), Vector2.zero, 1);
             iconCicle.rectTransform.sizeDelta = new Vector2(sizeX * 1.08f, sizeY * 1.08f);
@@ -257,8 +270,10 @@ public class TokenBoard : MonoBehaviour {
         }
 
         // Create object
-        GameObject gameObject = new GameObject("MonsterSpawn");
-        gameObject.tag = Game.DIALOG;
+        GameObject gameObject = new GameObject("MonsterSpawn")
+        {
+            tag = Game.DIALOG
+        };
 
         gameObject.transform.SetParent(game.tokenCanvas.transform);
 
@@ -303,8 +318,10 @@ public class TokenBoard : MonoBehaviour {
     {
         Game game = Game.Get();
         // Create object
-        GameObject itemObject = new GameObject("item" + item);
-        itemObject.tag = Game.DIALOG;
+        GameObject itemObject = new GameObject("item" + item)
+        {
+            tag = Game.DIALOG
+        };
         itemObject.transform.SetParent(game.tokenCanvas.transform);
 
         // Create the image
@@ -319,7 +336,7 @@ public class TokenBoard : MonoBehaviour {
     }
 
     // Draw a highlight at location
-    public void AddHighlight(Vector2 location, string id="", string tag="dialog")
+    public void AddHighlight(Vector2 location, string id = "", string tag = "dialog")
     {
         Sprite tileSprite;
         Texture2D newTex = Resources.Load("sprites/target") as Texture2D;
@@ -331,8 +348,10 @@ public class TokenBoard : MonoBehaviour {
         }
 
         // Create object
-        GameObject gameObject = new GameObject("Highlight" + id);
-        gameObject.tag = tag;
+        GameObject gameObject = new GameObject("Highlight" + id)
+        {
+            tag = tag
+        };
 
         Game game = Game.Get();
         gameObject.transform.SetParent(game.tokenCanvas.transform);

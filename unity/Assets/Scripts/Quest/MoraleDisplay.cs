@@ -1,11 +1,10 @@
-﻿using UnityEngine;
-using System.Collections;
-using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using Assets.Scripts.UI;
+using UnityEngine;
 
 // Used to display remaining morale
-public class MoraleDisplay {
-    UIElement md;
+public class MoraleDisplay
+{
+    private readonly UIElement md;
 
     // Construct and display
     public MoraleDisplay()

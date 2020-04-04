@@ -1,125 +1,133 @@
 ﻿namespace Fabric.Internal.Crashlytics.Editor.View
 {
-	using UnityEngine;
-	using UnityEditor;
-	using System;
-	using System.Collections.Generic;
-	using Fabric.Internal.Editor.View;
-	
-	public class DashboardPage : Page
-	{
-		private Func<Texture2D> DownloadIcon;
-		private Func<string> DashboardUrl;
-		private KeyValuePair<string, Action> back;
+    using Fabric.Internal.Editor.View;
+    using System;
+    using System.Collections.Generic;
+    using UnityEditor;
+    using UnityEngine;
 
-		public DashboardPage(Func<Texture2D> downloadIcon, Func<string> dashboardUrl, Action onBackClick)
-		{
-			this.DownloadIcon = downloadIcon;
-			this.DashboardUrl = dashboardUrl;
-			this.back = new KeyValuePair<string, Action> ("Back", onBackClick);
-		}
+    public class DashboardPage : Page
+    {
+        private readonly Func<Texture2D> DownloadIcon;
+        private readonly Func<string> DashboardUrl;
+        private readonly KeyValuePair<string, Action> back;
 
-		#region Components
-		private static class Components
-		{
-			private static readonly GUIStyle IconStyle;
-			private static readonly GUIStyle IconBackgroundStyle;
-			private static readonly GUIStyle MessageStyle;
-			private static readonly GUIStyle TextStyle;
+        public DashboardPage(Func<Texture2D> downloadIcon, Func<string> dashboardUrl, Action onBackClick)
+        {
+            DownloadIcon = downloadIcon;
+            DashboardUrl = dashboardUrl;
+            back = new KeyValuePair<string, Action>("Back", onBackClick);
+        }
 
-			private static readonly Texture2D PlaceHolderImage;
-			private static readonly Texture2D IconBackground;
+        #region Components
+        private static class Components
+        {
+            private static readonly GUIStyle IconStyle;
+            private static readonly GUIStyle IconBackgroundStyle;
+            private static readonly GUIStyle MessageStyle;
+            private static readonly GUIStyle TextStyle;
 
-			static Components()
-			{
-				PlaceHolderImage = Fabric.Internal.Editor.Images.Loader.Load ("image.icon.placeholder.png");
-				IconBackground = Fabric.Internal.Editor.View.Render.MakeBackground (200, 200, Fabric.Internal.Editor.View.Render.DBlue);
+            private static readonly Texture2D PlaceHolderImage;
+            private static readonly Texture2D IconBackground;
 
-				IconStyle = new GUIStyle (GUI.skin.button);
-				IconStyle.fixedWidth = 192;
-				IconStyle.fixedHeight = 192;
+            static Components()
+            {
+                PlaceHolderImage = Fabric.Internal.Editor.Images.Loader.Load("image.icon.placeholder.png");
+                IconBackground = Fabric.Internal.Editor.View.Render.MakeBackground(200, 200, Fabric.Internal.Editor.View.Render.DBlue);
 
-				IconBackgroundStyle = new GUIStyle ();
-				IconBackgroundStyle.normal.background = IconBackground;
-				IconBackgroundStyle.margin = new RectOffset(0, 0, 50, 0);
-				IconBackgroundStyle.fixedHeight = 200;
-				IconBackgroundStyle.fixedWidth = 200;
+                IconStyle = new GUIStyle(GUI.skin.button)
+                {
+                    fixedWidth = 192,
+                    fixedHeight = 192
+                };
 
-				MessageStyle = new GUIStyle ();
-				MessageStyle.margin = new RectOffset (20, 20, 10, 0);
+                IconBackgroundStyle = new GUIStyle();
+                IconBackgroundStyle.normal.background = IconBackground;
+                IconBackgroundStyle.margin = new RectOffset(0, 0, 50, 0);
+                IconBackgroundStyle.fixedHeight = 200;
+                IconBackgroundStyle.fixedWidth = 200;
 
-				TextStyle = new GUIStyle (GUI.skin.label);
-				TextStyle.normal.textColor = Color.white;
-				TextStyle.fontSize = 14;
-				TextStyle.wordWrap = true;
-				TextStyle.padding = new RectOffset (0, 0, 0, 0);
-			}
+                MessageStyle = new GUIStyle
+                {
+                    margin = new RectOffset(20, 20, 10, 0)
+                };
 
-			private static Texture2D LoadIcon(Func<Texture2D> downloadIcon)
-			{
-				Texture2D[] textures;
-				Texture2D texture = null;
+                TextStyle = new GUIStyle(GUI.skin.label);
+                TextStyle.normal.textColor = Color.white;
+                TextStyle.fontSize = 14;
+                TextStyle.wordWrap = true;
+                TextStyle.padding = new RectOffset(0, 0, 0, 0);
+            }
 
-				if ((textures = PlayerSettings.GetIconsForTargetGroup (BuildTargetGroup.Android)) != null && textures[0] != null) {
-					texture = textures[0];
-				}
+            private static Texture2D LoadIcon(Func<Texture2D> downloadIcon)
+            {
+                Texture2D[] textures;
+                Texture2D texture = null;
+
+                if ((textures = PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.Android)) != null && textures[0] != null)
+                {
+                    texture = textures[0];
+                }
 
 #if UNITY_4_0 || UNITY_4_1 || UNITY_4_2 || UNITY_4_3 || UNITY_4_4 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
 				var buildTargetGroup = BuildTargetGroup.iPhone;
 #else
-				var buildTargetGroup = BuildTargetGroup.iOS;
+                BuildTargetGroup buildTargetGroup = BuildTargetGroup.iOS;
 #endif
-				
-				if ((textures = PlayerSettings.GetIconsForTargetGroup (buildTargetGroup)) != null && textures[0] != null) {
-					texture = textures[0];
-				}
 
-				if (texture == null) {
-					texture = downloadIcon ();
-				}
+                if ((textures = PlayerSettings.GetIconsForTargetGroup(buildTargetGroup)) != null && textures[0] != null)
+                {
+                    texture = textures[0];
+                }
 
-				return texture ?? PlaceHolderImage;
-			}
+                if (texture == null)
+                {
+                    texture = downloadIcon();
+                }
 
-			public static void RenderMessage (string message)
-			{
-				GUILayout.BeginHorizontal (MessageStyle);
-				GUILayout.FlexibleSpace ();
-				GUILayout.Label (message, TextStyle);
-				GUILayout.FlexibleSpace ();
-				GUILayout.EndHorizontal ();
-			}
+                return texture ?? PlaceHolderImage;
+            }
 
-			public static void RenderIcon(Func<Texture2D> downloadIcon, Func<string> dashboardUrl)
-			{
-				Texture2D background = LoadIcon (downloadIcon);
+            public static void RenderMessage(string message)
+            {
+                GUILayout.BeginHorizontal(MessageStyle);
+                GUILayout.FlexibleSpace();
+                GUILayout.Label(message, TextStyle);
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+            }
 
-				IconStyle.normal.background = background;
-				IconStyle.hover.background = background;
-				IconStyle.active.background = background;
+            public static void RenderIcon(Func<Texture2D> downloadIcon, Func<string> dashboardUrl)
+            {
+                Texture2D background = LoadIcon(downloadIcon);
 
-				GUILayout.BeginHorizontal ();
-				GUILayout.FlexibleSpace ();
-				GUILayout.BeginVertical (IconBackgroundStyle);
+                IconStyle.normal.background = background;
+                IconStyle.hover.background = background;
+                IconStyle.active.background = background;
 
-				if (GUILayout.Button ("", IconStyle)) {
-					Application.OpenURL (dashboardUrl () + "/issues");
-				}
-				EditorGUIUtility.AddCursorRect (GUILayoutUtility.GetLastRect (), MouseCursor.Link);
+                GUILayout.BeginHorizontal();
+                GUILayout.FlexibleSpace();
+                GUILayout.BeginVertical(IconBackgroundStyle);
 
-				GUILayout.EndVertical ();
-				GUILayout.FlexibleSpace ();
-				GUILayout.EndHorizontal ();
-			}
-		}
-		#endregion
+                if (GUILayout.Button("", IconStyle))
+                {
+                    Application.OpenURL(dashboardUrl() + "/issues");
+                }
+                EditorGUIUtility.AddCursorRect(GUILayoutUtility.GetLastRect(), MouseCursor.Link);
 
-		public override void RenderImpl(Rect position)
-		{
-			RenderHeader ("We're all done!");
-			RenderFooter (back, null);
-			Components.RenderMessage ("Click on your app icon to go to the Crashlytics dashboard.");
-			Components.RenderIcon (DownloadIcon, DashboardUrl);
-		}
-	}
+                GUILayout.EndVertical();
+                GUILayout.FlexibleSpace();
+                GUILayout.EndHorizontal();
+            }
+        }
+        #endregion
+
+        public override void RenderImpl(Rect position)
+        {
+            RenderHeader("We're all done!");
+            RenderFooter(back, null);
+            Components.RenderMessage("Click on your app icon to go to the Crashlytics dashboard.");
+            Components.RenderIcon(DownloadIcon, DashboardUrl);
+        }
+    }
 }

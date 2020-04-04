@@ -1,271 +1,272 @@
 ﻿namespace Fabric.Internal.Editor.View
 {
-	using UnityEngine;
-	using UnityEditor;
-	using System;
-	using System.Collections;
-	using System.Collections.Generic;
-	
-	internal class UpdatePage : Page
-	{
-		public delegate void AcceptUpdateBehavior (
-			Action<float> onProgress,
-			Action<string> downloadComplete,
-			Action<System.Exception> downloadError,
-			Action verificationError,
-			Func<bool> isCancelled
-		);
+    using System;
+    using System.Collections.Generic;
+    using UnityEngine;
 
-		private readonly AcceptUpdateBehavior onAcceptUpdate;
-		private readonly KeyValuePair<string, Action> back;
-		private readonly KeyValuePair<string, Action> install;
-		private readonly KeyValuePair<string, Action> retry;
-		private readonly KeyValuePair<string, Action> cancel;
+    internal class UpdatePage : Page
+    {
+        public delegate void AcceptUpdateBehavior(
+            Action<float> onProgress,
+            Action<string> downloadComplete,
+            Action<System.Exception> downloadError,
+            Action verificationError,
+            Func<bool> isCancelled
+        );
 
-		private enum Status {
-			Idle,
-			InProgress,
-			Failed,
-			Cancelled,
-			Completed,
-			NetworkUnavailable,
-			VerificationFailed
-		}
+        private readonly AcceptUpdateBehavior onAcceptUpdate;
+        private readonly KeyValuePair<string, Action> back;
+        private readonly KeyValuePair<string, Action> install;
+        private readonly KeyValuePair<string, Action> retry;
+        private readonly KeyValuePair<string, Action> cancel;
 
-		private volatile Status status;
-		private float downloadProgress;
-		private Func<string> getDisplayTitle;
-		private Func<string> fetchReleaseNotes;
+        private enum Status
+        {
+            Idle,
+            InProgress,
+            Failed,
+            Cancelled,
+            Completed,
+            NetworkUnavailable,
+            VerificationFailed
+        }
 
-		public UpdatePage(AcceptUpdateBehavior onAcceptUpdate, Action onBack, Func<string> getDisplayTitle, Func<string> fetchReleaseNotes)
-		{
-			this.onAcceptUpdate = onAcceptUpdate;
-			this.back = new KeyValuePair<string, Action> ("Back", Reset + onBack);
-			this.install = new KeyValuePair<string, Action> ("Install", InstallUpdate);
-			this.retry = new KeyValuePair<string, Action> ("Retry", InstallUpdate);
-			this.cancel = new KeyValuePair<string, Action> ("Cancel", Cancel);
-			this.getDisplayTitle = getDisplayTitle;
-			this.fetchReleaseNotes = fetchReleaseNotes;
-		}
+        private volatile Status status;
+        private float downloadProgress;
+        private readonly Func<string> getDisplayTitle;
+        private readonly Func<string> fetchReleaseNotes;
 
-		#region Components
-		private static class Components
-		{
-			private static readonly GUIStyle ReleaseNotesStyle;
-			private static readonly GUIStyle DownloadFailedPaneStyle;
-			private static readonly GUIStyle DownloadFailedLabelStyle;
-			private static readonly GUIStyle ProgessPaneStyle;
-			private static readonly GUIStyle ProgressLabelStyle;
-			private static readonly GUIStyle ProgressBarStyle;
-			private static readonly GUIStyle ProgressBarFilledPartStyle;
-			private static readonly GUIStyle ProgressBarUnfilledPartStyle;
-			private static readonly GUIStyle ImportLabelStyle;
-			private static readonly GUIStyle ScrollStyle;
+        public UpdatePage(AcceptUpdateBehavior onAcceptUpdate, Action onBack, Func<string> getDisplayTitle, Func<string> fetchReleaseNotes)
+        {
+            this.onAcceptUpdate = onAcceptUpdate;
+            back = new KeyValuePair<string, Action>("Back", Reset + onBack);
+            install = new KeyValuePair<string, Action>("Install", InstallUpdate);
+            retry = new KeyValuePair<string, Action>("Retry", InstallUpdate);
+            cancel = new KeyValuePair<string, Action>("Cancel", Cancel);
+            this.getDisplayTitle = getDisplayTitle;
+            this.fetchReleaseNotes = fetchReleaseNotes;
+        }
 
-			private static Vector2 scrollPosition;
+        #region Components
+        private static class Components
+        {
+            private static readonly GUIStyle ReleaseNotesStyle;
+            private static readonly GUIStyle DownloadFailedPaneStyle;
+            private static readonly GUIStyle DownloadFailedLabelStyle;
+            private static readonly GUIStyle ProgessPaneStyle;
+            private static readonly GUIStyle ProgressLabelStyle;
+            private static readonly GUIStyle ProgressBarStyle;
+            private static readonly GUIStyle ProgressBarFilledPartStyle;
+            private static readonly GUIStyle ProgressBarUnfilledPartStyle;
+            private static readonly GUIStyle ImportLabelStyle;
+            private static readonly GUIStyle ScrollStyle;
 
-			static Components()
-			{
-				ReleaseNotesStyle = new GUIStyle (GUI.skin.label);
-				DownloadFailedPaneStyle = new GUIStyle ();
-				DownloadFailedLabelStyle = new GUIStyle (GUI.skin.label);
-				ProgessPaneStyle = new GUIStyle ();
-				ProgressLabelStyle = new GUIStyle ();
-				ProgressBarStyle = new GUIStyle ();
-				ProgressBarFilledPartStyle = new GUIStyle ();
-				ProgressBarUnfilledPartStyle = new GUIStyle ();
-				ImportLabelStyle = new GUIStyle ();
-				ScrollStyle = new GUIStyle (GUI.skin.scrollView);
+            private static Vector2 scrollPosition;
 
-				ReleaseNotesStyle.normal.textColor = Color.white;
-				ReleaseNotesStyle.fontSize = 14;
-				ReleaseNotesStyle.wordWrap = true;
+            static Components()
+            {
+                ReleaseNotesStyle = new GUIStyle(GUI.skin.label);
+                DownloadFailedPaneStyle = new GUIStyle();
+                DownloadFailedLabelStyle = new GUIStyle(GUI.skin.label);
+                ProgessPaneStyle = new GUIStyle();
+                ProgressLabelStyle = new GUIStyle();
+                ProgressBarStyle = new GUIStyle();
+                ProgressBarFilledPartStyle = new GUIStyle();
+                ProgressBarUnfilledPartStyle = new GUIStyle();
+                ImportLabelStyle = new GUIStyle();
+                ScrollStyle = new GUIStyle(GUI.skin.scrollView);
 
-				ProgessPaneStyle.padding = new RectOffset (18, 18, 18, 18);
+                ReleaseNotesStyle.normal.textColor = Color.white;
+                ReleaseNotesStyle.fontSize = 14;
+                ReleaseNotesStyle.wordWrap = true;
 
-				ProgressLabelStyle.normal.textColor = Color.white;
-				ProgressLabelStyle.fontSize = 14;
-				ProgressLabelStyle.margin = new RectOffset (20, 20, 0, 10);
+                ProgessPaneStyle.padding = new RectOffset(18, 18, 18, 18);
 
-				ImportLabelStyle.normal.textColor = Color.white;
-				ImportLabelStyle.margin = new RectOffset (20, 20, 10, 10);
-				ImportLabelStyle.wordWrap = true;
+                ProgressLabelStyle.normal.textColor = Color.white;
+                ProgressLabelStyle.fontSize = 14;
+                ProgressLabelStyle.margin = new RectOffset(20, 20, 0, 10);
 
-				ProgressBarFilledPartStyle.normal.background = View.Render.MakeBackground (1, 1, new Color32 (22,82,129,255));
-				ProgressBarUnfilledPartStyle.normal.background = View.Render.MakeBackground (1, 1, new Color32 (16, 58, 90, 255));
+                ImportLabelStyle.normal.textColor = Color.white;
+                ImportLabelStyle.margin = new RectOffset(20, 20, 10, 10);
+                ImportLabelStyle.wordWrap = true;
 
-				DownloadFailedPaneStyle.padding = new RectOffset (18, 18, 18, 18);
-				DownloadFailedPaneStyle.margin.bottom = 75;
+                ProgressBarFilledPartStyle.normal.background = View.Render.MakeBackground(1, 1, new Color32(22, 82, 129, 255));
+                ProgressBarUnfilledPartStyle.normal.background = View.Render.MakeBackground(1, 1, new Color32(16, 58, 90, 255));
 
-				DownloadFailedLabelStyle.normal.textColor = new Color32 (211, 152, 29, 255);
-				DownloadFailedLabelStyle.fontSize = 13;
-				DownloadFailedLabelStyle.fontStyle = FontStyle.Bold;
-				DownloadFailedLabelStyle.wordWrap = true;
-				DownloadFailedLabelStyle.alignment = TextAnchor.MiddleCenter;
+                DownloadFailedPaneStyle.padding = new RectOffset(18, 18, 18, 18);
+                DownloadFailedPaneStyle.margin.bottom = 75;
 
-				ScrollStyle.margin.top = 18;
-				ScrollStyle.margin.bottom = 75;
-				ScrollStyle.padding = new RectOffset (18, 18, 0, 0);
-			}
+                DownloadFailedLabelStyle.normal.textColor = new Color32(211, 152, 29, 255);
+                DownloadFailedLabelStyle.fontSize = 13;
+                DownloadFailedLabelStyle.fontStyle = FontStyle.Bold;
+                DownloadFailedLabelStyle.wordWrap = true;
+                DownloadFailedLabelStyle.alignment = TextAnchor.MiddleCenter;
 
-			public static void RenderReleaseNotes(string notes)
-			{
-				scrollPosition = GUILayout.BeginScrollView (scrollPosition, ScrollStyle);
-				GUILayout.Label (notes, ReleaseNotesStyle);
-				GUILayout.EndScrollView ();
-			}
+                ScrollStyle.margin.top = 18;
+                ScrollStyle.margin.bottom = 75;
+                ScrollStyle.padding = new RectOffset(18, 18, 0, 0);
+            }
 
-			public static void RenderDownloadBar(Rect position, float progress, string downloadLabel, string importLabel)
-			{
-				GUILayout.BeginVertical (ProgessPaneStyle);
-				GUILayout.Label (downloadLabel, ProgressLabelStyle);
-				GUILayout.BeginHorizontal (ProgressBarStyle);
-				float progressWidth = progress * (position.width - ProgessPaneStyle.padding.horizontal - ProgessPaneStyle.margin.horizontal);
-				GUILayout.Box (GUIContent.none, ProgressBarFilledPartStyle, GUILayout.Width (progressWidth));
-				GUILayout.Box (GUIContent.none, ProgressBarUnfilledPartStyle, GUILayout.ExpandWidth (true));
-				GUILayout.EndHorizontal ();
-				GUILayout.Label (importLabel, ImportLabelStyle);
-				GUILayout.EndVertical ();
-			}
+            public static void RenderReleaseNotes(string notes)
+            {
+                scrollPosition = GUILayout.BeginScrollView(scrollPosition, ScrollStyle);
+                GUILayout.Label(notes, ReleaseNotesStyle);
+                GUILayout.EndScrollView();
+            }
 
-			public static void RenderDownloadFailed()
-			{
-				GUILayout.BeginVertical (DownloadFailedPaneStyle);
-				GUILayout.Label ("Oops, looks like something odd happened.", DownloadFailedLabelStyle);
-				GUILayout.Label ("Your download has failed!", DownloadFailedLabelStyle);
-				GUILayout.Label ("You can try again by clicking below, or contact support@fabric.io.", DownloadFailedLabelStyle);
-				GUILayout.EndVertical ();
-			}
+            public static void RenderDownloadBar(Rect position, float progress, string downloadLabel, string importLabel)
+            {
+                GUILayout.BeginVertical(ProgessPaneStyle);
+                GUILayout.Label(downloadLabel, ProgressLabelStyle);
+                GUILayout.BeginHorizontal(ProgressBarStyle);
+                float progressWidth = progress * (position.width - ProgessPaneStyle.padding.horizontal - ProgessPaneStyle.margin.horizontal);
+                GUILayout.Box(GUIContent.none, ProgressBarFilledPartStyle, GUILayout.Width(progressWidth));
+                GUILayout.Box(GUIContent.none, ProgressBarUnfilledPartStyle, GUILayout.ExpandWidth(true));
+                GUILayout.EndHorizontal();
+                GUILayout.Label(importLabel, ImportLabelStyle);
+                GUILayout.EndVertical();
+            }
 
-			public static void RenderNetworkUnavailable()
-			{
-				GUILayout.BeginVertical (DownloadFailedPaneStyle);
-				GUILayout.Label (
-					"Looks like a valid network connection is not available. Please re-connect to the internet and try again.",
-					DownloadFailedLabelStyle
-				);
-				GUILayout.EndVertical ();
-			}
+            public static void RenderDownloadFailed()
+            {
+                GUILayout.BeginVertical(DownloadFailedPaneStyle);
+                GUILayout.Label("Oops, looks like something odd happened.", DownloadFailedLabelStyle);
+                GUILayout.Label("Your download has failed!", DownloadFailedLabelStyle);
+                GUILayout.Label("You can try again by clicking below, or contact support@fabric.io.", DownloadFailedLabelStyle);
+                GUILayout.EndVertical();
+            }
 
-			public static void RenderVerificationFailed()
-			{
-				GUILayout.BeginVertical (DownloadFailedPaneStyle);
-				GUILayout.Label ("Oops, looks like something odd happened.", DownloadFailedLabelStyle);
-				GUILayout.Label ("We couldn't verify the downloaded binaries!", DownloadFailedLabelStyle);
-				GUILayout.Label ("Please contact support@fabric.io.", DownloadFailedLabelStyle);
-				GUILayout.EndVertical ();
-			}
-		}
-		#endregion
+            public static void RenderNetworkUnavailable()
+            {
+                GUILayout.BeginVertical(DownloadFailedPaneStyle);
+                GUILayout.Label(
+                    "Looks like a valid network connection is not available. Please re-connect to the internet and try again.",
+                    DownloadFailedLabelStyle
+                );
+                GUILayout.EndVertical();
+            }
 
-		public override void RenderImpl(Rect position)
-		{
-			RenderHeader (getDisplayTitle ());
+            public static void RenderVerificationFailed()
+            {
+                GUILayout.BeginVertical(DownloadFailedPaneStyle);
+                GUILayout.Label("Oops, looks like something odd happened.", DownloadFailedLabelStyle);
+                GUILayout.Label("We couldn't verify the downloaded binaries!", DownloadFailedLabelStyle);
+                GUILayout.Label("Please contact support@fabric.io.", DownloadFailedLabelStyle);
+                GUILayout.EndVertical();
+            }
+        }
+        #endregion
 
-			KeyValuePair<string, Action>? next = null;
-			string downloadLabel = getStatusLabel (status);
-			string importLabel = "";
+        public override void RenderImpl(Rect position)
+        {
+            RenderHeader(getDisplayTitle());
 
-			switch (status) {
-			case Status.InProgress:
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				next = cancel;
-				break;
-			case Status.Completed:
-				importLabel = "This may take a few moments.";
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				break;
-			case Status.Failed:
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				Components.RenderDownloadFailed ();
-				next = retry;
-				break;
-			case Status.NetworkUnavailable:
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				Components.RenderNetworkUnavailable ();
-				next = retry;
-				break;
-			case Status.Cancelled:
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				next = retry;
-				break;
-			case Status.VerificationFailed:
-				Components.RenderDownloadBar (position, downloadProgress, downloadLabel, importLabel);
-				Components.RenderVerificationFailed ();
-				next = retry;
-				break;
-			case Status.Idle:
-			default:
-				Components.RenderReleaseNotes (fetchReleaseNotes ());
-				next = install;
-				break;
-			}
+            KeyValuePair<string, Action>? next = null;
+            string downloadLabel = getStatusLabel(status);
+            string importLabel = "";
 
-			RenderFooter (back, next);
-		}
+            switch (status)
+            {
+                case Status.InProgress:
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    next = cancel;
+                    break;
+                case Status.Completed:
+                    importLabel = "This may take a few moments.";
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    break;
+                case Status.Failed:
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    Components.RenderDownloadFailed();
+                    next = retry;
+                    break;
+                case Status.NetworkUnavailable:
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    Components.RenderNetworkUnavailable();
+                    next = retry;
+                    break;
+                case Status.Cancelled:
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    next = retry;
+                    break;
+                case Status.VerificationFailed:
+                    Components.RenderDownloadBar(position, downloadProgress, downloadLabel, importLabel);
+                    Components.RenderVerificationFailed();
+                    next = retry;
+                    break;
+                case Status.Idle:
+                default:
+                    Components.RenderReleaseNotes(fetchReleaseNotes());
+                    next = install;
+                    break;
+            }
 
-		private void InstallUpdate()
-		{
-			downloadProgress = 0f;
-			status = Status.InProgress;
-			onAcceptUpdate (
-				HandleProgressUpdate,
-				HandleDownloadComplete,
-				HandleDownloadError,
-				HandleVerificationError,
-				CheckIsCancelled
-			);
-		}
+            RenderFooter(back, next);
+        }
 
-		private void Reset()
-		{
-			downloadProgress = 0f;
-			status = Status.Idle;
-		}
+        private void InstallUpdate()
+        {
+            downloadProgress = 0f;
+            status = Status.InProgress;
+            onAcceptUpdate(
+                HandleProgressUpdate,
+                HandleDownloadComplete,
+                HandleDownloadError,
+                HandleVerificationError,
+                CheckIsCancelled
+            );
+        }
 
-		private void Cancel()
-		{
-			status = Status.Cancelled;
-		}
+        private void Reset()
+        {
+            downloadProgress = 0f;
+            status = Status.Idle;
+        }
 
-		private bool CheckIsCancelled()
-		{
-			return status == Status.Cancelled || status == Status.Idle;
-		}
-		
-		private void HandleProgressUpdate(float progress)
-		{
-			this.downloadProgress = progress;
-		}
+        private void Cancel()
+        {
+            status = Status.Cancelled;
+        }
 
-		private void HandleDownloadComplete(string downloadPath)
-		{
-			status = Status.Completed;
-		}
+        private bool CheckIsCancelled()
+        {
+            return status == Status.Cancelled || status == Status.Idle;
+        }
 
-		private void HandleDownloadError(System.Exception exception)
-		{
-			status = Net.Utils.IsNetworkUnavailableFrom (exception) ?
-				Status.NetworkUnavailable :
-				Status.Failed;
-		}
+        private void HandleProgressUpdate(float progress)
+        {
+            downloadProgress = progress;
+        }
 
-		private void HandleVerificationError()
-		{
-			status = Status.VerificationFailed;
-		}
+        private void HandleDownloadComplete(string downloadPath)
+        {
+            status = Status.Completed;
+        }
 
-		private static string getStatusLabel(Status status)
-		{
-			switch (status) {
-			case Status.Completed:
-				return "Waiting for import...";
-			case Status.Cancelled:
-				return "Cancelled...";
-			case Status.InProgress:
-			default:
-				return "Downloading...";
-			}
-		}
-	}
+        private void HandleDownloadError(System.Exception exception)
+        {
+            status = Net.Utils.IsNetworkUnavailableFrom(exception) ?
+                Status.NetworkUnavailable :
+                Status.Failed;
+        }
+
+        private void HandleVerificationError()
+        {
+            status = Status.VerificationFailed;
+        }
+
+        private static string getStatusLabel(Status status)
+        {
+            switch (status)
+            {
+                case Status.Completed:
+                    return "Waiting for import...";
+                case Status.Cancelled:
+                    return "Cancelled...";
+                case Status.InProgress:
+                default:
+                    return "Downloading...";
+            }
+        }
+    }
 }

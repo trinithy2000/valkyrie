@@ -1,21 +1,21 @@
-﻿using UnityEngine;
+﻿using Ionic.Zip;
 using System.Collections.Generic;
 using System.IO;
-using Ionic.Zip;
-using ValkyrieTools;
 using System.Threading;
+using UnityEngine;
+using ValkyrieTools;
 
 public class ZipManager : MonoBehaviour
 {
-    static private Thread _jobHandle;
-    static private bool _job_started = false;
+    private static Thread _jobHandle;
+    private static bool _job_started = false;
 
-    static private string local_tempPath;
-    static private string local_quest_path;
-    static private string local_archive_path;
-    static private bool local_update;
+    private static string local_tempPath;
+    private static string local_quest_path;
+    private static string local_archive_path;
+    private static bool local_update;
 
-    static private void _Execute()
+    private static void _Execute()
     {
         try
         {
@@ -33,19 +33,19 @@ public class ZipManager : MonoBehaviour
             {
                 // Update savefile without quest
                 ZipFile zip = ZipFile.Read(local_archive_path);
-                zip.UpdateFile(Path.Combine(local_tempPath, "save.ini") , "");
-                zip.UpdateFile(Path.Combine(local_tempPath, "image.png") , "");
+                zip.UpdateFile(Path.Combine(local_tempPath, "save.ini"), "");
+                zip.UpdateFile(Path.Combine(local_tempPath, "image.png"), "");
                 zip.Save();
                 zip.Dispose();
             }
         }
         catch (System.Exception e)
         {
-            ValkyrieDebug.Log("Warning: Unable to write file: " + local_archive_path + "\nException: "+ e.ToString()) ;
+            ValkyrieDebug.Log("Warning: Unable to write file: " + local_archive_path + "\nException: " + e.ToString());
         }
     }
 
-    static public void WriteZipAsync(string tempPath, string quest_path, string archive_path, bool update)
+    public static void WriteZipAsync(string tempPath, string quest_path, string archive_path, bool update)
     {
         if (_job_started)
         {
@@ -63,7 +63,7 @@ public class ZipManager : MonoBehaviour
         _job_started = true;
     }
 
-    static public void Wait4PreviousSave()
+    public static void Wait4PreviousSave()
     {
         if (_job_started)
         {
@@ -74,14 +74,14 @@ public class ZipManager : MonoBehaviour
 
     public enum Extract_mode
     {
-        ZIPMANAGER_EXTRACT_FULL=0,
+        ZIPMANAGER_EXTRACT_FULL = 0,
         ZIPMANAGER_EXTRACT_INI_TXT,
         ZIPMANAGER_EXTRACT_INI_TXT_PIC,
         ZIPMANAGER_EXTRACT_SAVE_INI_PIC
     };
 
 
-    static public void Extract(string target_path, string archive_name, Extract_mode mode)
+    public static void Extract(string target_path, string archive_name, Extract_mode mode)
     {
         // make sure save is done, to not manipulate file being currently written
         if (_job_started)
@@ -109,11 +109,13 @@ public class ZipManager : MonoBehaviour
                 zip.ExtractSelectedEntries("name = quest.ini", null, target_path, ExtractExistingFileAction.OverwriteSilently);
                 zip.ExtractSelectedEntries("name = Localization.*.txt", null, target_path, ExtractExistingFileAction.OverwriteSilently);
 
-                if(mode == Extract_mode.ZIPMANAGER_EXTRACT_INI_TXT_PIC)
+                if (mode == Extract_mode.ZIPMANAGER_EXTRACT_INI_TXT_PIC)
                 {
                     Dictionary<string, string> iniData = IniRead.ReadFromIni(target_path + "/quest.ini", "Quest");
                     if (iniData.ContainsKey("image"))
-                        zip.ExtractSelectedEntries("name = '" + iniData["image"] +"'", null, target_path, ExtractExistingFileAction.OverwriteSilently);
+                    {
+                        zip.ExtractSelectedEntries("name = '" + iniData["image"] + "'", null, target_path, ExtractExistingFileAction.OverwriteSilently);
+                    }
                 }
             }
 

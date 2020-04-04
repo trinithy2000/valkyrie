@@ -1,6 +1,5 @@
-using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class VarManager
 {
@@ -20,7 +19,7 @@ public class VarManager
             float value = 0;
             float.TryParse(kv.Value, out value);
             // There is a \ before var starting with #, so they don't get ignored.
-            if(kv.Key.IndexOf("\\")==0)
+            if (kv.Key.IndexOf("\\") == 0)
             {
                 vars.Add(kv.Key.Substring(1, kv.Key.Length - 1), value);
             }
@@ -49,8 +48,15 @@ public class VarManager
         Dictionary<string, float> newVars = new Dictionary<string, float>();
         foreach (KeyValuePair<string, float> kv in vars)
         {
-            if (kv.Key[0].Equals('%')) newVars.Add(kv.Key, kv.Value);
-            if (kv.Key.Substring(0, 2).Equals("$%")) newVars.Add(kv.Key, kv.Value);
+            if (kv.Key[0].Equals('%'))
+            {
+                newVars.Add(kv.Key, kv.Value);
+            }
+
+            if (kv.Key.Substring(0, 2).Equals("$%"))
+            {
+                newVars.Add(kv.Key, kv.Value);
+            }
         }
         vars = newVars;
     }
@@ -160,12 +166,14 @@ public class VarManager
     public bool Test(VarTests tests)
     {
         if (tests == null || tests.VarTestsComponents == null || tests.VarTestsComponents.Count == 0)
+        {
             return true;
+        }
 
         bool result = true;
         string current_operator = "AND";
         int index = 0;
-        int ignore_inside_parenthesis=0;
+        int ignore_inside_parenthesis = 0;
 
         foreach (VarTestsComponent tc in tests.VarTestsComponents)
         {
@@ -176,9 +184,13 @@ public class VarManager
                 {
                     VarTestsParenthesis tp = (VarTestsParenthesis)tc;
                     if (tp.parenthesis == "(")
+                    {
                         ignore_inside_parenthesis++;
+                    }
                     else if (tp.parenthesis == ")")
+                    {
                         ignore_inside_parenthesis--;
+                    }
                 }
 
                 index++;
@@ -188,9 +200,13 @@ public class VarManager
             if (tc is VarOperation)
             {
                 if (current_operator == "AND")
+                {
                     result = (result && Test((VarOperation)tc));
+                }
                 else if (current_operator == "OR")
+                {
                     result = (result || Test((VarOperation)tc));
+                }
             }
             else if (tc is VarTestsLogicalOperator)
             {
@@ -201,11 +217,15 @@ public class VarManager
                 VarTestsParenthesis tp = (VarTestsParenthesis)tc;
                 if (tp.parenthesis == "(")
                 {
-                    List<VarTestsComponent> remaining_tests = tests.VarTestsComponents.GetRange(index+1, tests.VarTestsComponents.Count - (index+1));
+                    List<VarTestsComponent> remaining_tests = tests.VarTestsComponents.GetRange(index + 1, tests.VarTestsComponents.Count - (index + 1));
                     if (current_operator == "AND")
+                    {
                         result = (result && Test(new VarTests(remaining_tests)));
+                    }
                     else if (current_operator == "OR")
+                    {
                         result = (result || Test(new VarTests(remaining_tests)));
+                    }
 
                     ignore_inside_parenthesis = 1;
                 }
@@ -218,7 +238,7 @@ public class VarManager
             index++;
         }
 
-        if(ignore_inside_parenthesis>0)
+        if (ignore_inside_parenthesis > 0)
         {
             // we should not get here
             ValkyrieTools.ValkyrieDebug.Log("Invalid Test :" + tests.ToString() + "\n returns " + result);
@@ -264,7 +284,7 @@ public class VarManager
         // unknown tests fail
         return false;
     }
-    
+
     public void Perform(List<VarOperation> ops)
     {
         foreach (VarOperation op in ops)
@@ -273,15 +293,15 @@ public class VarManager
         }
     }
 
-    override public string ToString()
+    public override string ToString()
     {
         string nl = System.Environment.NewLine;
         string r = "[Vars]" + nl;
 
         foreach (KeyValuePair<string, float> kv in vars)
         {
-            if(kv.Value != 0)
-            { 
+            if (kv.Value != 0)
+            {
                 if (kv.Key.IndexOf("#") == 0)
                 {
                     // # means comments in .ini

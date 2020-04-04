@@ -2,10 +2,10 @@
 
 
 // This class provides functions to manage the versions of the app
-class VersionManager
+internal class VersionManager
 {
-    static public string online_version = "0.0.0";
-    static Action version_downloaded_action = null;
+    public static string online_version = "0.0.0";
+    private static Action version_downloaded_action = null;
 
     /// <summary>
     /// Download the latest version number on Github.</summary>
@@ -39,8 +39,10 @@ class VersionManager
 
         online_version = data;
 
-        if(version_downloaded_action != null)
+        if (version_downloaded_action != null)
+        {
             version_downloaded_action();
+        }
     }
 
     // Test version of the form a.b.c is newer or equal
@@ -49,7 +51,11 @@ class VersionManager
         string oldS = System.Text.RegularExpressions.Regex.Replace(oldVersion, "[^0-9]", "");
         string newS = System.Text.RegularExpressions.Regex.Replace(newVersion, "[^0-9]", "");
         // If numbers are the same they are equal
-        if (oldS.Equals(newS)) return true;
+        if (oldS.Equals(newS))
+        {
+            return true;
+        }
+
         return VersionNewer(oldVersion, newVersion);
     }
 
@@ -60,9 +66,15 @@ class VersionManager
         string[] oldV = oldVersion.Split('.');
         string[] newV = newVersion.Split('.');
 
-        if (newVersion.Equals("")) return false;
+        if (newVersion.Equals(""))
+        {
+            return false;
+        }
 
-        if (oldVersion.Equals("")) return true;
+        if (oldVersion.Equals(""))
+        {
+            return true;
+        }
 
         // Different number of components
         if (oldV.Length != newV.Length)

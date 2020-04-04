@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using ValkyrieTools;
 
 
@@ -25,7 +23,7 @@ namespace Assets.Scripts.Content
         private Dictionary<string, Dictionary<string, string>> data;
 
         // And each language has it's own raw data
-        Dictionary<string, List<string>> rawData;
+        private Dictionary<string, List<string>> rawData;
 
         // must be loaded to Dictionaries and not raw for edit
         protected bool loadedForEdit = false;
@@ -169,7 +167,10 @@ namespace Assets.Scripts.Content
         protected void MakeEditable()
         {
             // Already loaded
-            if (loadedForEdit) return;
+            if (loadedForEdit)
+            {
+                return;
+            }
 
             // Remove all existing entries (helps maintain order)
             data = new Dictionary<string, Dictionary<string, string>>();
@@ -180,14 +181,20 @@ namespace Assets.Scripts.Content
                 // Create a Dictionary for each language
                 data.Add(kv.Key, new Dictionary<string, string>());
                 // Check each line
-                for(int i = 1; i < kv.Value.Count; i++)
+                for (int i = 1; i < kv.Value.Count; i++)
                 {
                     // Ignore comments
-                    if (kv.Value[i].Trim().IndexOf("//") == 0) continue;
+                    if (kv.Value[i].Trim().IndexOf("//") == 0)
+                    {
+                        continue;
+                    }
 
                     // Split out key
                     string[] components = kv.Value[i].Split(",".ToCharArray(), 2);
-                    if (components.Length != 2) continue;
+                    if (components.Length != 2)
+                    {
+                        continue;
+                    }
 
                     // Only store the first occurance of a key
                     if (!data[kv.Key].ContainsKey(components[0]))
@@ -318,11 +325,17 @@ namespace Assets.Scripts.Content
             // Check loaded Dictionary data
             foreach (Dictionary<string, string> languageData in data.Values)
             {
-                if (languageData.ContainsKey(key)) return true;
+                if (languageData.ContainsKey(key))
+                {
+                    return true;
+                }
             }
 
             // If in edit mode don't check raw data, may be outdated
-            if (loadedForEdit) return false;
+            if (loadedForEdit)
+            {
+                return false;
+            }
 
             // Check raw data
             bool found = false;
@@ -357,7 +370,9 @@ namespace Assets.Scripts.Content
             }
 
             if (!found)
-               ValkyrieDebug.Log("Key not found: " + key);
+            {
+                ValkyrieDebug.Log("Key not found: " + key);
+            }
 
             return found;
         }
@@ -370,7 +385,10 @@ namespace Assets.Scripts.Content
         public string GetValue(string key)
         {
             // KeyExists ensures any matches are loaded to Dictionary data
-            if (!KeyExists(key)) return key;
+            if (!KeyExists(key))
+            {
+                return key;
+            }
 
             // Check current language first
             if (data.ContainsKey(currentLanguage) && data[currentLanguage].ContainsKey(key) && data[currentLanguage][key].Length > 0)
@@ -400,10 +418,13 @@ namespace Assets.Scripts.Content
         /// Get the raw language data for this dictionary
         /// </summary>
         /// <returns>raw data by language</returns>
-        public Dictionary<string,List<string>> SerializeMultiple()
+        public Dictionary<string, List<string>> SerializeMultiple()
         {
             // If we haven't edited can return what we were given
-            if (!loadedForEdit) return rawData;
+            if (!loadedForEdit)
+            {
+                return rawData;
+            }
 
             // If we have edited we can replace the rawData
             rawData = new Dictionary<string, List<string>>();
@@ -456,7 +477,7 @@ namespace Assets.Scripts.Content
             KeyExists(key);
 
             Dictionary<string, string> returnData = new Dictionary<string, string>();
-            foreach (KeyValuePair<string, Dictionary<string,  string>> kv in data)
+            foreach (KeyValuePair<string, Dictionary<string, string>> kv in data)
             {
                 if (kv.Value.ContainsKey(key))
                 {
