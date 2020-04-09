@@ -19,8 +19,11 @@ namespace Assets.Scripts.UI.Screens
             }
 
             // Heading
+            UIElement screenUI = new UIElement(null, "Screen_bg");
+            screenUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            screenUI.SetBGColor(Color.clear);
 
-            UIElement ui = new UIElement();
+            UIElement ui = new UIElement(screenUI.GetRectTransform(), "Screen_tittle");
             ui.SetLocation(UIScaler.GetRelWidth(4), .2f, UIScaler.GetRelWidth(2), 4);
             ui.SetText(q.name, game.gameType is D2EGameType ? Color.white : Color.black);
             ui.SetFont(game.gameType.GetHeaderFont());
@@ -29,77 +32,80 @@ namespace Assets.Scripts.UI.Screens
             new UITitleBackGround(ui, CommonString.title);
 
             // Draw Image
-            ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-19.8f), 5, 13f, 13);
-            if (q.image.Length > 0)
-            {
-                ui.SetImage(ContentData.FileToTexture(Path.Combine(q.path, q.image)));
-            }
-            else
-            {
-                ui.SetImage(CommonImageKeys.default_img_quest);
-            }
-
+            ui = new UIElement(screenUI.GetRectTransform(), "Mission_img");
+            ui.SetLocation(UIScaler.GetHCenter(-20.8f), 4.75f, 13f, 13);
+            ui.SetImage(q.image.Length > 0 ? ContentData.FileToTexture(Path.Combine(q.path, q.image)) :
+                CommonImageKeys.default_img_quest);
             new UITitleBackGround(ui, CommonString.image);
 
             // Draw Description
-            ui = new UIElement();
             float height = UIScaler.GetHeightUnits() / 2.1f;
-            UIElementScrollVertical scrollArea = new UIElementScrollVertical();
-            scrollArea.SetLocation(UIScaler.GetHCenter(-4), UIScaler.GetTop(7), UIScaler.GetWidthUnits() / 2, height);
-
-            ui = new UIElement(scrollArea.GetScrollTransform());
-            ui.SetLocation(1, UIScaler.GetRelHeight(7), UIScaler.GetRelWidth(2.2f), height);
-            ui.SetText(q.description, Color.black);
-            ui.SetBGColor(Color.clear);
+            UIElementScrollVertical scrollArea = new UIElementScrollVertical(screenUI.GetRectTransform(), "Mission_text");
+            scrollArea.SetLocation(UIScaler.GetHCenter(-4.85f), UIScaler.GetTop(5.65f), UIScaler.GetRelWidth(1.8f), height);
+            //---------  
+            UIElement scrollUI = new UIElement(scrollArea.GetScrollTransform(), "Mission_text");
+            scrollUI.SetLocation(1, UIScaler.GetRelHeight(7), UIScaler.GetRelWidth(2f), height);
+            scrollUI.SetText(q.description, Color.black);
+            scrollUI.SetBGColor(Color.clear);
             scrollArea.SetScrollSize(height * 4);
             new UITitleBackGround(scrollArea, CommonString.description);
 
             // Draw authors
-            ui = new UIElement();
-            ui.SetLocation(UIScaler.GetHCenter(-20.15f), UIScaler.GetBottom(-10f), 14, 6.5f);
-            ui.SetText(q.authors);
-            new UIElementBorderDialog(ui, CommonString.dialogOne);
+            UIElementScrollVertical scrollAutor = new UIElementScrollVertical(screenUI.GetRectTransform(), "Authors");
+            scrollAutor.SetLocation(UIScaler.GetHCenter(-21.15f), UIScaler.GetBottom(-11), 14, 2.5f);
+            //---------    
+            UIElement scrollAutorUI = new UIElement(scrollAutor.GetScrollTransform(), "Authors_text");
+            scrollAutorUI.SetLocation(1, 0, 14, 5.5f);
+            scrollAutorUI.SetText(q.authors, Color.white);
+            scrollAutorUI.SetBGColor(Color.clear);
+            scrollAutor.SetScrollSize(6.5f * 1.5f);
+            new UITitleBackGround(scrollAutor, CommonString.none);
+            //     new UIElementBorderDialog(scrollAutor, CommonString.dialogOne);
+
+
+            UIElement dif_dur_ui = new UIElement(screenUI.GetRectTransform(), "dif_bar");
+            dif_dur_ui.SetLocation(UIScaler.GetHCenter(-15), 27, 30, 3);
+            dif_dur_ui.SetBGColor(Color.green);
 
             // Difficulty
             if (q.difficulty != 0)
             {
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(-13), 27, 11, 1);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "difficulty-text");
+                ui.SetLocation(1, 0, 13, 1);
                 ui.SetText(new StringKey("val", "DIFFICULTY"));
                 string symbol = "*";
                 if (game.gameType is MoMGameType)
                 {
                     symbol = new StringKey("val", "ICON_SUCCESS_RESULT").Translate();
                 }
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(-13), 28, 11, 2);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "difficulty-symbols");
+                ui.SetLocation(1, 1, 13, 2);
                 ui.SetText(symbol + symbol + symbol + symbol + symbol);
                 ui.SetFontSize(UIScaler.GetMediumFont());
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(-10.95f) + (q.difficulty * 6.9f), 28, (1 - q.difficulty) * 6.9f, 2);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "difficulty-shade");
+                ui.SetLocation(1 + (q.difficulty * 12f), 1, (1 - q.difficulty) * 12f, 2);
                 ui.SetBGColor(new Color(0, 0, 0, 0.7f));
             }
 
             // Duration
             if (q.lengthMax != 0)
             {
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(2), 27, 11, 1);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "duration-text");
+                ui.SetLocation(16, 0, 13, 1);
                 ui.SetText(new StringKey("val", "DURATION"));
 
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(2), 28, 4, 2);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "duration-min");
+                ui.SetLocation(16, 1, 5, 2);
                 ui.SetText(q.lengthMin.ToString());
                 ui.SetFontSize(UIScaler.GetMediumFont());
 
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(6.5f), 28, 2, 2);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "duration-colon");
+                ui.SetLocation(21, 1, 4, 2);
                 ui.SetText("-");
                 ui.SetFontSize(UIScaler.GetMediumFont());
 
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetHCenter(9), 28, 4, 2);
+                ui = new UIElement(dif_dur_ui.GetRectTransform(), "duration-max");
+                ui.SetLocation(25, 1, 5, 2);
                 ui.SetText(q.lengthMax.ToString());
                 ui.SetFontSize(UIScaler.GetMediumFont());
             }
@@ -107,30 +113,30 @@ namespace Assets.Scripts.UI.Screens
             // DELETE button (only for archive, directory might be edited by user)
             if (Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
             {
-                ui = new UIElement();
-                ui.SetLocation(UIScaler.GetRight(-8.5f), 0.5f, 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
+                ui = new UIElement(screenUI.GetRectTransform(), "delete_btn");
+                ui.SetLocation(UIScaler.GetRight(-8.5f), 0.5f, 8, GameUtils.ReturnValueGameType<float>(2, 2.5f,2));
                 ui.SetText(CommonStringKeys.DELETE, Color.grey);
                 ui.SetFont(game.gameType.GetHeaderFont());
                 ui.SetFontSize(UIScaler.GetMediumFont());
                 ui.SetButton(delegate { Delete(q); });
-                ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_menu_blue));
+                ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_menu_blue, CommonImageKeys.ia_btn_menu));
             }
 
-            ui = new UIElement();
-            ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
+            ui = new UIElement(screenUI.GetRectTransform(), "back_btn");
+            ui.SetLocation(0.5f, UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f,2));
             ui.SetText(CommonStringKeys.BACK, Color.red);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(Cancel);
-            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_red));
+            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_red, CommonImageKeys.ia_btn_menu));
 
-            ui = new UIElement();
-            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f));
+            ui = new UIElement(screenUI.GetRectTransform(), "start_btn");
+            ui.SetLocation(UIScaler.GetRight(-8.5f), UIScaler.GetBottom(-2.5f), 8, GameUtils.ReturnValueGameType<float>(2, 2.5f,2));
             ui.SetText(new StringKey("val", "START"), Color.green);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(delegate { Start(q); });
-            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_green));
+            ui.SetImage(GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_btn_menu, CommonImageKeys.d2e_btn_green, CommonImageKeys.ia_btn_menu));
 
         }
 
@@ -142,11 +148,9 @@ namespace Assets.Scripts.UI.Screens
         {
             ValkyrieDebug.Log("INFO: Delete quest");
 
-            string toDelete = "";
-
             if (Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
             {
-                toDelete = ContentData.DownloadPath() + Path.DirectorySeparatorChar + Path.GetFileName(q.path);
+                string toDelete = ContentData.DownloadPath() + Path.DirectorySeparatorChar + Path.GetFileName(q.path);
                 File.Delete(toDelete);
 
                 // update quest status : downloaded/updated

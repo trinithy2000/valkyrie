@@ -54,10 +54,10 @@ public class HeroSelection
 
             float[] values =
             {
-                GameUtils.ReturnValueGameType<float>(.2f,1f),
-                GameUtils.ReturnValueGameType<float>(8,6.1f),
-                GameUtils.ReturnValueGameType<float>(9,6.1f),
-                GameUtils.ReturnValueGameType<float>(9.5f,10.5f)
+                GameUtils.ReturnValueGameType<float>(.2f,1f,.2f),
+                GameUtils.ReturnValueGameType<float>(8,6.1f,8),
+                GameUtils.ReturnValueGameType<float>(9,6.1f,9),
+                GameUtils.ReturnValueGameType<float>(9.5f,10.5f,9.5f)
             };
 
             if (up)
@@ -74,7 +74,7 @@ public class HeroSelection
 
             up = !up;
 
-            offset += GameUtils.ReturnValueGameType<float>(4f, 4.4f);
+            offset += GameUtils.ReturnValueGameType<float>(4f, 4.4f, 4f);
 
         }
 

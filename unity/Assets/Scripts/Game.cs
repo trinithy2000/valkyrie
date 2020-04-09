@@ -274,20 +274,22 @@ public class Game : MonoBehaviour
         Texture2D[] arrow = {
             GameUtils.ReturnValueGameType<Texture2D>(
                 CommonImageKeys.mom_btn_arrow_gold,
-                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, -90)
+                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, -90),
+                CommonImageKeys.mom_btn_arrow_gold
             ),
             GameUtils.ReturnValueGameType<Texture2D>(
                 CommonScriptFuntions.RotateImage(CommonImageKeys.mom_btn_arrow_gold, 180),
+                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90),
                 CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90)
-            )
+            ),
         };
 
         float[] values =
         {
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetLeft(3.5f),UIScaler.GetLeft(2f)),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(2) - 6,UIScaler.GetRelHeight(2) - 5),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelWidth(15),UIScaler.GetRelWidth(10)),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(3),UIScaler.GetRelHeight(5))
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetLeft(3.5f),UIScaler.GetLeft(2f),UIScaler.GetLeft(3.5f)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(2) - 6,UIScaler.GetRelHeight(2) - 5, UIScaler.GetRelHeight(2) - 6),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelWidth(15),UIScaler.GetRelWidth(10), UIScaler.GetRelWidth(15)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(3),UIScaler.GetRelHeight(5), UIScaler.GetRelHeight(3))
         };
 
         UIElement ui = new UIElement();
@@ -295,7 +297,7 @@ public class Game : MonoBehaviour
         ui.SetLocation(values[0], values[1], values[2], values[3]);
         ui.SetImage(arrow[0]);
 
-        values[0] = GameUtils.ReturnValueGameType<float>(UIScaler.GetRight(-6), UIScaler.GetRight(-7));
+        values[0] = GameUtils.ReturnValueGameType<float>(UIScaler.GetRight(-6), UIScaler.GetRight(-7), UIScaler.GetRight(-6));
 
         ui = new UIElement();
         ui.SetLocation(values[0], values[1], values[2], values[3]);
@@ -321,8 +323,8 @@ public class Game : MonoBehaviour
         heroCanvas.SetupUI(ui);
 
         ui = new UIElement(Game.HEROSELECT);
-        ui.SetText(new StringKey("val", "SELECT", gameType.HeroesName()), GameUtils.ReturnValueGameType<Color>(Color.black, Color.white));
-        ui.SetLocation(UIScaler.GetRelWidth(4), GameUtils.ReturnValueGameType<float>(.2f, .6f), UIScaler.GetRelWidth(2), 4);
+        ui.SetText(new StringKey("val", "SELECT", gameType.HeroesName()), GameUtils.ReturnValueGameType<Color>(Color.black, Color.white, Color.yellow));
+        ui.SetLocation(UIScaler.GetRelWidth(4), GameUtils.ReturnValueGameType<float>(.2f, .6f, .8f), UIScaler.GetRelWidth(2), 4);
 
         ui.SetFont(game.gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetMediumFont());
@@ -548,12 +550,14 @@ public interface IUpdateListener
 
 public class GameUtils
 {
-    public static T ReturnValueGameType<T>(T mom, T d2e)
+    public static T ReturnValueGameType<T>(T mom, T d2e, T ia)
     {
         if (IsMoMGameType())
             return mom;
         else if (IsD2EGameType())
             return d2e;
+        else if (IsIAGameType())
+            return ia;
         else
             return default(T);
     }
@@ -566,5 +570,9 @@ public class GameUtils
     public static bool IsMoMGameType()
     {
         return Game.Get().gameType is MoMGameType;
+    }
+    public static bool IsIAGameType()
+    {
+        return Game.Get().gameType is IAGameType;
     }
 }

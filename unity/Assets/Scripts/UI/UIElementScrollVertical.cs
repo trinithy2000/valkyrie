@@ -9,7 +9,16 @@ namespace Assets.Scripts.UI
         protected GameObject scrollBar;
         protected GameObject scrollBarHandle;
 
+
+        public UIElementScrollVertical(Transform parent, string n="", string t = "") : base(parent, t,n)
+        {
+        }
+
         public UIElementScrollVertical(string t = "") : base(t)
+        {
+        }
+
+        public UIElementScrollVertical(Transform parent, string name) : base(parent, name)
         {
         }
 
@@ -17,7 +26,7 @@ namespace Assets.Scripts.UI
         {
             base.CreateBG(parent);
 
-            scrollBG = new GameObject("scrollBG")
+            scrollBG = new GameObject("scrollBG_" + base.internalName)
             {
                 tag = tag
             };
@@ -26,14 +35,14 @@ namespace Assets.Scripts.UI
             scrollBG.AddComponent<UnityEngine.UI.RectMask2D>();
             UnityEngine.UI.ScrollRect scrollRect = scrollBG.AddComponent<UnityEngine.UI.ScrollRect>();
 
-            scrollArea = new GameObject("scroll")
+            scrollArea = new GameObject("scroll_" + base.internalName)
             {
                 tag = tag
             };
             scrollArea.AddComponent<RectTransform>();
             scrollArea.transform.SetParent(scrollBG.transform);
 
-            scrollBar = new GameObject("scrollbar")
+            scrollBar = new GameObject("scrollbar_" + base.internalName)
             {
                 tag = tag
             };
@@ -43,7 +52,7 @@ namespace Assets.Scripts.UI
             scrollBarCmp.direction = UnityEngine.UI.Scrollbar.Direction.BottomToTop;
             scrollRect.verticalScrollbar = scrollBarCmp;
 
-            scrollBarHandle = new GameObject("scrollbarhandle")
+            scrollBarHandle = new GameObject("scrollbarhandle_" + base.internalName)
             {
                 tag = tag
             };

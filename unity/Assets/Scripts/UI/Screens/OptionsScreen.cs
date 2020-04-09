@@ -43,40 +43,75 @@ namespace Assets.Scripts.UI.Screens
         /// <param name="game">current game</param>
         private void CreateElements()
         {
+
+            UIElement parentUI = new UIElement(Game.Get().uICanvas.transform);
+            parentUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            parentUI.SetBGColor(Color.clear);
+
+            if (GameUtils.IsMoMGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.mom_bgnd_mansion);
+            }
+            else if (GameUtils.IsD2EGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.d2e_bgnd_sreen);
+            }
+            else if (GameUtils.IsIAGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.ia_bgnd_sreen);
+            }
+
+            UIElement ui = new UIElement(parentUI.GetTransform(), "shadow");
+            ui.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            ui.SetBGColor(new Color(0, 0, 0, 0.4f));
+
             // Options screen text
-            UIElement ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(),"options_text");
             ui.SetLocation(2, 1, UIScaler.GetWidthUnits() - 4, 3);
             ui.SetText(OPTIONS);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetLargeFont());
+            ui.SetBGColor(Color.clear);
 
-            CreateLanguageElements();
+            CreateLanguageElements(parentUI.GetTransform());
 
-            CreateAudioElements();
+            CreateAudioElements(parentUI.GetTransform());
 
-            CreateEditorTransparencyElements();
+            CreateEditorTransparencyElements(parentUI.GetTransform());
 
             // Button for back to main menu
-            ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(), "btn_back");
             ui.SetLocation(1, UIScaler.GetBottom(-3), 8, 2);
             ui.SetText(CommonStringKeys.BACK, Color.red);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(Destroyer.MainMenu);
-            new UIElementBorder(ui, Color.red);
+            if (GameUtils.IsMoMGameType())
+            {
+                ui.SetImage(CommonImageKeys.mom_btn_menu);
+            }
+            else if (GameUtils.IsD2EGameType())
+            {
+                ui.SetImage(CommonImageKeys.d2e_btn_menu_red);
+            }
+            else if (GameUtils.IsIAGameType())
+            {
+                ui.SetImage(CommonImageKeys.ia_btn_menu);
+            }
         }
 
-        private void CreateEditorTransparencyElements()
+        private void CreateEditorTransparencyElements(Transform parent)
         {
             Game game = Game.Get();
 
             // Select language text
-            UIElement ui = new UIElement(Game.DIALOG);
+            UIElement ui = new UIElement(parent,Game.DIALOG, "Editor_alpha");
             ui.SetLocation(UIScaler.GetHCenter() - 8, 5, 16, 2);
             ui.SetText(SET_EDITOR_ALPHA);
             ui.SetTextAlignment(TextAnchor.MiddleCenter);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
             Texture2D SampleTex = ContentData.FileToTexture(game.cd.images[IMG_LOW_EDITOR_TRANSPARENCY].image);
             Sprite SampleSprite = Sprite.Create(SampleTex, new Rect(0, 0, SampleTex.width, SampleTex.height), Vector2.zero, 1);
@@ -112,13 +147,14 @@ namespace Assets.Scripts.UI.Screens
             }
         }
 
-        private void CreateAudioElements()
+        private void CreateAudioElements(Transform parent)
         {
-            UIElement ui = new UIElement();
+            UIElement ui = new UIElement(parent,"Music_label");
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 4, 8, 10, 2);
             ui.SetText(MUSIC);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
             float mVolume;
             string vSet = game.config.data.Get("UserConfig", "music");
@@ -128,7 +164,7 @@ namespace Assets.Scripts.UI.Screens
                 mVolume = 1;
             }
 
-            ui = new UIElement();
+            ui = new UIElement(parent, "Music_bar");
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 6, 11, 14, 2);
             ui.SetBGColor(Color.clear);
             new UIElementBorder(ui);
@@ -137,7 +173,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 tag = Game.DIALOG
             };
-            musicSlideObj.transform.SetParent(game.uICanvas.transform);
+            musicSlideObj.transform.SetParent(parent);
             musicSlide = musicSlideObj.AddComponent<UnityEngine.UI.Slider>();
             RectTransform musicSlideRect = musicSlideObj.GetComponent<RectTransform>();
             musicSlideRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 11 * UIScaler.GetPixelsPerUnit(), 2 * UIScaler.GetPixelsPerUnit());
@@ -160,7 +196,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 tag = Game.DIALOG
             };
-            musicSlideObjRev.transform.SetParent(game.uICanvas.transform);
+            musicSlideObjRev.transform.SetParent(parent);
             musicSlideRev = musicSlideObjRev.AddComponent<UnityEngine.UI.Slider>();
             RectTransform musicSlideRectRev = musicSlideObjRev.GetComponent<RectTransform>();
             musicSlideRectRev.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 11 * UIScaler.GetPixelsPerUnit(), 2 * UIScaler.GetPixelsPerUnit());
@@ -183,11 +219,12 @@ namespace Assets.Scripts.UI.Screens
             musicSlide.value = mVolume;
             musicSlideRev.value = 1 - mVolume;
 
-            ui = new UIElement();
+            ui = new UIElement(parent, "Effects");
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 4, 14, 10, 2);
             ui.SetText(EFFECTS);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
             float eVolume;
             vSet = game.config.data.Get("UserConfig", "effects");
@@ -197,7 +234,7 @@ namespace Assets.Scripts.UI.Screens
                 eVolume = 1;
             }
 
-            ui = new UIElement();
+            ui = new UIElement(parent, "Effects_bar");
             ui.SetLocation((0.75f * UIScaler.GetWidthUnits()) - 6, 17, 14, 2);
             ui.SetBGColor(Color.clear);
             new UIElementBorder(ui);
@@ -206,7 +243,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 tag = Game.DIALOG
             };
-            effectSlideObj.transform.SetParent(game.uICanvas.transform);
+            effectSlideObj.transform.SetParent(parent);
             effectSlide = effectSlideObj.AddComponent<UnityEngine.UI.Slider>();
             RectTransform effectSlideRect = effectSlideObj.GetComponent<RectTransform>();
             effectSlideRect.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 17 * UIScaler.GetPixelsPerUnit(), 2 * UIScaler.GetPixelsPerUnit());
@@ -235,7 +272,7 @@ namespace Assets.Scripts.UI.Screens
             {
                 tag = Game.DIALOG
             };
-            effectSlideObjRev.transform.SetParent(game.uICanvas.transform);
+            effectSlideObjRev.transform.SetParent(parent);
             effectSlideRev = effectSlideObjRev.AddComponent<UnityEngine.UI.Slider>();
             RectTransform effectSlideRectRev = effectSlideObjRev.GetComponent<RectTransform>();
             effectSlideRectRev.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 17 * UIScaler.GetPixelsPerUnit(), 2 * UIScaler.GetPixelsPerUnit());
@@ -264,14 +301,15 @@ namespace Assets.Scripts.UI.Screens
         /// Method to create language UI elements in the screen
         /// </summary>
         /// <param name="game">current game</param>
-        private void CreateLanguageElements()
+        private void CreateLanguageElements(Transform parent)
         {
             // Select langauge text
-            UIElement ui = new UIElement();
-            ui.SetLocation((0.25f * UIScaler.GetWidthUnits()) - 10, 4, 18, 2);
-            ui.SetText(CHOOSE_LANG);
-            ui.SetFont(game.gameType.GetHeaderFont());
-            ui.SetFontSize(UIScaler.GetMediumFont());
+            UIElement langUI = new UIElement(parent, "Choose_lang");
+            langUI.SetLocation((0.25f * UIScaler.GetWidthUnits()) - 10, 4, 18, 2);
+            langUI.SetText(CHOOSE_LANG);
+            langUI.SetFont(game.gameType.GetHeaderFont());
+            langUI.SetFontSize(UIScaler.GetMediumFont());
+            langUI.SetBGColor(Color.clear);
 
             // The list of languages is determined by FFG languages for MoM
             // In D2E there is an additional language
@@ -282,7 +320,7 @@ namespace Assets.Scripts.UI.Screens
             HashSet<string> enabled_langs = new HashSet<string>("English,Spanish,French,Italian,German,Portuguese,Polish,Russian,Chinese".Split(','));
 
             //The first button in the list of buttons should start in this vertical coordinate
-            float verticalStart = UIScaler.GetVCenter(-1f) - langs.Length;
+            float verticalStart = UIScaler.GetVCenter(-4.5f) - langs.Length;
 
             for (int i = 0; i < langs.Length; i++)
             {
@@ -290,12 +328,11 @@ namespace Assets.Scripts.UI.Screens
                 // Need current index in order to delegate not point to loop for variable
                 string currentLanguage = langs[i];
 
-                ui = new UIElement();
-                ui.SetLocation((0.25f * UIScaler.GetWidthUnits()) - 5, verticalStart + (2f * position), 8, 1.8f);
+                UIElement ui = new UIElement(langUI.GetTransform(), langs[i]);
+                ui.SetLocation(5, verticalStart + (2f * position), 8, 1.8f);
                 if (!enabled_langs.Contains(currentLanguage))
                 {
                     ui.SetText(currentLanguage, Color.red);
-                    new UIElementBorder(ui, Color.red);
                 }
                 else
                 {
@@ -303,15 +340,26 @@ namespace Assets.Scripts.UI.Screens
                     if (currentLanguage == game.currentLang)
                     {
                         ui.SetText(currentLanguage);
-                        new UIElementBorder(ui);
                     }
                     else
                     {
-                        ui.SetText(currentLanguage, Color.grey);
-                        new UIElementBorder(ui, Color.grey);
+                        ui.SetText(currentLanguage, new Color(0.4f,0.4f,0.4f,1));              
                     }
                 }
                 ui.SetFontSize(UIScaler.GetMediumFont());
+
+                if (GameUtils.IsMoMGameType())
+                {
+                    ui.SetImage(CommonImageKeys.mom_btn_menu);
+                }
+                else if (GameUtils.IsD2EGameType())
+                {
+                    ui.SetImage(CommonImageKeys.d2e_btn_menu_red);
+                }
+                else if (GameUtils.IsIAGameType())
+                {
+                    ui.SetImage(CommonImageKeys.ia_btn_menu);
+                }
             }
         }
 

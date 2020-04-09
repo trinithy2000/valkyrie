@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using ValkyrieTools;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Screens
 {
@@ -37,33 +38,56 @@ namespace Assets.Scripts.UI.Screens
 
             // Name.  Should this be the banner, or better to print Valkyrie with the game font?    
 
-            UIElement ui = new UIElement();
+            UIElement parentUi = new UIElement();
 
-            ui = new UIElement();
-            ui.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            parentUi = new UIElement();
+            parentUi.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
 
-            if (game.gameType is MoMGameType)
+            if (GameUtils.IsMoMGameType())
             {
-                ui.SetImage(CommonImageKeys.mom_bgnd_mansion);
+                parentUi.SetImage(CommonImageKeys.mom_bgnd_mansion);
             }
-            else if (game.gameType is D2EGameType)
+            else if (GameUtils.IsD2EGameType())
             {
-                ui.SetImage(CommonImageKeys.d2e_bgnd_sreen);
+                parentUi.SetImage(CommonImageKeys.d2e_bgnd_sreen);
+            }
+            else if (GameUtils.IsIAGameType())
+            {
+                parentUi.SetImage(CommonImageKeys.ia_bgnd_sreen);
             }
 
-            ui = new UIElement();
+            UIElement ui = new UIElement(parentUi.GetTransform(), "ValkyreTittle");
             ui.SetLocation(2.5f, 1, 11, 3);
             ui.SetText("Valkyrie");
             ui.SetBGColor(Color.clear);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetLargeFont());
 
+            UIElement boxUI = new UIElement(parentUi.GetTransform(), "Button_box");
+
+            boxUI.SetBGColor(Color.clear);
+            if (game.gameType is MoMGameType)
+            {
+                boxUI.SetLocation(3f, 5f, 17, 23f);
+                boxUI.SetImage(CommonImageKeys.mom_button_box);
+            }
+            else if (game.gameType is D2EGameType)
+            {
+                boxUI.SetLocation(1.3f, 4.2f, 19, 22.8f);
+                boxUI.SetImage(CommonImageKeys.d2e_button_box);
+            }
+            else if (game.gameType is IAGameType)
+            {
+                boxUI.SetLocation(2.5f, 5.5f, 16, 20.5f);
+                boxUI.SetImage(CommonImageKeys.ia_button_box);
+            }
+
             // Button for start quest/scenario
-            ui = GetButtonMenu(game, 10, START_QUEST);
+            ui = GetButtonMenu(game, 4, START_QUEST, boxUI);
             ui.SetButton(Start);
 
             // Button for continue quest/scenario
-            ui = GetButtonMenu(game, 12.7f, LOAD_QUEST);
+            ui = GetButtonMenu(game, 6.7f, LOAD_QUEST, boxUI);
             if (SaveManager.SaveExists())
             {
                 ui.SetButton(delegate { new SaveSelectScreen(); });
@@ -74,36 +98,40 @@ namespace Assets.Scripts.UI.Screens
             }
 
             // Content selection page
-            ui = GetButtonMenu(game, 15.4f, SELECT_CONTENT);
+            ui = GetButtonMenu(game, 9.4f, SELECT_CONTENT, boxUI);
             ui.SetButton(Content);
 
             // Quest/Scenario edito
-            ui = GetButtonMenu(game, 18.1f, new StringKey("val", "QUEST_NAME_EDITOR", game.gameType.QuestName()));
+            ui = GetButtonMenu(game, 12.1f, new StringKey("val", "QUEST_NAME_EDITOR", game.gameType.QuestName()), boxUI);
             ui.SetButton(Editor);
 
             // About page (managed in this class)
-            ui = GetButtonMenu(game, 20.8f, ABOUT);
+            ui = GetButtonMenu(game, 14.8f, ABOUT, boxUI);
             ui.SetButton(About);
 
             // Configuration menu
-            ui = GetButtonMenu(game, 23.5f, OPTIONS);
+            ui = GetButtonMenu(game, 17.5f, OPTIONS, boxUI);
             ui.SetButton(Config);
 
             // Exit Valkyrie
-            ui = GetButtonMenu(game, 26.2f, CommonStringKeys.EXIT);
+            ui = GetButtonMenu(game, 20.2f, CommonStringKeys.EXIT, boxUI);
             ui.SetButton(Exit);
         }
 
 
-        private UIElement GetButtonMenu(Game game, float position_Vert, StringKey action)
+        private UIElement GetButtonMenu(Game game, float position_Vert, StringKey action, UIElement boxUI)
         {
             if (game.gameType is MoMGameType)
             {
-                return GetButtonMenuMom(game, position_Vert, action);
+                return GetButtonMenuMom(game, position_Vert, action, boxUI);
             }
             else if (game.gameType is D2EGameType)
             {
-                return GetButtonMenuD2E(game, position_Vert, action);
+                return GetButtonMenuD2E(game, position_Vert, action, boxUI);
+            }
+            else if (game.gameType is IAGameType)
+            {
+                return GetButtonMenuIA(game, position_Vert, action, boxUI);
             }
             else
             {
@@ -111,12 +139,23 @@ namespace Assets.Scripts.UI.Screens
             }
         }
 
-        private UIElement GetButtonMenuD2E(Game game, float position_Vert, StringKey action)
+        private UIElement GetButtonMenuIA(Game game, float position_Vert, StringKey action, UIElement boxUI)
         {
-            float width = (UIScaler.GetWidthUnits() - 13) / 16;
 
-            UIElement ui = new UIElement();
-            ui.SetLocation(width, position_Vert - 2, 14, 2.5f);
+            UIElement ui = new UIElement(boxUI.GetTransform(), "Btn_IA_" + action);
+            ui.SetLocation(1f, position_Vert - 3.1f, 14, 2.5f);
+            ui.SetText(action);
+            ui.SetFont(game.gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetLargeFont(.75f));
+            ui.SetImage(CommonImageKeys.ia_btn_menu);
+            return ui;
+        }
+
+        private UIElement GetButtonMenuD2E(Game game, float position_Vert, StringKey action, UIElement boxUI)
+        {
+
+            UIElement ui = new UIElement(boxUI.GetTransform(), "Btn_D2E_" + action);
+            ui.SetLocation(2.4f, position_Vert - 2, 14, 2.5f);
             ui.SetText(action);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
@@ -132,13 +171,11 @@ namespace Assets.Scripts.UI.Screens
             return ui;
         }
 
-        private UIElement GetButtonMenuMom(Game game, float position_Vert, StringKey action)
+        private UIElement GetButtonMenuMom(Game game, float position_Vert, StringKey action, UIElement boxUI)
         {
-            float width = (UIScaler.GetWidthUnits() - 13) / 16;
+            UIElement ui = new UIElement(boxUI.GetTransform(), "Btn_MoM_" + action);
 
-            UIElement ui = new UIElement();
-
-            ui.SetLocation(width, position_Vert, 13, 2.6f);
+            ui.SetLocation(2.2f, position_Vert - 1.75f, 13, 2.6f);
             ui.SetText(action);
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
@@ -194,6 +231,7 @@ namespace Assets.Scripts.UI.Screens
         // Create the about dialog
         public void About()
         {
+            Game game = Game.Get();
             ValkyrieDebug.Log("INFO: Accessing about");
 
             // This will destroy all, because we shouldn't have anything left at the main menu
@@ -207,42 +245,76 @@ namespace Assets.Scripts.UI.Screens
                 tag = Game.DIALOG
             };
 
-            banner.transform.SetParent(Game.Get().uICanvas.transform);
+            UIElement parentUI = new UIElement(Game.Get().uICanvas.transform);
+            parentUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            parentUI.SetBGColor(Color.clear);
+
+            if (GameUtils.IsMoMGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.mom_bgnd_mansion);
+            }
+            else if (GameUtils.IsD2EGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.d2e_bgnd_sreen);
+            }
+            else if (GameUtils.IsIAGameType())
+            {
+                parentUI.SetImage(CommonImageKeys.ia_bgnd_sreen);
+            }
+
+            UIElement ui = new UIElement(parentUI.GetTransform(), "shadow");
+            ui.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            ui.SetBGColor(new Color(0, 0, 0, 0.4f));
+
+            banner.transform.SetParent(parentUI.GetTransform());
 
             RectTransform trans = banner.AddComponent<RectTransform>();
             trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, 1 * UIScaler.GetPixelsPerUnit(), 7f * UIScaler.GetPixelsPerUnit());
             trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (UIScaler.GetWidthUnits() - 18f) * UIScaler.GetPixelsPerUnit() / 2f, 18f * UIScaler.GetPixelsPerUnit());
             banner.AddComponent<CanvasRenderer>();
 
-
-            UnityEngine.UI.Image image = banner.AddComponent<UnityEngine.UI.Image>();
+            Image image = banner.AddComponent<Image>();
             bannerSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
             image.sprite = bannerSprite;
             image.rectTransform.sizeDelta = new Vector2(18f * UIScaler.GetPixelsPerUnit(), 7f * UIScaler.GetPixelsPerUnit());
 
-            UIElement ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(), "About_ffg");
             ui.SetLocation((UIScaler.GetWidthUnits() - 30f) / 2, 10, 30, 6);
             ui.SetText(ABOUT_FFG);
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
-            ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(), "About_libs");
             ui.SetLocation((UIScaler.GetWidthUnits() - 30f) / 2, 18, 30, 5);
             ui.SetText(ABOUT_LIBS);
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
-            ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(), "version");
             ui.SetLocation(UIScaler.GetWidthUnits() - 5, UIScaler.GetBottom(-3), 5, 2);
             ui.SetText(Game.Get().version);
             ui.SetFontSize(UIScaler.GetMediumFont());
+            ui.SetBGColor(Color.clear);
 
-            ui = new UIElement();
+            ui = new UIElement(parentUI.GetTransform(), "btn_back");
             ui.SetLocation(1, UIScaler.GetBottom(-3), 8, 2);
             ui.SetText(CommonStringKeys.BACK);
             ui.SetFont(Game.Get().gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetMediumFont());
             ui.SetButton(Destroyer.MainMenu);
-            ui.SetBGColor(new Color(0, 0.03f, 0f));
-            new UIElementBorder(ui);
+            if (GameUtils.IsMoMGameType())
+            {
+                ui.SetImage(CommonImageKeys.mom_btn_menu);
+            }
+            else if (GameUtils.IsD2EGameType())
+            {
+                ui.SetImage(CommonImageKeys.d2e_btn_menu_red);
+            }
+            else if (GameUtils.IsIAGameType())
+            {
+                ui.SetImage(CommonImageKeys.ia_btn_menu);
+            }
+
         }
 
         public void Exit()

@@ -9,35 +9,40 @@ namespace Assets.Scripts.UI.D2E
 
         public UITitleBackGround_D2E(UIElement element, string dialogType)
         {
+            transform = element.GetTransform();
+            rectTrans = element.GetRectTransform();
+            tag = element.GetTag();
+            internalName = element.GetInternalName();
+
             if (CommonString.title.Equals(dialogType))
             {
-                CreateBgndTitle(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateBgndTitle();
             }
             else if (CommonString.description.Equals(dialogType))
             {
-                CreateBgndDescription(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateBgndDescription();
             }
             else if (CommonString.image.Equals(dialogType))
             {
-                CreateBgndImage(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateBgndImage();
             }
             else if (CommonString.items.Equals(dialogType))
             {
-                CreateItemsBar(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateItemsBar();
             }
             else if (CommonString.itemTitle.Equals(dialogType))
             {
-                CreateItemTittle(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateItemTittle();
             }
             else if (CommonString.puzzle.Equals(dialogType))
             {
-                CreatePuzzleButton(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreatePuzzleButton();
             }
         }
 
-        private void CreateBgndTitle(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateBgndTitle()
         {
-            bLine = new GameObject("BgndTitle_0")
+            bLine = new GameObject("BgndTitle_" + internalName)
             {
                 tag = tag
             };
@@ -46,23 +51,23 @@ namespace Assets.Scripts.UI.D2E
             base.SetRectTransform(bLine, transform, rectTrans, new float[] { -inset, 0, 1f, 1f });
         }
 
-        private void CreateBgndDescription(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateBgndDescription()
         {
             float width = rectTrans.rect.width + 40f;
             float pixels = UIScaler.GetPixelsPerUnit() * 21;
             float inset = (UIScaler.GetHeightUnits() / 1.6f) + 20f;
 
-            bLine = new GameObject("BgndTitle_0")
+            bLine = new GameObject("BgndTitle_" + internalName)
             {
                 tag = tag
             };
             bLine.AddComponent<RawImage>().texture = CommonImageKeys.d2e_bgnd_pergam;
-            SetRectTransformSimple(bLine, transform, rectTrans, new float[] { -inset, -20f, pixels, width });
+            SetRectTransformSimple(bLine, transform, new float[] { -inset, -20f, pixels, width });
         }
 
-        private void CreateBgndImage(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateBgndImage()
         {
-            bLine = new GameObject("BgndTitle_0")
+            bLine = new GameObject("BgndTitle_" + internalName)
             {
                 tag = tag
             };
@@ -70,9 +75,9 @@ namespace Assets.Scripts.UI.D2E
             base.SetRectTransform(bLine, transform, rectTrans, new float[] { -5f, -10f, 1.06f, 1.12f });
         }
 
-        private void CreateItemsBar(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateItemsBar()
         {
-            bLine = new GameObject("BgndTitle_0")
+            bLine = new GameObject("BgndTitle_" + internalName)
             {
                 tag = tag
             };
@@ -82,9 +87,9 @@ namespace Assets.Scripts.UI.D2E
             base.SetRectTransform(bLine, transform, rectTrans, new float[] { inset, 10f, 0.85f, 0.95f });
         }
 
-        private void CreateItemTittle(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateItemTittle()
         {
-            bLine = new GameObject("BgndTitle_0")
+            bLine = new GameObject("BgndTitle_" + internalName)
             {
                 tag = tag
             };
@@ -92,9 +97,9 @@ namespace Assets.Scripts.UI.D2E
             base.SetRectTransform(bLine, transform, rectTrans, new float[] { -9f, 9f, 1.72f, 0.9f });
         }
 
-        private void CreatePuzzleButton(Transform transform, RectTransform rectTrans, string tag)
+        private void CreatePuzzleButton()
         {
-            bLine = new GameObject("BgndPzlTitle_0")
+            bLine = new GameObject("BgndPzlTitle_" + internalName)
             {
                 tag = tag
             };

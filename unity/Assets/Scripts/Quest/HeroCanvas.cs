@@ -220,11 +220,11 @@ public class HeroCanvas : MonoBehaviour
         float width = UIScaler.GetRelWidth(5);
         float height = UIScaler.GetRelHeight(50);
 
-        frameTex = GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_border_frame_empty, CommonImageKeys.d2e_border_grey_frame);
+        frameTex = GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_border_frame_empty, CommonImageKeys.d2e_border_grey_frame, CommonImageKeys.ia_border_frame_empty);
         heroName = getHeroName(h);
         if (h.heroData != null)
         {
-            frameTex = GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_border_frame, CommonImageKeys.d2e_border_blue_frame);
+            frameTex = GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_border_frame, CommonImageKeys.d2e_border_blue_frame, CommonImageKeys.ia_border_frame);
         }
     }
 

@@ -327,17 +327,17 @@ public class IAGameType : GameType
 
     public override Font GetFont()
     {
-        return (Font)Resources.Load("Fonts/Gara_Scenario_Desc");
+        return (Font)Resources.Load("Fonts/Mandalore");
     }
 
     public override Font GetHeaderFont()
     {
-        return (Font)Resources.Load("Fonts/Windl");
+        return (Font)Resources.Load("Fonts/Mandalore");
     }
 
     public override Font GetSymbolFont()
     {
-        return (Font)Resources.Load("Fonts/Gara_Scenario_Desc");
+        return (Font)Resources.Load("Fonts/Mandalore_HT");
     }
 
     public override int MaxHeroes()

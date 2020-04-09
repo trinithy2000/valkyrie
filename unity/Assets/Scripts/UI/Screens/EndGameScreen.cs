@@ -10,6 +10,7 @@ namespace Assets.Scripts.UI.Screens
     {
         private static readonly string IMG_BG_MOM = "ImageGreenBG";
         private static readonly string IMG_BG_DESCENT = "ImageDarkBackground";
+        private static readonly string IMG_BG_IA = "ImageDarkBackground";
         private static readonly StringKey STATS_WELCOME = new StringKey("val", "STATS_WELCOME");
         private static readonly StringKey STATS_ASK_VICTORY = new StringKey("val", "STATS_ASK_VICTORY");
         private static readonly StringKey STATS_ASK_VICTORY_YES = new StringKey("val", "STATS_ASK_VICTORY_YES");
@@ -54,6 +55,11 @@ namespace Assets.Scripts.UI.Screens
             {
                 bgTex = ContentData.FileToTexture(game.cd.images[IMG_BG_DESCENT].image);
             }
+            else if (game.gameType.TypeName() == "IA")
+            {
+                bgTex = ContentData.FileToTexture(game.cd.images[IMG_BG_IA].image);
+            }
+
             else
             {
                 // TODO: support a background picture for IA

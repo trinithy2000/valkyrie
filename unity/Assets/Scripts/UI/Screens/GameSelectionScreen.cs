@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using UnityEngine;
 using ValkyrieTools;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.Screens
 {
@@ -14,9 +15,8 @@ namespace Assets.Scripts.UI.Screens
     {
         private FFGImport fcD2E;
         private FFGImport fcMoM;
-#if IA
-        FFGImport fcIA;
-#endif
+        private FFGImport fcIA;
+
         protected string importType = "";
         private Thread importThread;
 
@@ -25,6 +25,9 @@ namespace Assets.Scripts.UI.Screens
 
         private static readonly StringKey MOM_NAME = new StringKey("val", "MOM_NAME");
         private static readonly StringKey MOM_APP_NOT_FOUND = new StringKey("val", "MOM_APP_NOT_FOUND");
+
+        private static readonly StringKey IA_NAME = new StringKey("val", "IA_NAME");
+        private static readonly StringKey IA_APP_NOT_FOUND = new StringKey("val", "IA_APP_NOT_FOUND");
 
         private static readonly StringKey CONTENT_IMPORT = new StringKey("val", "CONTENT_IMPORT");
         private static readonly StringKey CONTENT_REIMPORT = new StringKey("val", "CONTENT_REIMPORT");
@@ -39,11 +42,8 @@ namespace Assets.Scripts.UI.Screens
         private static readonly string D2E_APP_URL_ANDROID = "https://play.google.com/store/apps/details?id=com.fantasyflightgames.rtl";
         private static readonly string D2E_APP_URL_STEAM = "https://store.steampowered.com/app/477200/Descent_Road_to_Legend/";
 
-#if IA
-        private StringKey IA_NAME = new StringKey("val", "IA_NAME");
-        private StringKey IA_APP_NOT_FOUND = new StringKey("val", "IA_APP_NOT_FOUND");
-        private StringKey IA_APP_NOT_FOUND_ANDROID = new StringKey("val", "IA_APP_NOT_FOUND_ANDROID");
-#endif
+        private static readonly string IA_APP_URL_ANDROID = "https://play.google.com/store/apps/details?id=com.fantasyflightgames.rtl";
+        private static readonly string IA_APP_URL_STEAM = "https://store.steampowered.com/app/703980/Star_Wars_Imperial_Assault__Legends_of_the_Alliance/";
 
         // Create a menu which will take up the whole screen and have options.  All items are dialog for destruction.
         public GameSelectionScreen()
@@ -65,32 +65,25 @@ namespace Assets.Scripts.UI.Screens
             {
                 fcD2E = new FFGImport(FFGAppImport.GameType.D2E, Platform.MacOS, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
                 fcMoM = new FFGImport(FFGAppImport.GameType.MoM, Platform.MacOS, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#if IA
                 fcIA = new FFGImport(FFGAppImport.GameType.IA, Platform.MacOS, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#endif
+
             }
             else if (Application.platform == RuntimePlatform.Android)
             {
                 fcD2E = new FFGImport(FFGAppImport.GameType.D2E, Platform.Android, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
                 fcMoM = new FFGImport(FFGAppImport.GameType.MoM, Platform.Android, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#if IA
                 fcIA = new FFGImport(FFGAppImport.GameType.IA, Platform.Android, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#endif
             }
             else
             {
                 fcD2E = new FFGImport(FFGAppImport.GameType.D2E, Platform.Windows, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
                 fcMoM = new FFGImport(FFGAppImport.GameType.MoM, Platform.Windows, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#if IA
                 fcIA = new FFGImport(FFGAppImport.GameType.IA, Platform.Windows, Game.AppData() + Path.DirectorySeparatorChar, Application.isEditor);
-#endif
             }
 
             fcD2E.Inspect();
             fcMoM.Inspect();
-#if IA
             fcIA.Inspect();
-#endif
 
             // Banner Image
             Sprite bannerSprite;
@@ -108,14 +101,18 @@ namespace Assets.Scripts.UI.Screens
             trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (UIScaler.GetWidthUnits() - 18f) * UIScaler.GetPixelsPerUnit() / 2f, 18f * UIScaler.GetPixelsPerUnit());
             banner.AddComponent<CanvasRenderer>();
 
-
-            UnityEngine.UI.Image image = banner.AddComponent<UnityEngine.UI.Image>();
+            Image image = banner.AddComponent<Image>();
             bannerSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
             image.sprite = bannerSprite;
             image.rectTransform.sizeDelta = new Vector2(18f * UIScaler.GetPixelsPerUnit(), 7f * UIScaler.GetPixelsPerUnit());
 
+            // Heading
+            UIElement screenUI = new UIElement(null, "Screen_bg");
+            screenUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            screenUI.SetBGColor(Color.clear);
+
             // first button y offset
-            float offset = 12f;
+            float offset = 9.5f;
 
             // Draw D2E button
             bool D2E_need_import = fcD2E.NeedImport();
@@ -123,7 +120,7 @@ namespace Assets.Scripts.UI.Screens
             Color startColor = D2E_need_import ? Color.grey : Color.white;
             int fontSize = UIScaler.GetMediumFont();
 
-            UIElement ui = new UIElement();
+            UIElement ui = new UIElement(screenUI.GetTransform(), "Descent");
             ui.SetLocation((UIScaler.GetWidthUnits() - 30) / 2, offset, 30, 3);
             // If we need to import we can't play this type
             if (!D2E_need_import)
@@ -150,10 +147,10 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(ui, startColor);
 
             // Draw D2E import button
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "Descent_import");
             if (D2E_import_available || !D2E_need_import)
             {
-                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, offset + 3.2f, 14, 2);
+                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, offset + 3.3f, 14, 2);
                 StringKey keyText = D2E_need_import ? CONTENT_IMPORT : CONTENT_REIMPORT;
                 ui.SetText(keyText);
                 ui.SetFontSize(UIScaler.GetMediumFont());
@@ -166,8 +163,8 @@ namespace Assets.Scripts.UI.Screens
                 // only install button for Android
                 if (Application.platform == RuntimePlatform.Android)
                 {
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, offset + 3.2f, 24, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "Descent_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, offset + 3.3f, 24, 1.3f);
                     ui.SetText(CONTENT_INSTALL_VIA_GOOGLEPLAY, Color.red);
                     ui.SetButton(delegate { GotoWebBrowser(D2E_APP_URL_ANDROID); });
                     new UIElementBorder(ui, Color.red);
@@ -175,21 +172,21 @@ namespace Assets.Scripts.UI.Screens
                 else
                 {
                     // install and locate button for other systems
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.2f, 12, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "Descent_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.3f, 12, 1.3f);
                     ui.SetText(CONTENT_INSTALL_VIA_STEAM, Color.red);
                     ui.SetButton(delegate { GotoWebBrowser(D2E_APP_URL_STEAM); });
                     new UIElementBorder(ui, Color.red);
 
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.2f, 12, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "Descent_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.3f, 12, 1.3f);
                     ui.SetText(CONTENT_LOCATE, Color.red);
                     ui.SetButton(delegate { Import("D2E", true); });
                     new UIElementBorder(ui, Color.red);
                 }
             }
 
-            offset += 7f;
+            offset += 6.5f;
 
             // Draw MoM button
             bool MoM_need_import = fcMoM.NeedImport();
@@ -197,7 +194,7 @@ namespace Assets.Scripts.UI.Screens
             startColor = MoM_need_import ? Color.grey : Color.white;
             fontSize = UIScaler.GetMediumFont();
 
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "MoM");
             ui.SetLocation((UIScaler.GetWidthUnits() - 30) / 2, offset, 30, 3);
             // If we need to import we can't play this type
             if (!MoM_need_import)
@@ -224,10 +221,10 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(ui, startColor);
 
             // Draw MoM import button
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "MoM_import");
             if (MoM_import_available || !MoM_need_import)
             {
-                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, offset + 3.2f, 14, 2);
+                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, offset + 3.3f, 14, 2);
                 StringKey keyText = MoM_need_import ? CONTENT_IMPORT : CONTENT_REIMPORT;
                 ui.SetText(keyText);
                 ui.SetFontSize(UIScaler.GetMediumFont());
@@ -240,8 +237,8 @@ namespace Assets.Scripts.UI.Screens
                 // only install button for Android
                 if (Application.platform == RuntimePlatform.Android)
                 {
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, offset + 3.2f, 24, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "MoM_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, offset + 3.3f, 24, 1.3f);
                     ui.SetText(CONTENT_INSTALL_VIA_GOOGLEPLAY, Color.red);
                     ui.SetButton(delegate { GotoWebBrowser(MOM_APP_URL_ANDROID); });
                     new UIElementBorder(ui, Color.red);
@@ -249,73 +246,95 @@ namespace Assets.Scripts.UI.Screens
                 else
                 {
                     // install and locate button for other systems
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.2f, 12, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "MoM_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.3f, 12, 1.3f);
                     ui.SetText(CONTENT_INSTALL_VIA_STEAM, Color.red);
                     ui.SetButton(delegate { GotoWebBrowser(MOM_APP_URL_STEAM); });
                     new UIElementBorder(ui, Color.red);
 
-                    ui = new UIElement();
-                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.2f, 12, 1.3f);
+                    ui = new UIElement(screenUI.GetTransform(), "MoM_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.3f, 12, 1.3f);
                     ui.SetText(CONTENT_LOCATE, Color.red);
                     ui.SetButton(delegate { Import("MoM", true); });
                     new UIElementBorder(ui, Color.red);
                 }
             }
 
+            offset += 6.5f;
 
-#if IA
             // Draw IA button
-            startColor = Color.white;
-            if (fcIA.NeedImport())
+            bool IA_need_Import = fcIA.NeedImport();
+            bool IA_import_available = fcIA.ImportAvailable();
+            startColor = IA_need_Import ? Color.grey : Color.white;
+            fontSize = UIScaler.GetMediumFont();
+
+            ui = new UIElement(screenUI.GetTransform(), "IA");
+            ui.SetLocation((UIScaler.GetWidthUnits() - 30) / 2, offset, 30, 3);
+            // If we need to import we can't play this type
+            if (!IA_need_Import)
             {
-                startColor = Color.gray;
+                ui.SetText(IA_NAME, startColor);
+                ui.SetButton(delegate { IA(); });
             }
-            // Always disabled
-            startColor = Color.gray;
-            ui = new UIElement();
-            ui.SetLocation((UIScaler.GetWidthUnits() - 30) / 2, 21, 30, 3);
-            ui.SetText(IA_NAME, startColor);
-            ui.SetFontSize(UIScaler.GetMediumFont());
-            //ui.SetButton(delegate { IA(); });
+            else
+            {
+                string message = "";
+                if (IA_import_available)
+                {
+                    message = IA_NAME.Translate();
+                }
+                else
+                {
+                    message = IA_NAME.Translate() + System.Environment.NewLine + IA_APP_NOT_FOUND.Translate();
+                    fontSize = (int)(UIScaler.GetMediumFont() / 1.05f);
+                }
+                ui.SetText(message, startColor);
+            }
+
+            ui.SetFontSize(fontSize);
             ui.SetBGColor(new Color(0, 0.03f, 0f));
             new UIElementBorder(ui, startColor);
 
             // Draw IA import button
-            ui = new UIElement();
-            if (fcIA.ImportAvailable())
+            ui = new UIElement(screenUI.GetTransform(), "IA_import");
+            if (IA_import_available || !IA_need_Import)
             {
-                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, 24.2f, 14, 2);
-                StringKey keyText = fcIA.NeedImport() ? CONTENT_IMPORT : CONTENT_REIMPORT;
+                ui.SetLocation((UIScaler.GetWidthUnits() - 14) / 2, offset + 3.3f, 14, 2);
+                StringKey keyText = D2E_need_import ? CONTENT_IMPORT : CONTENT_REIMPORT;
                 ui.SetText(keyText);
                 ui.SetFontSize(UIScaler.GetMediumFont());
-                ui.SetButton(delegate { Import("IA"); });
+                ui.SetButton(delegate { Import("IA", !IA_import_available); });
                 ui.SetBGColor(new Color(0, 0.03f, 0f));
                 new UIElementBorder(ui);
             }
             else // Import unavailable
             {
-                ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, 24.2f, 24, 1);
+                // only install button for Android
                 if (Application.platform == RuntimePlatform.Android)
                 {
-                    ui.SetText(IA_APP_NOT_FOUND_ANDROID, Color.red);
+                    ui = new UIElement(screenUI.GetTransform(), "IA_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() - 24) / 2, offset + 3.3f, 24, 1.3f);
+                    ui.SetText(CONTENT_INSTALL_VIA_GOOGLEPLAY, Color.red);
+                    ui.SetButton(delegate { GotoWebBrowser(IA_APP_URL_ANDROID); });
+                    new UIElementBorder(ui, Color.red);
                 }
                 else
                 {
-                    ui.SetText(IA_APP_NOT_FOUND, Color.red);
+
+                    // install and locate button for other systems
+                    ui = new UIElement(screenUI.GetTransform(), "IA_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) - 13, offset + 3.3f, 12, 1.3f);
+                    ui.SetText(CONTENT_INSTALL_VIA_STEAM, Color.red);
+                    ui.SetButton(delegate { GotoWebBrowser(IA_APP_URL_STEAM); });
+                    new UIElementBorder(ui, Color.red);
+
+                    ui = new UIElement(screenUI.GetTransform(), "IA_import");
+                    ui.SetLocation((UIScaler.GetWidthUnits() / 2) + 1, offset + 3.3f, 12, 1.3f);
+                    ui.SetText(CONTENT_LOCATE, Color.red);
+                    ui.SetButton(delegate { Import("IA", true); });
+                    new UIElementBorder(ui, Color.red);
                 }
-                new UIElementBorder(ui, Color.red);
             }
-#endif
-
-            ui = new UIElement();
-            ui.SetLocation(1, UIScaler.GetBottom(-3), 8, 2);
-            ui.SetText(CommonStringKeys.EXIT, Color.red);
-            ui.SetFontSize(UIScaler.GetMediumFont());
-            ui.SetButton(Exit);
-            ui.SetBGColor(new Color(0, 0.03f, 0f));
-            new UIElementBorder(ui, Color.red);
-
             // will display a button if a new version is available
             VersionManager.GetLatestVersionAsync(CheckForNewValkyrieVersion);
         }
@@ -377,6 +396,11 @@ namespace Assets.Scripts.UI.Screens
                     app_filename = "Mansions of Madness";
                 }
 
+                if (type.Equals("IA"))
+                {
+                    app_filename = "Imperial assault";
+                }
+
                 string[] array_path = SFB.StandaloneFileBrowser.OpenFilePanel("Select file " + app_filename + ".exe", "", "exe", false);
 
                 // return when pressing back
@@ -407,12 +431,12 @@ namespace Assets.Scripts.UI.Screens
             {
                 importThread = new Thread(new ThreadStart(delegate { fcMoM.Import(path); }));
             }
-#if IA
+
             if (type.Equals("IA"))
             {
                 importThread = new Thread(new ThreadStart(delegate { fcIA.Import(path); }));
             }
-#endif
+
             importThread.Start();
         }
 
@@ -456,16 +480,39 @@ namespace Assets.Scripts.UI.Screens
         // Start game as IA
         public void IA()
         {
-            // Not working yet
-#if false
+            ValkyrieDebug.Log("INFO: Start game as IA");
+
             // Check if import neeeded
             if (!fcIA.NeedImport())
             {
-                Game.Get().gameType = new IAGameType();
+                Game game = Game.Get();
+                game.gameType = new IAGameType();
+
+                // Loading list of content - doing this later is not required
+                game.cd = new ContentData(game.gameType.DataDirectory());
+                // Check if we found anything
+                if (game.cd.GetPacks().Count == 0)
+                {
+                    ValkyrieDebug.Log("Error: Failed to find any content packs, please check that you have them present in: " + game.gameType.DataDirectory() + System.Environment.NewLine);
+                    Application.Quit();
+                }
+
+                // Load localization before content
                 loadLocalization();
+
+                // Load the base content - pack will be loaded later if required
+                game.cd.LoadContentID("");
+
+                // Download quests list
+                game.questsList = new QuestsManager();
+                // MoM also has a special reound controller
+                game.roundControl = new RoundControllerMoM();
+                Texture2D cursor = Resources.Load("sprites/CursorIA") as Texture2D;
+                Cursor.SetCursor(cursor, Vector2.zero, CursorMode.Auto);
+
                 Destroyer.MainMenu();
             }
-#endif
+
         }
 
         /// <summary>

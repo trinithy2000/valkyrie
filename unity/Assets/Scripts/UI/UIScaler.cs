@@ -85,31 +85,31 @@ public class UIScaler
         return (GetWidthUnits() / 2) + offset;
     }
 
-    public static int GetSmallestFont()
+    public static int GetSmallestFont(float scale = 1)
     {
-        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.7f);
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.7f * scale);
     }
 
     // small (standard) font size
-    public static int GetSmallFont()
+    public static int GetSmallFont(float scale = 1)
     {
-        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.8f);
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.8f * scale);
     }
 
-    public static int GetSemiSmallFont()
+    public static int GetSemiSmallFont(float scale = 1)
     {
-        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.92f);
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 0.92f * scale);
     }
     // medium font size
-    public static int GetMediumFont()
+    public static int GetMediumFont(float scale = 1)
     {
-        return Mathf.RoundToInt(GetPixelsPerUnit() * 1.2f);
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 1.2f * scale);
     }
 
     // large font size
-    public static int GetLargeFont()
+    public static int GetLargeFont(float scale = 1)
     {
-        return Mathf.RoundToInt(GetPixelsPerUnit() * 2.3f);
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 2.3f * scale);
     }
 
     public static float GetRelWidth(float width)

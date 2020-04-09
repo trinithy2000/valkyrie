@@ -193,14 +193,21 @@ namespace Assets.Scripts.UI.Screens
             }
 
             // Heading
-            UIElement ui = new UIElement();
+
+            // Heading
+            UIElement screenUI = new UIElement(null, "Screen_bg");
+            screenUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+            screenUI.SetBGColor(Color.clear);
+
+
+            UIElement ui = new UIElement(screenUI.GetTransform(),"Quest_name");
             ui.SetLocation(2, 1, UIScaler.GetWidthUnits() - 4, 3);
             ui.SetText(new StringKey("val", "SELECT", game.gameType.QuestName()));
             ui.SetFont(game.gameType.GetHeaderFont());
             ui.SetFontSize(UIScaler.GetLargeFont());
 
             // back to menu
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "Btn_back");
             ui.SetLocation(1, 0.5f, 8, 1.5f);
             ui.SetText(CommonStringKeys.BACK, Color.red);
             ui.SetFont(Game.Get().gameType.GetHeaderFont());
@@ -209,7 +216,7 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(ui, Color.red);
 
             // initialize text indicator for filtered scenario
-            text_number_of_filtered_scenario = new UIElement();
+            text_number_of_filtered_scenario = new UIElement(screenUI.GetTransform(), "text_number_of_filtered_scenario");
             text_number_of_filtered_scenario.SetLocation(1, 3.6f, 20, 1.2f);
             text_number_of_filtered_scenario.SetText(" ");
             text_number_of_filtered_scenario.SetTextAlignment(TextAnchor.MiddleLeft);
@@ -217,7 +224,7 @@ namespace Assets.Scripts.UI.Screens
             text_number_of_filtered_scenario.SetFontSize(UIScaler.GetSmallFont());
 
             // Show filter button
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "Btn_filter");
             Texture2D filterTex = null;
             filterTex = Resources.Load("sprites/filter") as Texture2D;
             ui.SetLocation(UIScaler.GetWidthUnits() - 1f - 1.5f - 1.5f, 3.5f, 1.5f, 1.5f);
@@ -226,7 +233,7 @@ namespace Assets.Scripts.UI.Screens
             new UIElementBorder(ui);
 
             // Show sort button
-            ui = new UIElement();
+            ui = new UIElement(screenUI.GetTransform(), "Btn_sort");
             Texture2D sortTex = null;
             sortTex = Resources.Load("sprites/sort") as Texture2D;
             ui.SetLocation(UIScaler.GetWidthUnits() - 1f - 1.5f, 3.5f, 1.5f, 1.5f);
@@ -889,7 +896,7 @@ namespace Assets.Scripts.UI.Screens
             }
 
             return false;
-        }
+        } 
 
 
         public IEnumerator DrawQuestList()

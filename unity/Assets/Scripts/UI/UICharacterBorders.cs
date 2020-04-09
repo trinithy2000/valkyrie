@@ -26,13 +26,13 @@ namespace Assets.Scripts.UI
                 tag = tag
             };
 
-            float height = rectTrans.rect.height * GameUtils.ReturnValueGameType<float>(1f, 1.55f);
-            float width = rectTrans.rect.width * GameUtils.ReturnValueGameType<float>(1f, 1.3f);
-         
+            float height = rectTrans.rect.height * GameUtils.ReturnValueGameType<float>(1f, 1.55f, 1f);
+            float width = rectTrans.rect.width * GameUtils.ReturnValueGameType<float>(1f, 1.3f, 1f);
+
             bLine[0].AddComponent<UnityEngine.UI.RawImage>().texture = border;
             bLine[0].transform.SetParent(transform);
-            bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, GameUtils.ReturnValueGameType<float>(0, -height/3.75f), height);
-            bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, GameUtils.ReturnValueGameType<float>(0, -width/ 9f), width);
+            bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, GameUtils.ReturnValueGameType<float>(0, -height / 3.75f, 0), height);
+            bLine[0].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, GameUtils.ReturnValueGameType<float>(0, -width / 9f, 0), width);
             bLine[0].transform.SetAsFirstSibling();
 
             bLine[1] = new GameObject("NameChar_0")
@@ -40,14 +40,14 @@ namespace Assets.Scripts.UI
                 tag = tag
             };
 
-            float inset = rectTrans.rect.height / GameUtils.ReturnValueGameType<float>(6.9f,-10f);
+            float inset = rectTrans.rect.height / GameUtils.ReturnValueGameType<float>(6.9f, -10f, 6.9f);
 
             bLine[1].AddComponent<UnityEngine.UI.Text>().text = content.Translate();
             bLine[1].transform.SetParent(transform);
             bLine[1].GetComponent<UnityEngine.UI.Text>().color = Color.black;
             bLine[1].GetComponent<UnityEngine.UI.Text>().alignment = TextAnchor.MiddleCenter;
             bLine[1].GetComponent<UnityEngine.UI.Text>().font = gameType.GetHeaderFont();
-            bLine[1].GetComponent<UnityEngine.UI.Text>().fontSize = GameUtils.ReturnValueGameType<int>(UIScaler.GetSmallestFont(),UIScaler.GetSmallFont());
+            bLine[1].GetComponent<UnityEngine.UI.Text>().fontSize = GameUtils.ReturnValueGameType<int>(UIScaler.GetSmallestFont(), UIScaler.GetSmallFont(), UIScaler.GetSmallestFont());
             bLine[1].GetComponent<UnityEngine.UI.Text>().horizontalOverflow = HorizontalWrapMode.Overflow;
             bLine[1].GetComponent<UnityEngine.UI.Text>().verticalOverflow = VerticalWrapMode.Overflow;
             bLine[1].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, inset, 10f);

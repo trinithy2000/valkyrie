@@ -1,10 +1,17 @@
 ﻿using Assets.Scripts.UI.MOM;
 using Assets.Scripts.UI.D2E;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace Assets.Scripts.UI
 {
     public class UIElementBorderDialog
     {
+        protected Transform transform;
+        protected RectTransform rectTrans;
+        protected string tag;
+        protected string internalName;
+        protected readonly string[] bNames = new string[] { "bottom", "top", "left", "right", "upLeft", "upRight", "downRight", "downLeft", "arrow" };
 
         public UIElementBorderDialog(UIElement element, string dialogType)
         {

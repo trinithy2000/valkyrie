@@ -27,7 +27,7 @@ public class CommonScriptFuntions
         int H = myTexture2D.height;
         int x = 0;
         int y = 0;
-        Color32[] pix3 = rotateSquare(pix2, (Math.PI / 180 * angle), myTexture2D);
+        Color32[] pix3 = RotateSquare(pix2, (Math.PI / 180 * angle), myTexture2D);
         for (int j = 0; j < H; j++)
         {
             for (int i = 0; i < W; i++)
@@ -41,7 +41,7 @@ public class CommonScriptFuntions
         return result;
     }
 
-    private static Color32[] rotateSquare(Color32[] arr, double phi, Texture2D originTexture)
+    private static Color32[] RotateSquare(Color32[] arr, double phi, Texture2D originTexture)
     {
         int x;
         int y;

@@ -3,23 +3,29 @@ using UnityEngine.UI;
 
 namespace Assets.Scripts.UI.D2E
 {
-    public class UIElementBorderDialog_D2E
+    public class UIElementBorderDialog_D2E : UIElementBorderDialog
     {
         protected GameObject[] bLine;
+ 
 
         public UIElementBorderDialog_D2E(UIElement element, string dialogType)
         {
+           transform = element.GetTransform();
+           rectTrans = element.GetRectTransform();
+           tag = element.GetTag();
+           internalName = element.GetInternalName();
+
             if (CommonString.dialog.Equals(dialogType))
             {
-                CreateBorderDialog(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateBorderDialog();
             }
             else if (CommonString.dialogOne.Equals(dialogType))
             {
-                CreateBorderDialogOne(element.GetTransform(), element.GetRectTransform(), element.GetTag());
+                CreateBorderDialogOne();
             }
 
         }
-        private void CreateBorderDialog(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateBorderDialog()
         {
             bLine = new GameObject[6];
 
@@ -29,26 +35,26 @@ namespace Assets.Scripts.UI.D2E
                 bLine[i].tag = tag;
                 if (i == 4)
                 {
-                    bLine[i].AddComponent<UnityEngine.UI.RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarTop") as Texture2D;
+                    bLine[i].AddComponent<RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarTop") as Texture2D;
                 }
                 else if (i == 5)
                 {
-                    bLine[i].AddComponent<UnityEngine.UI.RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarBottom") as Texture2D;
+                    bLine[i].AddComponent<RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarBottom") as Texture2D;
                 }
                 else if (i == 0 || i == 1)
                 {
-                    bLine[i].AddComponent<UnityEngine.UI.RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarVer") as Texture2D;
+                    bLine[i].AddComponent<RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarVer") as Texture2D;
                 }
                 else
                 {
-                    bLine[i].AddComponent<UnityEngine.UI.RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarHor") as Texture2D;
+                    bLine[i].AddComponent<RawImage>().texture = Resources.Load("sprites/borders/d2e/dlgBarHor") as Texture2D;
                 }
                 bLine[i].transform.SetParent(transform);
             }
 
             // rectangle
 
-            DialogSimpleBox(rectTrans);
+            DialogSimpleBox();
             // image 
 
             bLine[4].GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, -19f, 40f);
@@ -59,7 +65,7 @@ namespace Assets.Scripts.UI.D2E
 
         }
 
-        private void DialogSimpleBox(RectTransform rectTrans)
+        private void DialogSimpleBox()
         {
             float thick = 0.2f * UIScaler.GetPixelsPerUnit();
             float anchor = 5f;
@@ -78,7 +84,7 @@ namespace Assets.Scripts.UI.D2E
 
         }
 
-        private void DialogSimpleBoxTwo(RectTransform rectTrans)
+        private void DialogSimpleBoxTwo()
         {
             float anchor = 40f;
 
@@ -97,7 +103,7 @@ namespace Assets.Scripts.UI.D2E
         }
 
 
-        private void CreateBorderDialogOne(Transform transform, RectTransform rectTrans, string tag)
+        private void CreateBorderDialogOne()
         {
             bLine = new GameObject[8];
             int[] angles = { 180, 0, 0, 180 };
@@ -106,7 +112,7 @@ namespace Assets.Scripts.UI.D2E
             // create 4 lines
             for (int i = 0; i < 8; i++)
             {
-                bLine[i] = new GameObject("BorderDialog" + i)
+                bLine[i] = new GameObject("BorderDialog_" + internalName +"_" + i)
                 {
                     tag = tag
                 };
@@ -124,15 +130,15 @@ namespace Assets.Scripts.UI.D2E
                 }
                 else if (i < 8)
                 {
-                    bLine[i].AddComponent<UnityEngine.UI.RawImage>().texture = CommonImageKeys.d2e_border_corner;
-                    RectTransform rectTransform = bLine[i].GetComponent<UnityEngine.UI.RawImage>().rectTransform;
+                    bLine[i].AddComponent<RawImage>().texture = CommonImageKeys.d2e_border_corner;
+                    RectTransform rectTransform = bLine[i].GetComponent<RawImage>().rectTransform;
                     rectTransform.Rotate(new Vector3(0, 0, anglesCorner[i - 4]));
                 }
 
                 bLine[i].transform.SetParent(transform);
             }
-            DialogSimpleBox(rectTrans);
-            DialogSimpleBoxTwo(rectTrans);
+            DialogSimpleBox();
+            DialogSimpleBoxTwo();
         }
 
     }

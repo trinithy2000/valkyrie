@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Content;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Events;
 
 
 namespace Assets.Scripts.UI
@@ -17,6 +18,7 @@ namespace Assets.Scripts.UI
         protected GameObject bg;
 
         protected string tag = Game.DIALOG;
+        protected string internalName = "";
 
         protected static float textPaddingDefault = 0.25f;
 
@@ -26,8 +28,24 @@ namespace Assets.Scripts.UI
         protected GameObject textWidthObj;
         protected GameObject textHeightObj;
 
-        protected UnityEngine.Events.UnityAction buttonCall;
-        protected UnityEngine.Events.UnityAction<string> buttonCallWithParams;
+        protected UnityAction buttonCall;
+        protected UnityAction<string> buttonCallWithParams;
+
+
+        public UIElement(Transform parent, string t = "", string n = "")
+        {
+            if (t.Length > 0)
+            {
+                tag = t;
+            }
+
+            if (n.Length > 0)
+            {
+                internalName = n;
+            }
+
+            CreateBG(parent);
+        }
 
         /// <summary>
         /// Construct a UI element with options tag name and parent.</summary>
@@ -52,6 +70,20 @@ namespace Assets.Scripts.UI
         }
 
         /// <summary>
+        /// Construct a UI element with options tag name and parent.</summary>
+        /// <param name="parent">Parent transform, cannot be changed after construction, defaults to the UI Panel.</param>
+        /// <param name="parent">Parent transform, cannot be changed after construction, defaults to the UI Panel.</param>
+        public UIElement(Transform parent, string iname)
+        {
+            if (iname.Length > 0)
+            {
+                internalName = iname;
+            }
+
+            CreateBG(parent);
+        }
+
+        /// <summary>
         /// Destroy a UI element.</summary>
         public void Destroy()
         {
@@ -60,14 +92,21 @@ namespace Assets.Scripts.UI
                 Object.Destroy(bg);
             }
         }
-
         /// <summary>
         /// The action if a button is assigned</summary>
         /// <returns>
         /// The action .</returns>
-        public UnityEngine.Events.UnityAction GetAction()
+        public UnityAction GetAction()
         {
             return buttonCall;
+        }
+
+        /// <summary></summary>
+        /// <returns>
+        /// The action .</returns>
+        public string GetInternalName()
+        {
+            return internalName;
         }
 
         /// <summary>
@@ -101,11 +140,11 @@ namespace Assets.Scripts.UI
         /// Internal method called by constructor to set up base GameObject.</summary>
         protected virtual void CreateBG(Transform parent)
         {
-            bg = new GameObject("UIBG")
+            bg = new GameObject("UIBG-" + internalName)
             {
                 tag = tag
             };
-            UnityEngine.UI.Image uiImage = bg.AddComponent<UnityEngine.UI.Image>();
+            Image uiImage = bg.AddComponent<Image>();
             // default color
             uiImage.color = new Color(0, 0, 0, (float)0.9);
             if (parent == null)
@@ -123,7 +162,7 @@ namespace Assets.Scripts.UI
         /// Can also be used to change image render color, is reset to white when image is set.</remarks>
         public void SetBGColor(Color c)
         {
-            bg.GetComponent<UnityEngine.UI.Image>().color = c;
+            bg.GetComponent<Image>().color = c;
         }
 
         /// <summary>
@@ -139,7 +178,7 @@ namespace Assets.Scripts.UI
             }
 
             SetBGColor(Color.white);
-            bg.GetComponent<UnityEngine.UI.Image>().sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
+            bg.GetComponent<Image>().sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero, 1);
         }
 
         /// <summary>
@@ -155,7 +194,7 @@ namespace Assets.Scripts.UI
             }
 
             SetBGColor(Color.white);
-            bg.GetComponent<UnityEngine.UI.Image>().sprite = sprite;
+            bg.GetComponent<Image>().sprite = sprite;
         }
 
         public Image GetImage()
@@ -201,7 +240,7 @@ namespace Assets.Scripts.UI
                 return;
             }
 
-            text.GetComponent<UnityEngine.UI.Text>().horizontalOverflow = mode;
+            text.GetComponent<Text>().horizontalOverflow = mode;
         }
 
         /// <summary>
@@ -209,12 +248,12 @@ namespace Assets.Scripts.UI
         /// <param name="call">Function to call on button press.</param>
         /// <remarks>
         /// Adds button properties to background area and text.</remarks>
-        public virtual void SetButton(UnityEngine.Events.UnityAction call)
+        public virtual void SetButton(UnityAction call)
         {
-            UnityEngine.UI.Button uiButton = bg.GetComponent<UnityEngine.UI.Button>();
+            Button uiButton = bg.GetComponent<Button>();
             if (uiButton == null)
             {
-                uiButton = bg.AddComponent<UnityEngine.UI.Button>();
+                uiButton = bg.AddComponent<Button>();
             }
             else
             {
@@ -225,10 +264,10 @@ namespace Assets.Scripts.UI
             uiButton.onClick.AddListener(call);
             if (text != null)
             {
-                uiButton = text.GetComponent<UnityEngine.UI.Button>();
+                uiButton = text.GetComponent<Button>();
                 if (uiButton == null)
                 {
-                    uiButton = text.AddComponent<UnityEngine.UI.Button>();
+                    uiButton = text.AddComponent<Button>();
                 }
                 else
                 {
@@ -246,14 +285,14 @@ namespace Assets.Scripts.UI
         /// <param name="call">Function to call on button press with string parameters.</param>
         /// <remarks>
         /// Adds button properties to background area and text.</remarks>
-        public virtual void SetButtonWithParams(UnityEngine.Events.UnityAction<string> call, string value)
+        public virtual void SetButtonWithParams(UnityAction<string> call, string value)
         {
-            UnityEngine.UI.Button uiButton = bg.AddComponent<UnityEngine.UI.Button>();
+            Button uiButton = bg.AddComponent<Button>();
             uiButton.interactable = true;
             uiButton.onClick.AddListener(delegate { call(value); });
             if (text != null)
             {
-                uiButton = text.AddComponent<UnityEngine.UI.Button>();
+                uiButton = text.AddComponent<Button>();
                 uiButton.interactable = true;
                 uiButton.onClick.AddListener(delegate { call(value); });
             }
@@ -301,14 +340,14 @@ namespace Assets.Scripts.UI
         /// <param name="textColor">Color to display text.</param>
         public virtual void SetText(string content, Color textColor)
         {
-            UnityEngine.UI.Text uiText = null;
+            Text uiText = null;
             if (text == null)
             {
                 text = new GameObject("UIText")
                 {
                     tag = tag
                 };
-                uiText = text.AddComponent<UnityEngine.UI.Text>();
+                uiText = text.AddComponent<Text>();
                 uiText.alignment = TextAnchor.MiddleCenter;
                 uiText.verticalOverflow = VerticalWrapMode.Overflow;
                 uiText.font = Game.Get().gameType.GetFont();
@@ -324,19 +363,19 @@ namespace Assets.Scripts.UI
 
                 if (buttonCall != null)
                 {
-                    UnityEngine.UI.Button uiButton = text.AddComponent<UnityEngine.UI.Button>();
+                    Button uiButton = text.AddComponent<Button>();
                     uiButton.interactable = true;
                     uiButton.onClick.AddListener(buttonCall);
                 }
                 if (buttonCallWithParams != null)
                 {
-                    UnityEngine.UI.Button uiButton = text.AddComponent<UnityEngine.UI.Button>();
+                    Button uiButton = text.AddComponent<Button>();
                     uiButton.interactable = true;
                     // use button text as parameters
                     uiButton.onClick.AddListener(delegate { buttonCallWithParams(content); });
                 }
             }
-            uiText = text.GetComponent<UnityEngine.UI.Text>();
+            uiText = text.GetComponent<Text>();
             uiText.color = textColor;
             if (textColor.Equals(Color.black))
             {
@@ -356,7 +395,7 @@ namespace Assets.Scripts.UI
         /// Must be called after SetText.</remarks>
         public virtual void SetFontSize(int size)
         {
-            text.GetComponent<UnityEngine.UI.Text>().fontSize = size;
+            text.GetComponent<Text>().fontSize = size;
         }
 
         /// <summary>
@@ -366,7 +405,7 @@ namespace Assets.Scripts.UI
         /// Must be called after SetText.</remarks>
         public virtual void SetFontStyle(FontStyle style)
         {
-            text.GetComponent<UnityEngine.UI.Text>().fontStyle = style;
+            text.GetComponent<Text>().fontStyle = style;
         }
 
         /// <summary>
@@ -377,7 +416,7 @@ namespace Assets.Scripts.UI
         public virtual void SetFont(Font font)
         {
             if (text == null) { ValkyrieTools.ValkyrieDebug.Log("SetFont called without text"); return; }
-            text.GetComponent<UnityEngine.UI.Text>().font = font;
+            text.GetComponent<Text>().font = font;
         }
 
         /// <summary>
@@ -388,7 +427,7 @@ namespace Assets.Scripts.UI
         public virtual void SetTextAlignment(TextAnchor align)
         {
             if (text == null) { ValkyrieTools.ValkyrieDebug.Log("SetTextAlignment called without text"); return; }
-            text.GetComponent<UnityEngine.UI.Text>().alignment = align;
+            text.GetComponent<Text>().alignment = align;
         }
 
         /// <summary>
@@ -402,7 +441,7 @@ namespace Assets.Scripts.UI
                 return "";
             }
 
-            return text.GetComponent<UnityEngine.UI.Text>().text;
+            return text.GetComponent<Text>().text;
         }
 
         /// <summary>
@@ -416,7 +455,7 @@ namespace Assets.Scripts.UI
                 return Color.clear;
             }
 
-            return text.GetComponent<UnityEngine.UI.Text>().color;
+            return text.GetComponent<Text>().color;
         }
 
         /// <summary>
@@ -430,7 +469,7 @@ namespace Assets.Scripts.UI
                 return true;
             }
 
-            return text.GetComponent<UnityEngine.UI.Text>().text.Length == 0;
+            return text.GetComponent<Text>().text.Length == 0;
         }
 
         /// <summary>
@@ -472,7 +511,7 @@ namespace Assets.Scripts.UI
         /// The size of the text in UIScaler units.</returns>
         public float GetStringWidth()
         {
-            return text.GetComponent<UnityEngine.UI.Text>().preferredWidth / UIScaler.GetPixelsPerUnit();
+            return text.GetComponent<Text>().preferredWidth / UIScaler.GetPixelsPerUnit();
         }
 
         /// <summary>
@@ -505,18 +544,17 @@ namespace Assets.Scripts.UI
         /// The size of the text in UIScaler units.</returns>
         public float GetStringWidth(string content, int fontSize, Font fontName)
         {
-            float width = 0f;
             if (textWidthObj == null)
             {
                 textWidthObj = new GameObject("TextSizing");
-                textWidthObj.AddComponent<UnityEngine.UI.Text>();
+                textWidthObj.AddComponent<Text>();
                 RectTransform transform = textWidthObj.GetComponent<RectTransform>();
                 transform.offsetMax = new Vector2(20000, 20000);
-                textWidthObj.GetComponent<UnityEngine.UI.Text>().font = fontName;
-                textWidthObj.GetComponent<UnityEngine.UI.Text>().fontSize = fontSize;
+                textWidthObj.GetComponent<Text>().font = fontName;
+                textWidthObj.GetComponent<Text>().fontSize = fontSize;
             }
-            textWidthObj.GetComponent<UnityEngine.UI.Text>().text = content;
-            width = (textWidthObj.GetComponent<UnityEngine.UI.Text>().preferredWidth / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2);
+            textWidthObj.GetComponent<Text>().text = content;
+            float width = (textWidthObj.GetComponent<Text>().preferredWidth / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2);
             Object.Destroy(textWidthObj);
             textWidthObj = null;
             return width;
@@ -618,7 +656,7 @@ namespace Assets.Scripts.UI
         /// <returns>Amount of vertical space, less padding value in UIScaler units</returns>
         protected float GetVerticalTextSpace()
         {
-            float gap = text.GetComponent<RectTransform>().rect.height - text.GetComponent<UnityEngine.UI.Text>().preferredHeight;
+            float gap = text.GetComponent<RectTransform>().rect.height - text.GetComponent<Text>().preferredHeight;
             gap -= textPaddingDefault * 2f;
             return gap / UIScaler.GetPixelsPerUnit();
         }
@@ -658,7 +696,7 @@ namespace Assets.Scripts.UI
         /// <returns>New UIElement height in UIScaler units</returns>
         public virtual float HeightToTextPadding(float space = 0)
         {
-            float newHeight = (text.GetComponent<UnityEngine.UI.Text>().preferredHeight / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2f) + space;
+            float newHeight = (text.GetComponent<Text>().preferredHeight / UIScaler.GetPixelsPerUnit()) + (textPaddingDefault * 2f) + space;
             if (newHeight < 1 + (textPaddingDefault * 2f))
             {
                 newHeight = 1 + (textPaddingDefault * 2f);

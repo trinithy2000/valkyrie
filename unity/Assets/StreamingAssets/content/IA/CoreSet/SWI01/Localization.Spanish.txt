@@ -1,0 +1,14 @@
+.,Spanish
+BIGEXPANSION,Expansiones grandes
+SMALLEXPANSION,Expansiones pequeñas
+ALLYPACK,Pack de aliados
+VILLAINPACK,Pack de villanos
+
+DIALA_PASSIL,Diala passil
+FEEN_SIGNIS,Feen signis
+GAARKHAN,Gaarkhan
+GIDEON_ARGUS,Gideon argus
+JYN_ODAN,Jyn odan
+MAK_ESHKAREY,Mak eshkarey
+
+

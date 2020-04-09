@@ -6,6 +6,10 @@ namespace Assets.Scripts.UI
 {
     public class UITitleBackGround
     {
+        protected Transform transform;
+        protected RectTransform rectTrans;
+        protected string tag;
+        protected string internalName;
 
         public UITitleBackGround(UIElement element, string dialogType)
         {
@@ -21,10 +25,10 @@ namespace Assets.Scripts.UI
         {
             values[2] = rectTrans.rect.height * values[2];
             values[3] = rectTrans.rect.width * values[3];
-            SetRectTransformSimple(bline, transform, rectTrans, values);
+            SetRectTransformSimple(bline, transform, values);
         }
 
-        protected void SetRectTransformSimple(GameObject bline, Transform transform, RectTransform rectTrans, float[] values)
+        protected void SetRectTransformSimple(GameObject bline, Transform transform, float[] values)
         {
             bline.transform.SetParent(transform);
             bline.GetComponent<RectTransform>().SetInsetAndSizeFromParentEdge(RectTransform.Edge.Top, values[0], values[2]);

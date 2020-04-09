@@ -4,6 +4,7 @@ public class CommonImageKeys
 {
 
     public static readonly Texture2D mom_border_mansion = Resources.Load("sprites/borders/mom/cutsceneFrame") as Texture2D;
+    public static readonly Texture2D mom_button_box = Resources.Load("sprites/backgrounds/mom/buttonBox") as Texture2D;
     public static readonly Texture2D mom_heroTry = Resources.Load("sprites/bars/mom/partyTray") as Texture2D;
     public static readonly Texture2D mom_border_character = Resources.Load("sprites/borders/mom/charBorder") as Texture2D;
     public static readonly Texture2D mom_border_item_tittle = Resources.Load("sprites/borders/mom/itemTittle") as Texture2D;
@@ -61,6 +62,7 @@ public class CommonImageKeys
     //******************************************************************************************************************************
 
     public static readonly Texture2D d2e_bgnd_sreen = Resources.Load("sprites/backgrounds/d2e/menuBgnd") as Texture2D;
+    public static readonly Texture2D d2e_button_box = Resources.Load("sprites/backgrounds/d2e/buttonBox") as Texture2D;
     public static readonly Texture2D d2e_bgnd_pergam = Resources.Load("sprites/backgrounds/d2e/pergamQuest") as Texture2D;
     public static readonly Texture2D d2e_bgnd_pergam_gold = Resources.Load("sprites/backgrounds/d2e/pergamGold") as Texture2D;
     public static readonly Texture2D d2e_bgnd_pergam_red = Resources.Load("sprites/backgrounds/d2e/pergamRed") as Texture2D;
@@ -96,6 +98,15 @@ public class CommonImageKeys
     public static readonly Texture2D d2e_border_frame_monster_1x2 = Resources.Load("sprites/borders/d2e/Frame_Monster_1x2") as Texture2D;
     public static readonly Texture2D d2e_border_frame_monster_2x3 = Resources.Load("sprites/borders/d2e/Frame_Monster_2x3") as Texture2D;
     public static readonly Texture2D d2e_border_frame_empty_1x2 = Resources.Load("sprites/borders/d2e/Empty_Monster_1x2") as Texture2D;
+
+    //******************************************************************************************************************************
+
+    public static readonly Texture2D ia_bgnd_sreen = Resources.Load("sprites/backgrounds/ia/menuBgnd") as Texture2D;
+    public static readonly Texture2D ia_button_box = Resources.Load("sprites/backgrounds/ia/menuButtonBox") as Texture2D;
+    public static readonly Texture2D ia_btn_menu = Resources.Load("sprites/buttons/ia/greyButton") as Texture2D;
+    public static readonly Texture2D ia_border_frame_empty = Resources.Load("sprites/borders/mom/arrowDlg") as Texture2D;
+    public static readonly Texture2D ia_border_frame = Resources.Load("sprites/borders/mom/arrowDlg") as Texture2D;
+   
 
     //******************************************************************************************************************************
 
