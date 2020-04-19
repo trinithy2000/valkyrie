@@ -1,17 +1,20 @@
-using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.IO;
+using System.Linq;
+using System;
 
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
 {
-    internal enum TokenType
+    enum TokenType
     {
         EOF,
         Invalid,
         String,
         QuotedString,
         Comment,
-
+        
         Semicolon,  // ;
         Comma,      // ,
         Eq,         // =
@@ -20,36 +23,36 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
         LBrace,     // {
         RBrace,     // }      
     }
-
-    internal class Token
+    
+    class Token
     {
         public TokenType type;
-
+        
         // the line of the input stream the token starts in (0-based)
         public int line;
-
+        
         // start and past-the-end positions of the token in the input stream
         public int begin, end;
     }
-
-    internal class TokenList : List<Token>
+    
+    class TokenList : List<Token>
     {
     }
-
-    internal class Lexer
+    
+    class Lexer
     {
-        private string text;
-        private int pos;
-        private int length;
-        private int line;
+        string text;
+        int pos;
+        int length;
+        int line;
 
         public static TokenList Tokenize(string text)
         {
-            Lexer lexer = new Lexer();
+            var lexer = new Lexer();
             lexer.SetText(text);
             return lexer.ScanAll();
         }
-
+        
         public void SetText(string text)
         {
             this.text = text + "    "; // to prevent out-of-bounds access during look ahead
@@ -57,35 +60,31 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             length = text.Length;
             line = 0;
         }
-
+        
         public TokenList ScanAll()
         {
-            TokenList tokens = new TokenList();
-
+            var tokens = new TokenList();
+            
             while (true)
             {
-                Token tok = new Token();
+                var tok = new Token();
                 ScanOne(tok);
                 tokens.Add(tok);
                 if (tok.type == TokenType.EOF)
-                {
                     break;
-                }
             }
             return tokens;
         }
-
-        private void UpdateNewlineStats(char ch)
+        
+        void UpdateNewlineStats(char ch)
         {
             if (ch == '\n')
-            {
                 line++;
-            }
         }
-
+        
         // tokens list is modified in the case when we add BrokenLine token and need to remove already
         // added tokens for the current line
-        private void ScanOne(Token tok)
+        void ScanOne(Token tok)
         {
             while (true)
             {
@@ -94,98 +93,74 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
                     UpdateNewlineStats(text[pos]);
                     pos++;
                 }
-
+                
                 if (pos >= length)
                 {
                     tok.type = TokenType.EOF;
                     break;
                 }
-
+                
                 char ch = text[pos];
-                char ch2 = text[pos + 1];
-
+                char ch2 = text[pos+1];
+                
                 if (ch == '\"')
-                {
                     ScanQuotedString(tok);
-                }
                 else if (ch == '/' && ch2 == '*')
-                {
                     ScanMultilineComment(tok);
-                }
                 else if (ch == '/' && ch2 == '/')
-                {
                     ScanComment(tok);
-                }
                 else if (IsOperator(ch))
-                {
                     ScanOperator(tok);
-                }
                 else
-                {
                     ScanString(tok); // be more robust and accept whatever is left
-                }
-
                 return;
-            }
+            }    
         }
-
-        private void ScanString(Token tok)
+        
+        void ScanString(Token tok)
         {
             tok.type = TokenType.String;
             tok.begin = pos;
             while (pos < length)
             {
                 char ch = text[pos];
-                char ch2 = text[pos + 1];
-
+                char ch2 = text[pos+1];
+                
                 if (Char.IsWhiteSpace(ch))
-                {
                     break;
-                }
                 else if (ch == '\"')
-                {
                     break;
-                }
                 else if (ch == '/' && ch2 == '*')
-                {
                     break;
-                }
                 else if (ch == '/' && ch2 == '/')
-                {
                     break;
-                }
                 else if (IsOperator(ch))
-                {
                     break;
-                }
-
                 pos++;
             }
             tok.end = pos;
             tok.line = line;
         }
-
-        private void ScanQuotedString(Token tok)
+        
+        void ScanQuotedString(Token tok)
         {
             tok.type = TokenType.QuotedString;
             tok.begin = pos;
             pos++;
-
+            
             while (pos < length)
             {
                 // ignore escaped quotes
-                if (text[pos] == '\\' && text[pos + 1] == '\"')
+                if (text[pos] == '\\' && text[pos+1] == '\"')
                 {
                     pos += 2;
                     continue;
                 }
-
+            
                 // note that we close unclosed quotes
                 if (text[pos] == '\"')
-                {
                     break;
-                }
-
+                
                 UpdateNewlineStats(text[pos]);
                 pos++;
             }
@@ -194,19 +169,17 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             tok.line = line;
         }
 
-        private void ScanMultilineComment(Token tok)
+        void ScanMultilineComment(Token tok)
         {
             tok.type = TokenType.Comment;
             tok.begin = pos;
             pos += 2;
-
+            
             while (pos < length)
             {
-                if (text[pos] == '*' && text[pos + 1] == '/')
-                {
+                if (text[pos] == '*' && text[pos+1] == '/')
                     break;
-                }
-
+                
                 // we support multiline comments
                 UpdateNewlineStats(text[pos]);
                 pos++;
@@ -216,7 +189,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             tok.line = line;
         }
 
-        private void ScanComment(Token tok)
+        void ScanComment(Token tok)
         {
             tok.type = TokenType.Comment;
             tok.begin = pos;
@@ -225,10 +198,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             while (pos < length)
             {
                 if (text[pos] == '\n')
-                {
                     break;
-                }
-
                 pos++;
             }
             UpdateNewlineStats(text[pos]);
@@ -236,18 +206,15 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             tok.end = pos;
             tok.line = line;
         }
-
-        private bool IsOperator(char ch)
+        
+        bool IsOperator(char ch)
         {
             if (ch == ';' || ch == ',' || ch == '=' || ch == '(' || ch == ')' || ch == '{' || ch == '}')
-            {
                 return true;
-            }
-
             return false;
         }
 
-        private void ScanOperator(Token tok)
+        void ScanOperator(Token tok)
         {
             switch (text[pos])
             {
@@ -261,8 +228,8 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
                 default: return;
             }
         }
-
-        private void ScanOperatorSpecific(Token tok, TokenType type)
+        
+        void ScanOperatorSpecific(Token tok, TokenType type)
         {
             tok.type = type;
             tok.begin = pos;
@@ -271,6 +238,6 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi.PBX
             tok.line = line;
         }
     }
-
+    
 
 } // namespace UnityEditor.iOS.Xcode

@@ -1,8 +1,9 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using ValkyrieTools;
 
 public class EditorComponentPuzzle : EditorComponentEvent
@@ -19,16 +20,18 @@ public class EditorComponentPuzzle : EditorComponentEvent
 
     private readonly StringKey PUZZLE_SELECT_SKILL = new StringKey("val", "PUZZLE_SELECT_SKILL");
     private readonly StringKey SELECT_IMAGE = new StringKey("val", "SELECT_IMAGE");
-    private QuestData.Puzzle puzzleComponent;
-    private UIElementEditable levelUIE;
-    private UIElementEditable altLevelUIE;
-    private UIElementEditable puzzleSolutionUIE;
+
+    QuestData.Puzzle puzzleComponent;
+
+    UIElementEditable levelUIE;
+    UIElementEditable altLevelUIE;
+    UIElementEditable puzzleSolutionUIE;
 
     public EditorComponentPuzzle(string nameIn) : base(nameIn)
     {
     }
 
-    public override float AddPosition(float offset)
+    override public float AddPosition(float offset)
     {
         return offset;
     }
@@ -39,17 +42,16 @@ public class EditorComponentPuzzle : EditorComponentEvent
     {
         string example_str = "";
         // build string
-        for (int i = 0; i < puzzleComponent.puzzleLevel; i++)
-        {
-            example_str += ((i % puzzleComponent.puzzleAltLevel) + 1).ToString() + " ";
+        for (int i=0; i < puzzleComponent.puzzleLevel ; i++) {
+            example_str += ((i%puzzleComponent.puzzleAltLevel)+1).ToString() + " ";
         }
         example_str = example_str.TrimEnd(); // kill that last space
         // Set the text field and put it in grey color
         puzzleSolutionUIE.SetText(example_str);
         puzzleSolutionUIE.SetColor(Color.grey);
     }
-
-    public override float AddSubEventComponents(float offset)
+    
+    override public float AddSubEventComponents(float offset)
     {
         puzzleComponent = component as QuestData.Puzzle;
 
@@ -113,8 +115,8 @@ public class EditorComponentPuzzle : EditorComponentEvent
             new UIElementBorder(ui);
             offset += 2;
         }
-
-        if (puzzleComponent.puzzleClass.Equals("code"))
+        
+        if (puzzleComponent.puzzleClass.Equals("code")) 
         {
             // Initialize the puzzle solution UI element
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
@@ -124,12 +126,9 @@ public class EditorComponentPuzzle : EditorComponentEvent
             puzzleSolutionUIE = new UIElementEditable(Game.EDITOR, scrollArea.GetScrollTransform());
             puzzleSolutionUIE.SetLocation(5, offset, 8, 1);
             /* If there is no set puzzlesolution give an example with gray letters */
-            if (puzzleComponent.puzzleSolution.Length == 0)
-            {
+            if (puzzleComponent.puzzleSolution.Length == 0) {
                 ProvidePuzzleSolutionExample();
-            }
-            else
-            { /* otherwise display the solution  */
+            } else { /* otherwise display the solution  */
                 puzzleSolutionUIE.SetText(puzzleComponent.puzzleSolution);
             }
             puzzleSolutionUIE.SetSingleLine();
@@ -140,13 +139,13 @@ public class EditorComponentPuzzle : EditorComponentEvent
 
         return offset;
     }
-
-    public override float AddEventDialog(float offset)
+    
+    override public float AddEventDialog(float offset)
     {
         return offset;
     }
 
-    public override void Highlight()
+    override public void Highlight()
     {
     }
 
@@ -216,7 +215,7 @@ public class EditorComponentPuzzle : EditorComponentEvent
     public void UpdatePuzzleSolution()
     {
         ValkyrieDebug.Log("Setting puzzle solution");
-        string[] solutionArray = puzzleSolutionUIE.GetText().Split(" ".ToCharArray());
+        var solutionArray = puzzleSolutionUIE.GetText().Split(" ".ToCharArray());
 
         // Validate puzzle solution and mark it with red if it's not valid
         bool invalid = false;
@@ -269,10 +268,8 @@ public class EditorComponentPuzzle : EditorComponentEvent
 
         UIWindowSelectionListImage select = new UIWindowSelectionListImage(SelectImage, SELECT_IMAGE.Translate());
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.SOURCE.Translate(), new string[] { CommonStringKeys.FILE.Translate() } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.SOURCE.Translate(), new string[] { CommonStringKeys.FILE.Translate() });
         string relativePath = new FileInfo(Path.GetDirectoryName(Game.Get().quest.qd.questPath)).FullName;
         foreach (string s in Directory.GetFiles(relativePath, "*.png", SearchOption.AllDirectories))
         {

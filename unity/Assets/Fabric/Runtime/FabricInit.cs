@@ -1,8 +1,9 @@
 ﻿namespace Fabric.Internal
 {
-    using UnityEngine;
-
-    public class FabricInit : MonoBehaviour
-    {
-    }
+	using UnityEngine;
+	using System.Collections;
+	
+	public class FabricInit : MonoBehaviour
+	{
+	}
 }

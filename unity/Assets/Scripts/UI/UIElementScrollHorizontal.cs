@@ -8,6 +8,14 @@ namespace Assets.Scripts.UI
         {
         }
 
+        public UIElementScrollHorizontal(Transform parent, string n = "", string t = "") : base(parent, t, n)
+        {
+        }
+
+        public UIElementScrollHorizontal(Transform parent, string name) : base(parent, name)
+        {
+        }
+
         protected override void CreateBG(Transform parent)
         {
             base.CreateBG(parent);

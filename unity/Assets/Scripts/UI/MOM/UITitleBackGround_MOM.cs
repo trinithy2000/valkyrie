@@ -7,10 +7,10 @@ namespace Assets.Scripts.UI.MOM
 
     {
         protected GameObject bLine;
-        private readonly Transform transform;
-        private readonly RectTransform rectTrans;
-        private readonly string tag;
-        private readonly string internalName;
+        private new readonly Transform transform;
+        private new readonly RectTransform rectTrans;
+        private new readonly string tag;
+        private new readonly string internalName;
 
         public UITitleBackGround_MOM(UIElement element, string dialogType)
         {

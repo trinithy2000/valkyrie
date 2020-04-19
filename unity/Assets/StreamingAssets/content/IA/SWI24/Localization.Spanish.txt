@@ -1,0 +1,20 @@
+.,Spanish
+SWI24_AGENT_BLAISE,Agente blaise
+SWI24_BOSSK,Bossk
+SWI24_LANDO,Lando calrissian
+SWI24_DAVITH,David elso
+SWI24_MURNE,Murne rin
+SWI24_WINGGUARD,Guardia alada
+SWI24_UGNAUGHT,Mecanico ugnaught
+
+SWI24_COMMON_ITEM_1,Pistola disruptora
+SWI24_COMMON_ITEM_2,Mira de francotirador
+SWI24_COMMON_ITEM_3,Hoja equilibrada
+SWI24_COMMON_ITEM_4,Astromecánico R5
+SWI24_COMMON_ITEM_5,vibroespada
+SWI24_COMMON_ITEM_6,Capa de sombraseda
+SWI24_HERO_ITEM_1,Daga familiar
+SWI24_HERO_ITEM_2,Sable de luz oculto
+SWI24_HERO_ITEM_3,Blaster diplomático
+SWI24_REWARD_ITEM_1,Holocrón radiante
+SWI24_REWARD_ITEM_2,Droide cámara

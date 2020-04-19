@@ -1,7 +1,8 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using UnityEngine;
+using System.Text;
 using System.Collections.Generic;
-using UnityEngine;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 
 public class EditorComponentSpawn : EditorComponentEvent
 {
@@ -17,20 +18,23 @@ public class EditorComponentSpawn : EditorComponentEvent
     private readonly StringKey HEALTH = new StringKey("val", "HEALTH");
     private readonly StringKey HEALTH_HERO = new StringKey("val", "HEALTH_HERO");
     private readonly StringKey TYPES = new StringKey("val", "TYPES");
-
+    
     private readonly StringKey REQ_TRAITS = new StringKey("val", "REQ_TRAITS");
     private readonly StringKey POOL_TRAITS = new StringKey("val", "POOL_TRAITS");
-    private QuestData.Spawn spawnComponent;
-    private UIElementEditable uniqueTitleUIE;
-    private UIElementEditablePaneled uniqueTextUIE;
-    private UIElementEditable healthUIE;
-    private UIElementEditable healthHeroUIE;
+    
+    
+    QuestData.Spawn spawnComponent;
+
+    UIElementEditable uniqueTitleUIE;
+    UIElementEditablePaneled uniqueTextUIE;
+    UIElementEditable healthUIE;
+    UIElementEditable healthHeroUIE;
 
     public EditorComponentSpawn(string nameIn) : base(nameIn)
     {
     }
 
-    public override void AddLocationType(float offset)
+    override public void AddLocationType(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(14, offset, 4, 1);
@@ -45,8 +49,8 @@ public class EditorComponentSpawn : EditorComponentEvent
             ui.SetText(POSITION_TYPE_HIGHLIGHT);
         }
     }
-
-    public override float AddSubEventComponents(float offset)
+    
+    override public float AddSubEventComponents(float offset)
     {
         spawnComponent = component as QuestData.Spawn;
 
@@ -244,10 +248,7 @@ public class EditorComponentSpawn : EditorComponentEvent
             new UIElementBorder(ui);
         }
 
-        if (traitOffset > offset)
-        {
-            offset = traitOffset;
-        }
+        if (traitOffset > offset) offset = traitOffset;
 
         offset++;
         if (game.gameType is D2EGameType || game.gameType is IAGameType)
@@ -303,7 +304,7 @@ public class EditorComponentSpawn : EditorComponentEvent
         return offset;
     }
 
-    public override void PositionTypeCycle()
+    override public void PositionTypeCycle()
     {
         spawnComponent.locationSpecified = !spawnComponent.locationSpecified;
         Update();
@@ -364,7 +365,7 @@ public class EditorComponentSpawn : EditorComponentEvent
             return;
         }
         Game game = Game.Get();
-        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectMonsterType(s, pos); }, new StringKey("val", "SELECT", CommonStringKeys.MONSTER));
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate(string s) { SelectMonsterType(s, pos); }, new StringKey("val", "SELECT", CommonStringKeys.MONSTER));
 
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
         {
@@ -482,7 +483,7 @@ public class EditorComponentSpawn : EditorComponentEvent
             }
         }
 
-        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectMonsterTraitReplace(pos, pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate(string s) { SelectMonsterTraitReplace(pos, pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
         foreach (string s in traits)
         {
             select.AddItem(new StringKey("val", s));
@@ -520,7 +521,7 @@ public class EditorComponentSpawn : EditorComponentEvent
             }
         }
 
-        UIWindowSelectionList select = new UIWindowSelectionList(delegate (string s) { SelectMonsterTrait(pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
+        UIWindowSelectionList select = new UIWindowSelectionList(delegate(string s) { SelectMonsterTrait(pool, s); }, new StringKey("val", "SELECT", CommonStringKeys.TRAITS));
         foreach (string s in traits)
         {
             select.AddItem(new StringKey("val", s));

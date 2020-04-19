@@ -1,0 +1,3 @@
+.,English
+SWI31_GREEDO,Greedo
+SWI31_COMMON_ITEM_1,Pistola blaster pesada DT-12

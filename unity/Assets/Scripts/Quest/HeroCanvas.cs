@@ -17,7 +17,7 @@ public class HeroCanvas : MonoBehaviour
     public HeroSelection heroSelection;
 
     // Called when a quest is started, draws to screen
-    
+
     public void SetupUI(UIElement element = null)
     {
 
@@ -34,6 +34,8 @@ public class HeroCanvas : MonoBehaviour
             else if (GameUtils.IsD2EGameType())
                 AddHeroVer(h, game, element);
             else if (GameUtils.IsMoMGameType())
+                AddHeroHor(h, game, element);
+            else if (GameUtils.IsIAGameType())
                 AddHeroHor(h, game, element);
             else
                 AddHeroHor(h, game, element);
@@ -115,7 +117,12 @@ public class HeroCanvas : MonoBehaviour
         // Add hero image if selected
         if (h.heroData != null)
         {
-            Texture2D newTex = ContentData.FileToTexture(h.heroData.image);
+            string strImg = h.heroData.image;
+            if (GameUtils.IsIAGameType())
+            {
+                strImg = h.heroData.icon;
+            }
+            Texture2D newTex = ContentData.FileToTexture(strImg);
             heroSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
             image.sprite = heroSprite;
         }
@@ -141,11 +148,21 @@ public class HeroCanvas : MonoBehaviour
         {
             tag = "herodisplay"
         };
+
+        float yScale = 0.65f;
+        float xScale = 10.5f;
+
+        if (GameUtils.IsIAGameType())
+        {
+            yScale = 1.10f;
+            xScale = 12.5f;
+        }
+
         heroFrame.transform.SetParent(game.uICanvas.transform);
         RectTransform transFrame = heroFrame.AddComponent<RectTransform>();
+        transFrame.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, yScale * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
+        transFrame.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (xScale + offset) * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
 
-        transFrame.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0.65f * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
-        transFrame.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (10.5f + offset) * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
         heroFrame.AddComponent<CanvasRenderer>();
 
         Image imageFrame = heroFrame.AddComponent<Image>();
@@ -164,9 +181,8 @@ public class HeroCanvas : MonoBehaviour
         };
         heroImg.transform.SetParent(game.uICanvas.transform);
         RectTransform trans = heroImg.AddComponent<RectTransform>();
-
-        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, 0.65f * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
-        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (10.5f + offset) * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Bottom, yScale * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
+        trans.SetInsetAndSizeFromParentEdge(RectTransform.Edge.Left, (xScale + offset) * UIScaler.GetPixelsPerUnit(), heroSize * UIScaler.GetPixelsPerUnit());
 
         if (game.quest.heroes.Count > 5)
         {
@@ -181,10 +197,10 @@ public class HeroCanvas : MonoBehaviour
         Image image = heroImg.AddComponent<Image>();
 
         icons.Add(h.id, image);
-                
+
         image.rectTransform.sizeDelta = new Vector2(heroSize * UIScaler.GetPixelsPerUnit() * 0.85f, heroSize * UIScaler.GetPixelsPerUnit() * 0.85f);
 
-        if (game.gameType is MoMGameType)
+        if (GameUtils.IsMoMGameType())
         {
             image.rectTransform.sizeDelta = new Vector2(heroSize * UIScaler.GetPixelsPerUnit() * 0.865f, heroSize * UIScaler.GetPixelsPerUnit() * 0.865f);
             heroFrame.transform.SetAsLastSibling();
@@ -198,11 +214,16 @@ public class HeroCanvas : MonoBehaviour
         // Add hero image if selected
         if (h.heroData != null)
         {
-            Texture2D newTex = ContentData.FileToTexture(h.heroData.image);
+            string strImg = h.heroData.image;
+            if (GameUtils.IsIAGameType())
+            {
+                strImg = h.heroData.icon;
+            }
+            Texture2D newTex = ContentData.FileToTexture(strImg);
             heroSprite = Sprite.Create(newTex, new Rect(0, 0, newTex.width, newTex.height), Vector2.zero, 1);
             image.sprite = heroSprite;
         }
-        
+
         if (element != null)
         {
             heroFrame.transform.parent = element.GetRectTransform();
@@ -217,9 +238,6 @@ public class HeroCanvas : MonoBehaviour
 
     private static void setImagesBorder(Quest.Hero h, out Texture2D frameTex, out string heroName)
     {
-        float width = UIScaler.GetRelWidth(5);
-        float height = UIScaler.GetRelHeight(50);
-
         frameTex = GameUtils.ReturnValueGameType<Texture2D>(CommonImageKeys.mom_border_frame_empty, CommonImageKeys.d2e_border_grey_frame, CommonImageKeys.ia_border_frame_empty);
         heroName = getHeroName(h);
         if (h.heroData != null)
@@ -291,10 +309,15 @@ public class HeroCanvas : MonoBehaviour
         foreach (Quest.Hero h in game.quest.heroes)
         {
             Texture2D frameTex = CommonImageKeys.d2e_border_grey_frame;
-            if (game.gameType is MoMGameType)
+            if (GameUtils.IsMoMGameType())
             {
                 frameTex = CommonImageKeys.mom_border_frame_empty;
             }
+            else if (GameUtils.IsIAGameType())
+            {
+                frameTex = CommonImageKeys.ia_border_frame_empty;
+            }
+
             icons[h.id].color = Color.clear;
             icon_frames[h.id].color = Color.clear;
 
@@ -306,11 +329,18 @@ public class HeroCanvas : MonoBehaviour
             if (h.heroData != null)
             {
                 frameTex = CommonImageKeys.d2e_border_blue_frame;
-                if (game.gameType is MoMGameType)
+                string strImg = h.heroData.image;
+
+                if (GameUtils.IsMoMGameType())
                 {
                     frameTex = CommonImageKeys.mom_border_frame;
                 }
-                Texture2D heroTex = ContentData.FileToTexture(h.heroData.image);
+                else if (GameUtils.IsIAGameType())
+                {
+                    frameTex = CommonImageKeys.ia_border_frame;
+                    strImg = h.heroData.icon;
+                }
+                Texture2D heroTex = ContentData.FileToTexture(strImg);
                 Sprite heroSprite = null;
                 if (heroTex != null)
                 {

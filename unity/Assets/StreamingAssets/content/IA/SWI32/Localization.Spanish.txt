@@ -1,0 +1,29 @@
+.,Spanish
+SWI32_CAPTAINTERRO,Capitán Terro
+SWI32_GAMMORREAN,Guardia gammorreano
+SWI32_JABBA,Jabba
+SWI32_JETTROOPER,
+SWI32_RANCOR,Rancor
+SWI32_WEEQUAY,Pirata weequay
+SWI32_VINTO,Vinto Hreeda
+SWI32_SHYLA,Shyla Varad
+SWI32_ONAR,Onar Koma
+SWI32_LUKE,Luke Skywalker
+SWI32_RANGER,Guardia de la alianza
+
+SWI32_HERO_ITEM_1,Pistola de gatillo fácil
+SWI32_HERO_ITEM_2,Blaster de apoyo
+SWI32_HERO_ITEM_3,Espada de duelista
+SWI32_HERO_ITEM_4,Bombas de humo
+SWI32_HERO_ITEM_5,Detonador remoto
+SWI32_HERO_ITEM_6,Rifle de guardaespaldas
+SWI32_HERO_ITEM_7,Armadura del sol negro
+SWI32_COMMON_ITEM_1,Cañon de mano
+SWI32_COMMON_ITEM_2,Dispensador de bacta
+SWI32_COMMON_ITEM_3,Inyector de emergencia
+SWI32_COMMON_ITEM_4,Vibroespada doble
+SWI32_COMMON_ITEM_5,espadas Ryyk
+SWI32_COMMON_ITEM_6,Cañon de energía modificado
+SWI32_COMMON_ITEM_7,Uniforme de almirante
+SWI32_COMMON_ITEM_8,Empuñadura energizada
+SWI32_COMMON_ITEM_9, Proyectiles Mejorados

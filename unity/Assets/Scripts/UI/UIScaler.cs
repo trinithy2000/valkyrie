@@ -112,6 +112,11 @@ public class UIScaler
         return Mathf.RoundToInt(GetPixelsPerUnit() * 2.3f * scale);
     }
 
+    public static int GetBigFont(float scale = 1)
+    {
+        return Mathf.RoundToInt(GetPixelsPerUnit() * 1.9f * scale);
+    }
+
     public static float GetRelWidth(float width)
     {
         return UIScaler.GetWidthUnits() / width;

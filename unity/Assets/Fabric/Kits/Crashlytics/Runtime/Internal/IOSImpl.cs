@@ -1,10 +1,14 @@
 ﻿namespace Fabric.Crashlytics.Internal
 {
+	using System.Runtime.InteropServices;
+	using System.Diagnostics;
+	using System.Collections.Generic;
+	using Fabric.Internal.ThirdParty.MiniJSON;
 
-#if UNITY_IOS && !UNITY_EDITOR
+	#if UNITY_IOS && !UNITY_EDITOR
 	internal class IOSImpl : Impl
 	{
-    #region DLL Imports
+		#region DLL Imports
 		[DllImport("__Internal")]
 		private static extern void CLUCrash();
 		
@@ -28,7 +32,7 @@
 
 		[DllImport("__Internal")]
 		private static extern void CLURecordCustomException(string name, string reason, string stackTrace);
-    #endregion
+		#endregion
 		
 		public override void SetDebugMode(bool mode)
 		{
@@ -77,5 +81,5 @@
 			CLURecordCustomException (name, reason, Json.Serialize (parsedStackTrace));
 		}
 	}
-#endif
+	#endif
 }

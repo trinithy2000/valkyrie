@@ -1,7 +1,7 @@
 ﻿using Assets.Scripts.UI.MOM;
 using Assets.Scripts.UI.D2E;
+using Assets.Scripts.UI.IA;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Assets.Scripts.UI
 {
@@ -19,6 +19,8 @@ namespace Assets.Scripts.UI
                 new UIElementBorderDialog_MOM(element, dialogType);
             else if (Game.Get().gameType is D2EGameType)
                 new UIElementBorderDialog_D2E(element, dialogType);
+            else if (Game.Get().gameType is IAGameType)
+                new UIElementBorderDialog_IA(element, dialogType);
         }
 
         public UIElementBorderDialog()

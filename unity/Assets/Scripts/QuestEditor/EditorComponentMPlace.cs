@@ -1,9 +1,10 @@
-﻿using Assets.Scripts.Content;
+﻿using UnityEngine;
+using Assets.Scripts.Content;
 using Assets.Scripts.UI;
 
 public class EditorComponentMPlace : EditorComponent
 {
-    private QuestData.MPlace mPlaceComponent;
+    QuestData.MPlace mPlaceComponent;
 
     public EditorComponentMPlace(string nameIn) : base()
     {
@@ -14,13 +15,13 @@ public class EditorComponentMPlace : EditorComponent
         Update();
     }
 
-    protected override void RefreshReference()
+    override protected void RefreshReference()
     {
         base.RefreshReference();
         mPlaceComponent = component as QuestData.MPlace;
     }
 
-    public override float AddSubComponents(float offset)
+    override public float AddSubComponents(float offset)
     {
         CameraController.SetCamera(mPlaceComponent.location);
         Game game = Game.Get();
@@ -40,7 +41,7 @@ public class EditorComponentMPlace : EditorComponent
         ui.SetLocation(0, offset, 6, 1);
         ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "ROTATION")));
 
-        StringKey rotateKey = new StringKey("val", "RIGHT");
+        StringKey rotateKey = new StringKey("val","RIGHT");
         if (mPlaceComponent.rotate)
         {
             rotateKey = new StringKey("val", "DOWN");
@@ -53,10 +54,10 @@ public class EditorComponentMPlace : EditorComponent
         new UIElementBorder(ui);
         offset += 2;
 
-        StringKey mast = new StringKey("val", "MONSTER_MINION");
+        StringKey mast = new StringKey("val","MONSTER_MINION");
         if (mPlaceComponent.master)
         {
-            mast = new StringKey("val", "MONSTER_MASTER");
+            mast = new StringKey("val","MONSTER_MASTER");
         }
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 8, 1);

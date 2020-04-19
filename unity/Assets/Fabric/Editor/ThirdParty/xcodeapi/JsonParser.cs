@@ -1,19 +1,21 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 {
     public class JsonElement
     {
-        protected JsonElement() { }
+        protected JsonElement() {}
 
         // convenience methods
         public string AsString() { return ((JsonElementString)this).value; }
-        public int AsInteger() { return ((JsonElementInteger)this).value; }
-        public bool AsBoolean() { return ((JsonElementBoolean)this).value; }
+        public int AsInteger()   { return ((JsonElementInteger)this).value; }
+        public bool AsBoolean()  { return ((JsonElementBoolean)this).value; }
         public JsonElementArray AsArray() { return (JsonElementArray)this; }
-        public JsonElementDict AsDict() { return (JsonElementDict)this; }
+        public JsonElementDict AsDict()   { return (JsonElementDict)this; }
 
         public JsonElement this[string key]
         {
@@ -45,23 +47,19 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
     public class JsonElementDict : JsonElement
     {
-        public JsonElementDict() : base() { }
+        public JsonElementDict() : base() {}
 
-        private readonly SortedDictionary<string, JsonElement> m_PrivateValue = new SortedDictionary<string, JsonElement>();
-        public IDictionary<string, JsonElement> values { get { return m_PrivateValue; } }
+        private SortedDictionary<string, JsonElement> m_PrivateValue = new SortedDictionary<string, JsonElement>();
+        public IDictionary<string, JsonElement> values { get { return m_PrivateValue; }}
 
-        public new JsonElement this[string key]
+        new public JsonElement this[string key]
         {
-            get
-            {
+            get {
                 if (values.ContainsKey(key))
-                {
                     return values[key];
-                }
-
                 return null;
             }
-            set { values[key] = value; }
+            set { this.values[key] = value; }
         }
 
         public bool Contains(string key)
@@ -92,14 +90,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public JsonElementArray CreateArray(string key)
         {
-            JsonElementArray v = new JsonElementArray();
+            var v = new JsonElementArray();
             values[key] = v;
             return v;
         }
 
         public JsonElementDict CreateDict(string key)
         {
-            JsonElementDict v = new JsonElementDict();
+            var v = new JsonElementDict();
             values[key] = v;
             return v;
         }
@@ -107,7 +105,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
     public class JsonElementArray : JsonElement
     {
-        public JsonElementArray() : base() { }
+        public JsonElementArray() : base() {}
         public List<JsonElement> values = new List<JsonElement>();
 
         // convenience methods
@@ -128,14 +126,14 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public JsonElementArray AddArray()
         {
-            JsonElementArray v = new JsonElementArray();
+            var v = new JsonElementArray();
             values.Add(v);
             return v;
         }
 
         public JsonElementDict AddDict()
         {
-            JsonElementDict v = new JsonElementDict();
+            var v = new JsonElementDict();
             values.Add(v);
             return v;
         }
@@ -151,15 +149,13 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             root = new JsonElementDict();
         }
 
-        private void AppendIndent(StringBuilder sb, int indent)
+        void AppendIndent(StringBuilder sb, int indent)
         {
             for (int i = 0; i < indent; ++i)
-            {
                 sb.Append(indentString);
-            }
         }
 
-        private void WriteString(StringBuilder sb, string str)
+        void WriteString(StringBuilder sb, string str)
         {
             // TODO: escape
             sb.Append('"');
@@ -167,56 +163,43 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             sb.Append('"');
         }
 
-        private void WriteBoolean(StringBuilder sb, bool value)
+        void WriteBoolean(StringBuilder sb, bool value)
         {
             sb.Append(value ? "true" : "false");
         }
 
-        private void WriteInteger(StringBuilder sb, int value)
+        void WriteInteger(StringBuilder sb, int value)
         {
             sb.Append(value.ToString());
         }
 
-        private void WriteDictKeyValue(StringBuilder sb, string key, JsonElement value, int indent)
+        void WriteDictKeyValue(StringBuilder sb, string key, JsonElement value, int indent)
         {
             sb.Append("\n");
             AppendIndent(sb, indent);
             WriteString(sb, key);
             sb.Append(" : ");
             if (value is JsonElementString)
-            {
                 WriteString(sb, value.AsString());
-            }
             else if (value is JsonElementInteger)
-            {
                 WriteInteger(sb, value.AsInteger());
-            }
             else if (value is JsonElementBoolean)
-            {
                 WriteBoolean(sb, value.AsBoolean());
-            }
             else if (value is JsonElementDict)
-            {
                 WriteDict(sb, value.AsDict(), indent);
-            }
             else if (value is JsonElementArray)
-            {
                 WriteArray(sb, value.AsArray(), indent);
-            }
         }
 
-        private void WriteDict(StringBuilder sb, JsonElementDict el, int indent)
+        void WriteDict(StringBuilder sb, JsonElementDict el, int indent)
         {
             sb.Append("{");
             bool hasElement = false;
-            foreach (string key in el.values.Keys)
+            foreach (var key in el.values.Keys)
             {
                 if (hasElement)
-                {
                     sb.Append(","); // trailing commas not supported
-                }
-
-                WriteDictKeyValue(sb, key, el[key], indent + 1);
+                WriteDictKeyValue(sb, key, el[key], indent+1);
                 hasElement = true;
             }
             sb.Append("\n");
@@ -224,41 +207,27 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
             sb.Append("}");
         }
 
-        private void WriteArray(StringBuilder sb, JsonElementArray el, int indent)
+        void WriteArray(StringBuilder sb, JsonElementArray el, int indent)
         {
             sb.Append("[");
             bool hasElement = false;
-            foreach (JsonElement value in el.values)
+            foreach (var value in el.values)
             {
                 if (hasElement)
-                {
                     sb.Append(","); // trailing commas not supported
-                }
-
                 sb.Append("\n");
-                AppendIndent(sb, indent + 1);
+                AppendIndent(sb, indent+1);
 
                 if (value is JsonElementString)
-                {
                     WriteString(sb, value.AsString());
-                }
                 else if (value is JsonElementInteger)
-                {
                     WriteInteger(sb, value.AsInteger());
-                }
                 else if (value is JsonElementBoolean)
-                {
                     WriteBoolean(sb, value.AsBoolean());
-                }
                 else if (value is JsonElementDict)
-                {
-                    WriteDict(sb, value.AsDict(), indent + 1);
-                }
+                    WriteDict(sb, value.AsDict(), indent+1);
                 else if (value is JsonElementArray)
-                {
-                    WriteArray(sb, value.AsArray(), indent + 1);
-                }
-
+                    WriteArray(sb, value.AsArray(), indent+1);
                 hasElement = true;
             }
             sb.Append("\n");
@@ -278,7 +247,7 @@ namespace Fabric.Internal.Editor.ThirdParty.xcodeapi
 
         public string WriteToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             WriteDict(sb, root, 0);
             return sb.ToString();
         }

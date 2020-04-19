@@ -1,0 +1,28 @@
+.,Spanish
+SWI19_SNOWTROOPER,Soldado de las nieves
+SWI19_WAMPA,Wampa
+SWI19_REPULSORTANK,Tanque repulsor
+SWI19_HKASSASSIN,Droide asesino HK
+SWI19_GENERALSORIN,General Sorin	
+SWI19_DENGAR,Dengar
+SWI19_VERENA,Verena Talos
+SWI19_KANOLOA,Loku Kanoloa
+SWI19_MHD-19,MHD-19
+SWI19_LEIA,Leia Organa
+SWI19_ECHO,Soldados de la base Eco
+
+SWI19_HERO_ITEM_1,Fusil adaptable
+SWI19_HERO_ITEM_2,Escáner de esprectro
+SWI19_HERO_ITEM_3,Blaster de mano
+SWI19_HERO_ITEM_4,Blaster militar
+SWI19_HERO_ITEM_5,Cuchillo de guerra
+SWI19_COMMON_ITEM_1,Blaster Defensor del CDD
+SWI19_COMMON_ITEM_2,Vibrocuchillo
+SWI19_COMMON_ITEM_3,Traje de proteción ambiental
+SWI19_COMMON_ITEM_4,Porra aturdidora
+SWI19_COMMON_ITEM_5,Brazo cibernético
+SWI19_COMMON_ITEM_6,Carabina Valken-38
+SWI19_COMMON_ITEM_7,Granadas de impacto
+SWI19_COMMON_ITEM_8,Mejora de sistemas
+SWI19_COMMON_ITEM_9,HH-4 acoplado
+SWI19_COMMON_ITEM_10,Vibrogenerador

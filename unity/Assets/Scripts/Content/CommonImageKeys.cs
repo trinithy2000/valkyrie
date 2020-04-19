@@ -101,13 +101,22 @@ public class CommonImageKeys
 
     //******************************************************************************************************************************
 
-    public static readonly Texture2D ia_bgnd_sreen = Resources.Load("sprites/backgrounds/ia/menuBgnd") as Texture2D;
-    public static readonly Texture2D ia_button_box = Resources.Load("sprites/backgrounds/ia/menuButtonBox") as Texture2D;
-    public static readonly Texture2D ia_btn_menu = Resources.Load("sprites/buttons/ia/greyButton") as Texture2D;
-    public static readonly Texture2D ia_border_frame_empty = Resources.Load("sprites/borders/mom/arrowDlg") as Texture2D;
-    public static readonly Texture2D ia_border_frame = Resources.Load("sprites/borders/mom/arrowDlg") as Texture2D;
-   
 
+    public static readonly Texture2D ia_bgnd_sreen = Resources.Load("sprites/backgrounds/ia/menuBgnd") as Texture2D;
+    public static readonly Texture2D ia_bgnd_Heroes = ContentData.FileToTexture(GameUtils.GetImagePath("ImageWarRoom")) as Texture2D;
+    public static readonly Texture2D ia_bgnd_autor = Resources.Load("sprites/backgrounds/ia/autorsBgnd") as Texture2D;
+    public static readonly Texture2D ia_bgnd_Heroes_down = Resources.Load("sprites/backgrounds/ia/charSelect") as Texture2D;
+    public static readonly Texture2D ia_button_box = Resources.Load("sprites/backgrounds/ia/menuButtonBox") as Texture2D;
+    public static readonly Texture2D ia_button_box_trans = Resources.Load("sprites/backgrounds/ia/menuButtonBoxTrans") as Texture2D;
+    public static readonly Texture2D ia_btn_menu = Resources.Load("sprites/buttons/ia/greyButton") as Texture2D;
+    public static readonly Texture2D ia_border_frame_empty = Resources.Load("sprites/borders/ia/borderEmpty") as Texture2D;
+    public static readonly Texture2D ia_border_frame = Resources.Load("sprites/borders/ia/borderLight") as Texture2D;
+    public static readonly Texture2D ia_border_image = Resources.Load("sprites/borders/ia/borderImgs") as Texture2D;
+    public static readonly Texture2D ia_button_arrow = Resources.Load("sprites/buttons/ia/arrow") as Texture2D;
+    public static readonly Texture2D ia_button_arrow_inv = Resources.Load("sprites/buttons/ia/arrowR") as Texture2D;
+    public static readonly Texture2D ia_border_character = ContentData.FileToTexture(GameUtils.GetImagePath("ImageHeroBorder")) as Texture2D;
+    public static readonly Texture2D ia_bar_menuTitle = Resources.Load("sprites/bars/ia/tittleBar") as Texture2D;
+    public static readonly Texture2D ia_bgnd_down_bar = Resources.Load("sprites/bars/ia/downBar") as Texture2D;
     //******************************************************************************************************************************
 
     public static readonly Texture2D default_img_quest = Resources.Load("sprites/scenario_list/default_quest_picture") as Texture2D;

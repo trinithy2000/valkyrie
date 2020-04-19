@@ -1,9 +1,12 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
 
 public class EditorComponentActivation : EditorComponent
 {
-    private readonly StringKey ABILITY = new StringKey("val", "ABILITY");
+    private readonly StringKey ABILITY = new StringKey("val","ABILITY");
     private readonly StringKey MONSTER_MASTER = new StringKey("val", "MONSTER_MASTER");
     private readonly StringKey MONSTER_MINION = new StringKey("val", "MONSTER_MINION");
     private readonly StringKey FIRST = new StringKey("val", "FIRST");
@@ -12,12 +15,15 @@ public class EditorComponentActivation : EditorComponent
     private readonly StringKey UNABLE_BUTTON = new StringKey("val", "UNABLE_BUTTON");
     private readonly StringKey ATTACK_MESSAGE = new StringKey("val", "ATTACK_MESSAGE");
     private readonly StringKey NO_ATTACK_MESSAGE = new StringKey("val", "NO_ATTACK_MESSAGE");
-    private QuestData.Activation activationComponent;
-    private UIElementEditablePaneled abilityUIE;
-    private UIElementEditable moveButtonUIE;
-    private UIElementEditablePaneled masterActionsUIE;
-    private UIElementEditablePaneled minionActionsUIE;
-    private UIElementEditablePaneled moveUIE;
+
+
+    QuestData.Activation activationComponent;
+
+    UIElementEditablePaneled abilityUIE;
+    UIElementEditable moveButtonUIE;
+    UIElementEditablePaneled masterActionsUIE;
+    UIElementEditablePaneled minionActionsUIE;
+    UIElementEditablePaneled moveUIE;
 
     public EditorComponentActivation(string nameIn) : base()
     {
@@ -28,13 +34,13 @@ public class EditorComponentActivation : EditorComponent
         Update();
     }
 
-    protected override void RefreshReference()
+    override protected void RefreshReference()
     {
         base.RefreshReference();
         activationComponent = component as QuestData.Activation;
     }
 
-    public override float AddSubComponents(float offset)
+    override public float AddSubComponents(float offset)
     {
         if (game.gameType is MoMGameType)
         {
@@ -109,9 +115,7 @@ public class EditorComponentActivation : EditorComponent
         offset++;
 
         if (activationComponent.tests == null)
-        {
             activationComponent.tests = new VarTests();
-        }
 
         offset = AddEventVarConditionComponents(offset);
 

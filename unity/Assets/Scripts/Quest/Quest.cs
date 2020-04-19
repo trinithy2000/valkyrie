@@ -1051,7 +1051,7 @@ public class Quest
             return;
         }
         // Load the old state.  This will also set game.quest
-        Quest oldQuest = new Quest(undo.Pop())
+        new Quest(undo.Pop())
         {
             // Transfer the undo stack to the loaded state
             undo = undo

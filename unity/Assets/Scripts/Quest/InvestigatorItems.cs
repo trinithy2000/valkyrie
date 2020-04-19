@@ -7,8 +7,6 @@ using UnityEngine;
 // Window with starting Investigator items
 public class InvestigatorItems
 {
-    private readonly StringKey STARTING_ITEMS = new StringKey("val", "STARTING_ITEMS");
-
     public InvestigatorItems()
     {
         Game game = Game.Get();

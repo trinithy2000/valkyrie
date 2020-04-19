@@ -1,29 +1,33 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
-using System.Collections.Generic;
+﻿using UnityEngine;
 using System.IO;
-using UnityEngine;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 
 public class EditorComponentCustomMonster : EditorComponent
 {
 
     private readonly StringKey BASE = new StringKey("val", "BASE");
     private readonly StringKey NAME = new StringKey("val", "NAME");
-    private readonly StringKey ACTIVATIONS = new StringKey("val", "ACTIVATIONS");
+    private readonly StringKey ACTIVATIONS = new StringKey("val","ACTIVATIONS");
     private readonly StringKey INFO = new StringKey("val", "INFO");
     private readonly StringKey HEALTH = new StringKey("val", "HEALTH");
     private readonly StringKey HEALTH_HERO = new StringKey("val", "HEALTH_HERO");
     private readonly StringKey SELECT_IMAGE = new StringKey("val", "SELECT_IMAGE");
     private readonly StringKey PLACE_IMG = new StringKey("val", "PLACE_IMG");
     private readonly StringKey IMAGE = new StringKey("val", "IMAGE");
-    private QuestData.CustomMonster monsterComponent;
-    private UIElementEditable nameUIE;
-    private UIElementEditablePaneled infoUIE;
-    private Dictionary<string, List<UIElementEditablePaneled>> attacksUIE;
-    private UIElementEditable healthUIE;
-    private UIElementEditable healthHeroUIE;
-    private UIElementEditable horrorUIE;
-    private UIElementEditable awarenessUIE;
+
+    QuestData.CustomMonster monsterComponent;
+
+    UIElementEditable nameUIE;
+    UIElementEditablePaneled infoUIE;
+    Dictionary<string, List<UIElementEditablePaneled>> attacksUIE;
+    UIElementEditable healthUIE;
+    UIElementEditable healthHeroUIE;
+    UIElementEditable horrorUIE;
+    UIElementEditable awarenessUIE;
 
     // TODO: Translate expansion traits, translate base monster names.
 
@@ -37,13 +41,13 @@ public class EditorComponentCustomMonster : EditorComponent
         Update();
     }
 
-    protected override void RefreshReference()
+    override protected void RefreshReference()
     {
         base.RefreshReference();
         monsterComponent = component as QuestData.CustomMonster;
     }
 
-    public override float AddSubComponents(float offset)
+    override public float AddSubComponents(float offset)
     {
         Game game = Game.Get();
 
@@ -121,7 +125,7 @@ public class EditorComponentCustomMonster : EditorComponent
                 ui.SetButton(delegate { SetInfo(); });
                 new UIElementBorder(ui);
             }
-            offset++;
+            offset ++;
 
             offset = DrawD2EActivations(offset);
         }
@@ -263,7 +267,7 @@ public class EditorComponentCustomMonster : EditorComponent
                 new UIElementBorder(ui);
             }
             offset += 2;
-
+            
             offset = DrawInvestigatorAttacks(offset);
         }
 
@@ -332,7 +336,7 @@ public class EditorComponentCustomMonster : EditorComponent
         {
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(0, offset, 5, 1);
-            ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "EVADE")));
+            ui.SetText(new StringKey("val", "X_COLON",  new StringKey("val", "EVADE")));
 
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(5, offset, 13.5f, 1);
@@ -353,7 +357,7 @@ public class EditorComponentCustomMonster : EditorComponent
 
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(0, offset, 5, 1);
-            ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "horror")));
+            ui.SetText(new StringKey("val", "X_COLON",  new StringKey("val", "horror")));
 
             ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
             ui.SetLocation(5, offset, 13.5f, 1);
@@ -631,7 +635,7 @@ public class EditorComponentCustomMonster : EditorComponent
 
     public void AddActivation(int index = -1)
     {
-        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddActivation(index, s); }, new StringKey("val", "SELECT", CommonStringKeys.ACTIVATION));
+        UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate(string s) { SelectAddActivation(index, s); }, new StringKey("val", "SELECT", CommonStringKeys.ACTIVATION));
 
         select.AddNewComponentItem("Activation");
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in Game.Get().quest.qd.components)
@@ -848,7 +852,7 @@ public class EditorComponentCustomMonster : EditorComponent
             attackTypes.Add(a.attackType);
         }
 
-        foreach (string s in attackTypes)
+        foreach(string s in attackTypes)
         {
             select.AddItem(new StringKey("val", s));
         }
@@ -1003,7 +1007,7 @@ public class EditorComponentCustomMonster : EditorComponent
     public void SetEvade()
     {
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(SelectSetEvade, new StringKey("val", "SELECT", new StringKey("val", "EVADE")));
-
+        
         select.AddItem("{NONE}", "");
         select.AddNewComponentItem("Event");
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in Game.Get().quest.qd.components)

@@ -1,0 +1,21 @@
+.,Spanish
+SWI54_TRESS,Tress Hacnua
+SWI54_WILD,CT-1701
+SWI54_EZRA,Ezra Bridger
+SWI54_SABINE,Sabine Wren
+SWI54_ZEB,Zeb Orrelios
+SWI54_KANAN,Kanan Jarrus
+SWI54_HONDO,Hondo Ohnaka
+SWI54_LOTH,Gato de Lothal
+SWI54_THRAWN,Thrawn
+SWI54_DEATH,Soldado de la muerte
+
+SWI54_HERO_ITEM_1,Blaster DC-15S
+SWI54_HERO_ITEM_2,Ciberbrazo reforzado
+
+SWI54_COMMON_ITEM_2,Daga de puño
+SWI54_COMMON_ITEM_3,Avmbrazo de combate
+SWI54_COMMON_ITEM_5,E-11D
+SWI54_COMMON_ITEM_6,Casco mandaloriano
+SWI54_COMMON_ITEM_8,Fusil bo
+SWI54_COMMON_ITEM_9,Blindaje plastoide

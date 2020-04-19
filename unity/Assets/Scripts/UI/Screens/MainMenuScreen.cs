@@ -231,8 +231,7 @@ namespace Assets.Scripts.UI.Screens
         // Create the about dialog
         public void About()
         {
-            Game game = Game.Get();
-            ValkyrieDebug.Log("INFO: Accessing about");
+           ValkyrieDebug.Log("INFO: Accessing about");
 
             // This will destroy all, because we shouldn't have anything left at the main menu
             Destroyer.Destroy();

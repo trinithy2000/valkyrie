@@ -1731,6 +1731,8 @@ public class GenericData
     public string[] traits;
     // Path to image
     public string image;
+    //
+    public string icon;
     // priority for duplicates
     public int priority;
     // for sub classes to set type
@@ -1744,7 +1746,7 @@ public class GenericData
     public GenericData(string name_ini, Dictionary<string, string> content, string path, string type)
     {
         sectionName = name_ini;
-        sets = new List<string>();
+         sets = new List<string>();
 
         // Has the name been specified?
         if (content.ContainsKey("name"))
@@ -1792,6 +1794,33 @@ public class GenericData
                 image = Path.Combine(path, content[key]);
             }
             if (ContentData.ResolveTextureFile(image) != null)
+            {
+                break;
+            }
+            count++;
+        }
+
+        // If icon specified it is relative to the path of the ini file
+        // absolute paths are not supported
+        // resolve optional images like image, image2, image3 and so on
+        count = 0;
+        while (true)
+        {
+            string key = "icon" + (count > 0 ? (count + 1).ToString() : "");
+            if (!content.ContainsKey(key))
+            {
+                icon = ""; // No image is a valid condition
+                break;
+            }
+            if (content[key].StartsWith("{import}"))
+            {
+                icon = Path.Combine(ContentData.ImportPath(), content[key].Substring(9));
+            }
+            else
+            {
+                icon = Path.Combine(path, content[key]);
+            }
+            if (ContentData.ResolveTextureFile(icon) != null)
             {
                 break;
             }

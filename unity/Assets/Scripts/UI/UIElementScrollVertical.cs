@@ -10,7 +10,7 @@ namespace Assets.Scripts.UI
         protected GameObject scrollBarHandle;
 
 
-        public UIElementScrollVertical(Transform parent, string n="", string t = "") : base(parent, t,n)
+        public UIElementScrollVertical(Transform parent, string t="", string n = "") : base(parent, t, n)
         {
         }
 

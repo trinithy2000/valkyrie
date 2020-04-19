@@ -1,0 +1,28 @@
+.,Spanish
+SWI46_KO_TUN,Ko_Tun Feralo
+SWI46_DROKATA,Drokkatta
+SWI46_JARROD,Jarrod Kelvin
+SWI46_ASOKA,Ahsoka Tano
+SWI46_CLAWDITE,Metamorfo clawdita
+SWI46_ATDP,AT-DP
+SWI46_EMPEROR,Emperador Palpatine
+SWI46_MAUL,Maul
+SWI46_RIOT,Soldado antidisturbios
+SWI46_SENTRY,Droide centinela
+
+SWI46_HERO_ITEM_1,Fusil reglamentario
+SWI46_HERO_ITEM_2,Vibrogarras
+SWI46_HERO_ITEM_3,MGL-9 Atronador
+SWI46_HERO_ITEM_4,Munición de metralla
+SWI46_HERO_ITEM_5,Cañón de repetición
+
+SWI46_COMMON_ITEM_1,Armadura adaptativa
+SWI46_COMMON_ITEM_2,Pistola de potencia
+SWI46_COMMON_ITEM_3,Guja
+SWI46_COMMON_ITEM_4,Fusil de cazador
+SWI46_COMMON_ITEM_5,Fusil de francotirador A-12
+SWI46_COMMON_ITEM_6,Pack de suministros
+SWI46_COMMON_ITEM_7,Cargador de energia
+SWI46_COMMON_ITEM_8,Fragmento de Bardottan
+SWI46_COMMON_ITEM_9,Munición potenciada
+SWI46_COMMON_ITEM_10,Rayo focalizado

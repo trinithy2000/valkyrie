@@ -1,0 +1,3 @@
+.,English
+SWI29_OBI,Obi-Wan Kenobi
+SWI29_COMMON_ITEM_1,Sable de luz antiguo

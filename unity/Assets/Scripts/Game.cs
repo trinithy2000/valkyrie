@@ -26,7 +26,7 @@ public class Game : MonoBehaviour
     public static readonly string ENDGAME = "endgame";
     public static readonly string BG_TASKS = "bg_tasks";
     public static readonly string LOGS = "logs";
-  
+
     // This is populated at run time from the text asset
     public string version = "";
 
@@ -259,41 +259,20 @@ public class Game : MonoBehaviour
     // This is called when a quest is selected
     public void StartQuest(QuestData.Quest q)
     {
-      
         if (Path.GetExtension(Path.GetFileName(q.path)) == ".valkyrie")
         {
             // extract the full package
             QuestLoader.ExtractSinglePackageFull(ContentData.DownloadPath() + Path.DirectorySeparatorChar + Path.GetFileName(q.path));
         }
 
+        Texture2D[] arrow = ArrowMeasures();
+        float[] values = ObtainValues();
+
         // Fetch all of the quest data and initialise the quest
         quest = new Quest(q);
-
         heroCanvas.heroSelection = new HeroSelection();
 
-        Texture2D[] arrow = {
-            GameUtils.ReturnValueGameType<Texture2D>(
-                CommonImageKeys.mom_btn_arrow_gold,
-                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, -90),
-                CommonImageKeys.mom_btn_arrow_gold
-            ),
-            GameUtils.ReturnValueGameType<Texture2D>(
-                CommonScriptFuntions.RotateImage(CommonImageKeys.mom_btn_arrow_gold, 180),
-                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90),
-                CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90)
-            ),
-        };
-
-        float[] values =
-        {
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetLeft(3.5f),UIScaler.GetLeft(2f),UIScaler.GetLeft(3.5f)),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(2) - 6,UIScaler.GetRelHeight(2) - 5, UIScaler.GetRelHeight(2) - 6),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelWidth(15),UIScaler.GetRelWidth(10), UIScaler.GetRelWidth(15)),
-            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(3),UIScaler.GetRelHeight(5), UIScaler.GetRelHeight(3))
-        };
-
         UIElement ui = new UIElement();
-
         ui.SetLocation(values[0], values[1], values[2], values[3]);
         ui.SetImage(arrow[0]);
 
@@ -317,17 +296,26 @@ public class Game : MonoBehaviour
             ui.SetImage(CommonImageKeys.d2e_bar_heroTry);
 
         }
+        else if (GameUtils.IsIAGameType())
+        {
+            ui.SetLocation(0, UIScaler.GetBottom(-UIScaler.GetRelHeight(5f)), UIScaler.GetWidthUnits(), UIScaler.GetRelHeight(5.2f));
+            ui.SetImage(CommonImageKeys.ia_bgnd_Heroes_down);
+        }
         ui.GetTransform().SetAsLastSibling();
-        
+
         // Draw the hero icons, which are buttons for selection
         heroCanvas.SetupUI(ui);
 
         ui = new UIElement(Game.HEROSELECT);
-        ui.SetText(new StringKey("val", "SELECT", gameType.HeroesName()), GameUtils.ReturnValueGameType<Color>(Color.black, Color.white, Color.yellow));
-        ui.SetLocation(UIScaler.GetRelWidth(4), GameUtils.ReturnValueGameType<float>(.2f, .6f, .8f), UIScaler.GetRelWidth(2), 4);
+        ui.SetText(new StringKey("val", "SELECT", gameType.HeroesName()), GameUtils.ReturnValueGameType<Color>(Color.black, Color.white, Color.white));
+        ui.SetLocation(UIScaler.GetRelWidth(4), GameUtils.ReturnValueGameType<float>(.2f, .6f, 1f), UIScaler.GetRelWidth(2), 4);
 
         ui.SetFont(game.gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetMediumFont());
+        if (GameUtils.IsIAGameType())
+            ui.SetFontSize(UIScaler.GetBigFont());
+        else
+            ui.SetFontSize(UIScaler.GetMediumFont());
         ui.SetBGColor(Color.clear);
         new UITitleBackGround(ui, CommonString.title);
 
@@ -375,6 +363,51 @@ public class Game : MonoBehaviour
             ui.SetImage(CommonImageKeys.d2e_btn_red);
             ui.SetButton(Destroyer.QuestSelect);
         }
+        else if (GameUtils.IsIAGameType())
+        {
+            // Add a finished button to start the quest
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetRight(-UIScaler.GetRelWidth(7)), UIScaler.GetBottom(-2.2f), 6.5f, 2.2f);
+            ui.SetText(CommonStringKeys.CONTINUE);
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetImage(CommonImageKeys.ia_btn_menu);
+            ui.SetButton(EndSelection);
+
+            ui = new UIElement(Game.HEROSELECT);
+            ui.SetLocation(UIScaler.GetLeft(UIScaler.GetRelWidth(29)), UIScaler.GetBottom(-2.2f), 6.5f, 2.2f);
+            ui.SetText(CommonStringKeys.RETURN);
+            ui.SetFont(gameType.GetHeaderFont());
+            ui.SetFontSize(UIScaler.GetSemiSmallFont());
+            ui.SetImage(CommonImageKeys.ia_btn_menu);
+            ui.SetButton(Destroyer.QuestSelect);
+        }
+    }
+
+    private static float[] ObtainValues()
+    {
+        return new float[] {
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetLeft(3.5f), UIScaler.GetLeft(2f), UIScaler.GetLeft(3.5f)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(2) - 6, UIScaler.GetRelHeight(2) - 5, UIScaler.GetRelHeight(2) - 6),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelWidth(15), UIScaler.GetRelWidth(10), UIScaler.GetRelWidth(16)),
+            GameUtils.ReturnValueGameType<float>(UIScaler.GetRelHeight(3), UIScaler.GetRelHeight(5), UIScaler.GetRelHeight(4))
+        };
+    }
+
+    private static Texture2D[] ArrowMeasures()
+    {
+        return new Texture2D[] {
+            GameUtils.ReturnValueGameType<Texture2D>(
+                        CommonImageKeys.mom_btn_arrow_gold,
+                        CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, -90),
+                         CommonImageKeys.ia_button_arrow_inv
+                    ),
+            GameUtils.ReturnValueGameType<Texture2D>(
+                        CommonScriptFuntions.RotateImage(CommonImageKeys.mom_btn_arrow_gold, 180),
+                        CommonScriptFuntions.RotateImage(CommonImageKeys.d2e_btn_arrow_blue, 90),
+                        CommonImageKeys.ia_button_arrow
+                    ),
+        };
     }
 
     // HeroCanvas validates selection and starts quest if everything is good
@@ -575,4 +608,14 @@ public class GameUtils
     {
         return Game.Get().gameType is IAGameType;
     }
+
+    public static string GetImagePath(string img)
+    {
+        Dictionary<string, ImageData> images = Game.Get().cd.images;
+        if (images.ContainsKey(img))
+            return images[img].image;
+        else
+            return "";
+    }
+
 }

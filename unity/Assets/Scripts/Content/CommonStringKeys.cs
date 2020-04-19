@@ -75,5 +75,7 @@
         public static readonly StringKey TIT_SELECT_ITEMS = new StringKey(VAL, "TIT_SELECT_ITEMS");
         public static readonly StringKey CONTINUE_PREPAR = new StringKey(VAL, "CONTINUE_PREPAR");
 
+        public static readonly StringKey CONTINUE = new StringKey(VAL, "CONTINUE");
+        public static readonly StringKey RETURN = new StringKey(VAL, "ATRAS");
     }
 }

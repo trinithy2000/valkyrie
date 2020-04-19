@@ -1,26 +1,27 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using UnityEngine;
+using System.Text;
 using System.Collections.Generic;
-using UnityEngine;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 
 public class EditorComponentToken : EditorComponentEvent
 {
-    private QuestData.Token tokenComponent;
+    QuestData.Token tokenComponent;
 
     public EditorComponentToken(string nameIn) : base(nameIn)
     {
     }
 
-    public override void Highlight()
+    override public void Highlight()
     {
         CameraController.SetCamera(component.location);
     }
 
-    public override void AddLocationType(float offset)
+    override public void AddLocationType(float offset)
     {
     }
-
-    public override float AddSubEventComponents(float offset)
+    
+    override public float AddSubEventComponents(float offset)
     {
         tokenComponent = component as QuestData.Token;
 
@@ -51,12 +52,12 @@ public class EditorComponentToken : EditorComponentEvent
         return offset;
     }
 
-    public override float AddEventTrigger(float offset)
+    override public float AddEventTrigger(float offset)
     {
         return offset;
     }
 
-    public override float AddEventVarConditionComponents(float offset)
+    override public float AddEventVarConditionComponents(float offset)
     {
         return offset;
     }

@@ -235,10 +235,6 @@ SELL,Vender
 CLASS,Clase
 ACT_1,Acto I
 ACT_2,Acto II
-OBT_OBJECTS, Recibir Objetos iniciales
-RET_SELECT_QUEST, Volver a selección de escenario
-TIT_SELECT_ITEMS,Los investigadores empiezan con lo siguiente
-CONTINUE_PREPAR, Continuar preparacion
 
 //Items
 weapon,Arma
@@ -275,6 +271,7 @@ male,Hombre
 female,Mujer
 
 //monsters
+monster,Monstruo
 undead,No Muerto
 humanoid,Humanoide
 spirit,Espíritu
@@ -346,6 +343,9 @@ snow,Nieve
 lava,Lava
 swamp,Pantano
 sludge,Lodo
+ship,Enviar
+temple,Templo
+train,Entrenar
 
 // Colors
 black,Negro

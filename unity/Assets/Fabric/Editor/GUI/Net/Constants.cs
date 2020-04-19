@@ -1,8 +1,10 @@
 ﻿namespace Fabric.Internal.Editor.Net
 {
-
-    public class Constants
-    {
-        public static readonly string URI = "https://fabric.io";
-    }
+	using UnityEngine;
+	using System.Collections;
+	
+	public class Constants
+	{
+		public static readonly string URI = "https://fabric.io";
+	}
 }

@@ -1,0 +1,22 @@
+.,Spanish
+SWI10_HEAVYSTORM,Tropa de asalto pesada
+SWI10_KAYNSOMOS,Kayb somos
+SWI10_TUSKEN,Bandido Tusken
+SWI10_BOBA,Boba Fett
+SWI10_BIV,Biv Bodhirk
+SWI10_SASKA,Saska Teft
+SWI10_R2D2,R2-D2
+SWI10_C3PO,C-3PO
+
+SWI10_HERO_ITEM_1,Blaster de repetición
+SWI10_HERO_ITEM_2,Vibrobayoneta
+SWI10_HERO_ITEM_3,Armadura de trofeo
+SWI10_HERO_ITEM_4,Blaster modificado
+SWI10_COMMON_ITEM_1,Celula de Plasma
+SWI10_COMMON_ITEM_2,Gafas tecnológicas
+SWI10_COMMON_ITEM_3,Fusil de caza de Tatooine
+SWI10_COMMON_ITEM_4,Porra Gaffi
+SWI10_COMMON_ITEM_5,Carabina EE-3
+SWI10_COMMON_ITEM_6,Cuchilla escondida
+SWI10_COMMON_ITEM_7,DLT-19
+

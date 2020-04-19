@@ -1,8 +1,8 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 using ValkyrieTools;
 
 public class QuestEditSelection
@@ -23,14 +23,12 @@ public class QuestEditSelection
 
         // If a dialog window is open we force it closed (this shouldn't happen)
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
 
         // Heading
         UIElement ui = new UIElement();
         ui.SetLocation(2, 1, UIScaler.GetWidthUnits() - 4, 3);
-        ui.SetText(new StringKey("val", "SELECT", game.gameType.QuestName()));
+        ui.SetText(new StringKey("val","SELECT",game.gameType.QuestName()));
         ui.SetFont(Game.Get().gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetLargeFont());
 
@@ -107,14 +105,12 @@ public class QuestEditSelection
         Game game = Game.Get();
 
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
 
         // Header
         UIElement ui = new UIElement();
         ui.SetLocation(2, 1, UIScaler.GetWidthUnits() - 4, 3);
-        ui.SetText(new StringKey("val", "SELECT_TO_DELETE", game.gameType.QuestName()));
+        ui.SetText(new StringKey("val","SELECT_TO_DELETE",game.gameType.QuestName()));
         ui.SetFont(Game.Get().gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetLargeFont());
 
@@ -182,14 +178,12 @@ public class QuestEditSelection
         Game game = Game.Get();
 
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
 
         // Header
         UIElement ui = new UIElement();
         ui.SetLocation(2, 1, UIScaler.GetWidthUnits() - 4, 3);
-        ui.SetText(new StringKey("val", "SELECT_TO_COPY", game.gameType.QuestName()));
+        ui.SetText(new StringKey("val","SELECT_TO_COPY",game.gameType.QuestName()));
         ui.SetFont(Game.Get().gameType.GetHeaderFont());
         ui.SetFontSize(UIScaler.GetLargeFont());
 
@@ -345,18 +339,16 @@ public class QuestEditSelection
         {
             Directory.CreateDirectory(targetLocation);
 
-            List<string> questData = new List<string>
-            {
+            List<string> questData = new List<string>();
 
-                // Create basic quest info
-                "[Quest]",
-                "type=" + game.gameType.TypeName(),
-                "format=" + QuestData.Quest.currentFormat,
-                "defaultlanguage=" + game.currentLang,
-                "",
-                "[QuestText]",
-                "Localization." + game.currentLang + ".txt"
-            };
+            // Create basic quest info
+            questData.Add("[Quest]");
+            questData.Add("type=" + game.gameType.TypeName());
+            questData.Add("format=" + QuestData.Quest.currentFormat);
+            questData.Add("defaultlanguage=" + game.currentLang); 
+            questData.Add("");
+            questData.Add("[QuestText]");
+            questData.Add("Localization."+ game.currentLang +".txt");
 
             // Write quest file
             File.WriteAllLines(targetLocation + "/quest.ini", questData.ToArray());
@@ -370,7 +362,7 @@ public class QuestEditSelection
             newScenarioDict.AddEntry("quest.description", game.gameType.QuestName().Translate() + " " + i + "...");
 
             // Generate localization file
-            Dictionary<string, List<string>> localization_files = newScenarioDict.SerializeMultiple();
+            Dictionary<string,List<string>> localization_files = newScenarioDict.SerializeMultiple();
 
             foreach (string oneLang in localization_files.Keys)
             {
@@ -398,14 +390,9 @@ public class QuestEditSelection
 
         // Remove all current components
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
 
-        if (game.quest != null)
-        {
-            game.quest.RemoveAll();
-        }
+        if (game.quest!=null) game.quest.RemoveAll();
 
         game.audioControl.StopMusic();
 

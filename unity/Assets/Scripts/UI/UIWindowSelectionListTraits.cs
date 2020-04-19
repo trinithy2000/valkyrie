@@ -483,10 +483,6 @@ namespace Assets.Scripts.UI
 
         public void ExcludeExpansions()
         {
-            List<string> enabled = new List<string>
-            {
-                val_base_translated
-            };
             foreach (string anyPack in Game.Get().cd.GetLoadedPackIDs())
             {
                 bool packRequired = false;

@@ -1,13 +1,12 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using UnityEngine;
 using System.Collections.Generic;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 using System.IO;
-using UnityEngine;
 
 // Super class for all editor selectable components
 // Handles UI and editing
-public class EditorComponent
-{
+public class EditorComponent {
 
     private readonly StringKey TESTS = new StringKey("val", "TESTS");
     private readonly StringKey VAR = new StringKey("val", "VAR");
@@ -28,19 +27,20 @@ public class EditorComponent
     public string name;
 
     public Game game;
-
     // This is used for creating the component rename dialog
-    private QuestEditorTextEdit rename;
-    private readonly StringKey COMPONENT_NAME = new StringKey("val", "COMPONENT_NAME");
-    private QuestEditorTextEdit sourceFileText;
+    QuestEditorTextEdit rename;
+    private readonly StringKey COMPONENT_NAME = new StringKey("val","COMPONENT_NAME");
+
+    QuestEditorTextEdit sourceFileText;
     public QuestEditorTextEdit varText;
-    private UIElementEditable commentUIE;
+
+    UIElementEditable commentUIE;
 
     // The editor scroll area;
     public UIElementScrollVertical scrollArea;
 
     // Update redraws the selection UI
-    public virtual void Update()
+    virtual public void Update()
     {
         RefreshReference();
 
@@ -97,15 +97,11 @@ public class EditorComponent
     {
         // Clean up everything marked as 'dialog'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
 
         // Clean up everything marked as 'editor'
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.EDITOR))
-        {
             Object.Destroy(go);
-        }
 
         // Dim all components, this component will be made solid later
         Game.Get().quest.ChangeAlphaAll();
@@ -118,7 +114,7 @@ public class EditorComponent
         new UIElementBorder(scrollArea);
     }
 
-    public virtual float DrawComponentSelection(float offset)
+    virtual public float DrawComponentSelection(float offset)
     {
         offset += 1;
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
@@ -137,7 +133,7 @@ public class EditorComponent
         return offset + 2;
     }
 
-    public virtual float AddSubComponents(float offset)
+    virtual public float AddSubComponents(float offset)
     {
         return offset;
     }
@@ -174,7 +170,7 @@ public class EditorComponent
         QuestEditorData.DeleteCurrentComponent();
     }
 
-    public virtual float AddComment(float offset)
+    virtual public float AddComment(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset++, 5, 1);
@@ -190,7 +186,7 @@ public class EditorComponent
         return offset + 1;
     }
 
-    public virtual float AddSource(float offset)
+    virtual public float AddSource(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 5, 1);
@@ -211,7 +207,7 @@ public class EditorComponent
         Update();
     }
 
-    public virtual float AddEventVarConditionComponents(float offset)
+    virtual public float AddEventVarConditionComponents(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 18, 1);
@@ -303,14 +299,9 @@ public class EditorComponent
                 ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
                 ui.SetLocation(10f, offset, 4, 1);
                 if (tmp.op.Equals("AND"))
-                {
                     ui.SetText(AND);
-                }
                 else if (tmp.op.Equals("OR"))
-                {
                     ui.SetText(OR);
-                }
-
                 ui.SetButton(delegate { tmp.NextLogicalOperator(); Update(); });
                 new UIElementBorder(ui);
                 offset++;
@@ -398,7 +389,7 @@ public class EditorComponent
         return offset + 1;
     }
 
-    public virtual float AddEventVarOperationComponents(float offset)
+    virtual public float AddEventVarOperationComponents(float offset)
     {
         UIElement ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 18, 1);
@@ -440,14 +431,11 @@ public class EditorComponent
     }
 
     // This is called by the editor
-    public virtual void MouseDown()
+    virtual public void MouseDown()
     {
         Game game = Game.Get();
         // Are we looking for a position?
-        if (!gettingPosition)
-        {
-            return;
-        }
+        if (!gettingPosition) return;
 
         // Get the location
         component.location = game.cc.GetMouseBoardPlane();
@@ -470,7 +458,7 @@ public class EditorComponent
         Update();
     }
 
-    public virtual void GetPosition(bool snap = true)
+    virtual public void GetPosition(bool snap=true)
     {
         // Set latch, wait for button press
         gettingPosition = true;
@@ -482,7 +470,7 @@ public class EditorComponent
     {
         string name = component.sectionName.Substring(component.typeDynamic.Length);
         //The component name wont be translated but all name relative keys need to be updated
-        rename = new QuestEditorTextEdit(COMPONENT_NAME, name, delegate { RenameFinished(); });
+        rename =  new QuestEditorTextEdit(COMPONENT_NAME, name,delegate { RenameFinished(); });
         rename.EditText();
     }
 
@@ -492,20 +480,13 @@ public class EditorComponent
         // Remove all not allowed characters from name
         string newName = System.Text.RegularExpressions.Regex.Replace(rename.value, "[^A-Za-z0-9_]", "");
         // Must have a name
-        if (newName == string.Empty)
-        {
-            return;
-        }
+        if (newName == string.Empty) return;
         // Add type
         string baseName = component.typeDynamic + newName;
         // Find first available unique name
         string name = baseName;
         // If nothing has changed, skip renaming
-        if (component.sectionName.Equals(baseName, System.StringComparison.Ordinal))
-        {
-            return;
-        }
-
+        if (component.sectionName.Equals(baseName, System.StringComparison.Ordinal)) return;
         Game game = Game.Get();
         int i = 0;
         while (game.quest.qd.components.ContainsKey(name))
@@ -542,7 +523,7 @@ public class EditorComponent
 
         select.AddItem("{NEW:File}");
         string relativePath = new FileInfo(Path.GetDirectoryName(Game.Get().quest.qd.questPath)).FullName;
-        foreach (string s in Directory.GetFiles(relativePath, "*.ini", SearchOption.AllDirectories))
+        foreach(string s in Directory.GetFiles(relativePath, "*.ini", SearchOption.AllDirectories))
         {
             select.AddItem(s.Substring(relativePath.Length + 1));
         }
@@ -587,18 +568,14 @@ public class EditorComponent
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddOp(s); }, new StringKey("val", "SELECT", VAR));
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
         select.AddItem("{" + CommonStringKeys.NEW.Translate() + "}", "{NEW}", traits);
 
         AddQuestVars(select);
 
-        traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "#" } }
-        };
+        traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "#" });
 
         select.AddItem("#monsters", traits);
         select.AddItem("#heroes", traits);
@@ -630,10 +607,8 @@ public class EditorComponent
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectAddOp(s, false); }, new StringKey("val", "SELECT", VAR));
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
         select.AddItem("{" + CommonStringKeys.NEW.Translate() + "}", "{NEW}", traits);
 
         AddQuestVars(select);
@@ -662,10 +637,8 @@ public class EditorComponent
             }
         }
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
         foreach (string s in vars)
         {
             list.AddItem(s, traits);
@@ -683,10 +656,8 @@ public class EditorComponent
             }
         }
 
-        traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "$" } }
-        };
+        traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "$" });
         foreach (string s in dollarVars)
         {
             list.AddItem(s, traits);
@@ -705,10 +676,7 @@ public class EditorComponent
             }
         }
 
-        if (e.tests == null)
-        {
-            return vars;
-        }
+        if (e.tests == null) return vars;
 
         foreach (VarTestsComponent tc in e.tests.VarTestsComponents)
         {
@@ -737,11 +705,9 @@ public class EditorComponent
 
     public void SelectAddOp(string var, bool test = true)
     {
-        VarOperation op = new VarOperation
-        {
-            var = var,
-            operation = "="
-        };
+        VarOperation op = new VarOperation();
+        op.var = var;
+        op.operation = "=";
         if (test)
         {
             op.operation = ">";
@@ -866,18 +832,14 @@ public class EditorComponent
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(delegate (string s) { SelectSetValue(op, s); }, new StringKey("val", "SELECT", VALUE));
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
         select.AddItem("{" + CommonStringKeys.NUMBER.Translate() + "}", "{NUMBER}", traits);
 
         AddQuestVars(select);
 
-        traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "#" } }
-        };
+        traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "#" });
 
         select.AddItem("#monsters", traits);
         select.AddItem("#heroes", traits);
@@ -945,10 +907,7 @@ public class EditorComponent
     public void RemoveOp(int index)
     {
         if (index < component.tests.VarTestsComponents.Count)
-        {
             component.tests.Remove(index);
-        }
-
         Update();
     }
 
@@ -956,10 +915,7 @@ public class EditorComponent
     public void RemoveOp(VarOperation op)
     {
         if (component.operations.Contains(op))
-        {
             component.operations.Remove(op);
-        }
-
         Update();
     }
 }

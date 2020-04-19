@@ -1,11 +1,12 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
+﻿using UnityEngine;
+using System.Text;
 using System.Collections.Generic;
-using UnityEngine;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 
 public class EditorComponentTile : EditorComponent
 {
-    private QuestData.Tile tileComponent;
+    QuestData.Tile tileComponent;
 
     public EditorComponentTile(string nameIn) : base()
     {
@@ -16,13 +17,13 @@ public class EditorComponentTile : EditorComponent
         Update();
     }
 
-    protected override void RefreshReference()
+    override protected void RefreshReference()
     {
         base.RefreshReference();
         tileComponent = component as QuestData.Tile;
     }
 
-    public override float AddSubComponents(float offset)
+    override public float AddSubComponents(float offset)
     {
         Game game = Game.Get();
         CameraController.SetCamera(tileComponent.location);

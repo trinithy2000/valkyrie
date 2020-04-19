@@ -61,6 +61,11 @@ public class QuestsManager
             HTTPManager.Get("https://drive.google.com/uc?id=1oa6NhKLUFn61RH1niPJzpFT4fG9iQFas&export=download", QuestsDownload_callback);
             quest_list_mode = QuestListMode.DOWNLOADING;
         }
+        else if (game.gameType.TypeName() == "IA")
+        {
+            HTTPManager.Get("https://drive.google.com/uc?id=1Fas&export=download", QuestsDownload_callback);
+            quest_list_mode = QuestListMode.DOWNLOADING;
+        }
         else
         {
             ValkyrieTools.ValkyrieDebug.Log("ERROR: DownloadQuests is called when no game type has been selected");

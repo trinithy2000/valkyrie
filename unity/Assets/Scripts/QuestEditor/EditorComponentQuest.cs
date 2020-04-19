@@ -1,8 +1,9 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 using Assets.Scripts.Content;
 using Assets.Scripts.UI;
-using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 
 public class EditorComponentQuest : EditorComponent
 {
@@ -37,7 +38,7 @@ public class EditorComponentQuest : EditorComponent
     {
     }
 
-    public override float AddSubComponents(float offset)
+    override public float AddSubComponents(float offset)
     {
         Game game = Game.Get();
 
@@ -72,11 +73,31 @@ public class EditorComponentQuest : EditorComponent
         ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "IMAGE")));
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
-        ui.SetLocation(5, offset, 12, 1);
+        ui.SetLocation(5, offset, 3, 1);
         ui.SetButton(delegate { Image(); });
         ui.SetText(game.quest.qd.quest.image);
         new UIElementBorder(ui);
         offset += 2;
+
+        ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+        ui.SetLocation(0.4f, offset, 8, 1);
+        ui.SetText(new StringKey("val", "X_COLON", new StringKey("val", "DEFAULTMUSICON")));
+        ui.SetTextAlignment(TextAnchor.MiddleLeft);
+
+        ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
+        ui.SetLocation(8, offset, 3, 1);
+        ui.SetButton(delegate { ToggleDefaultMusicOff(); });
+        new UIElementBorder(ui);
+        if (game.quest.qd.quest.defaultMusicOn)
+        {
+            ui.SetText(CommonStringKeys.TRUE);
+        }
+        else
+        {
+            ui.SetText(CommonStringKeys.FALSE);
+        }
+        offset += 2;
+
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset++, 8, 1);
@@ -132,7 +153,7 @@ public class EditorComponentQuest : EditorComponent
         authors_shortUIE.SetMaxCharacters(75);
         new UIElementBorder(authors_shortUIE);
         offset += 1;
-
+        
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0.5f, offset, 10, 1);
         ui.SetText(REQUIRED_EXPANSIONS);
@@ -183,7 +204,7 @@ public class EditorComponentQuest : EditorComponent
         maxHeroUIE.SetSingleLine();
         maxHeroUIE.SetButton(delegate { UpdateMaxHero(); });
         new UIElementBorder(maxHeroUIE);
-        offset += 2;
+        offset +=2;
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 7.5f, 1);
@@ -206,7 +227,7 @@ public class EditorComponentQuest : EditorComponent
         maxLengthUIE.SetSingleLine();
         maxLengthUIE.SetButton(delegate { UpdateMaxLength(); });
         new UIElementBorder(maxLengthUIE);
-        offset += 2;
+        offset +=2;
 
         ui = new UIElement(Game.EDITOR, scrollArea.GetScrollTransform());
         ui.SetLocation(0, offset, 7.5f, 1);
@@ -218,22 +239,22 @@ public class EditorComponentQuest : EditorComponent
         difficultyUIE.SetSingleLine();
         difficultyUIE.SetButton(delegate { UpdateDifficulty(); });
         new UIElementBorder(difficultyUIE);
-        offset += 2;
+        offset +=2;
 
         return offset;
     }
 
-    public override float DrawComponentSelection(float offset)
+    override public float DrawComponentSelection(float offset)
     {
         return offset + 1;
     }
 
-    public override float AddComment(float offset)
+    override public float AddComment(float offset)
     {
         return offset;
     }
 
-    public override float AddSource(float offset)
+    override public float AddSource(float offset)
     {
         return offset;
     }
@@ -258,9 +279,9 @@ public class EditorComponentQuest : EditorComponent
 
     public void Image()
     {
-        UIWindowSelectionListImage select = new UIWindowSelectionListImage(SelectImage, new StringKey("val", "SELECT_IMAGE"));
+        var select = new UIWindowSelectionListImage(SelectImage, new StringKey("val", "SELECT_IMAGE"));
         select.AddItem("{NONE}", "");
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
+        var traits = new Dictionary<string, IEnumerable<string>>
         {
             {
                 CommonStringKeys.SOURCE.Translate(),
@@ -369,6 +390,12 @@ public class EditorComponentQuest : EditorComponent
                 Update();
             }
         }
+    }
+
+    public void ToggleDefaultMusicOff()
+    {
+        game.quest.qd.quest.defaultMusicOn = !game.quest.qd.quest.defaultMusicOn;
+        Update();
     }
 
     public void ToggleHidden()

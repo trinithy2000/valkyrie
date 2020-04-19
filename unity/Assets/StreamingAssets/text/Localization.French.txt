@@ -86,7 +86,7 @@ IA_APP_NOT_FOUND,Veuillez installer Legends of the Alliance via Steam
 IA_APP_NOT_FOUND_ANDROID,Veuillez installer Legends of the Alliance via Google Play
 IA_HEROES_NAME,Heroes
 IA_HERO_NAME,Hero
-IA_NAME,Star Wars: Imperial Assault 
+IA_NAME,Star Wars: Imperial Assault UNAVAILABLE
 IA_QUEST_NAME,MissionINDENT,  {0}
 INFO,Info
 INFORMATION,Information
@@ -276,6 +276,7 @@ male,Homme
 female,Femme
 
 //monsters
+monster,Monstre
 undead,Mort vivant
 humanoid,Humanoïde
 spirit,Esprit
@@ -348,6 +349,7 @@ lava,Lave
 swamp,Marécage
 sludge,Boue
 ship,Navire
+temple,Temple
 train,Train
 
 // Colors

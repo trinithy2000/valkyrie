@@ -1,102 +1,95 @@
 ﻿namespace Fabric.Internal.Editor.Controller
 {
-    using Fabric.Internal.Editor.Model;
-    using Fabric.Internal.Editor.Update;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using KitsObject = Update.Dependency.DependencyGraphObject.DependenciesObject.KitsObject;
+	using System;
+	using System.Collections.Generic;
+	using System.IO;
+	using Fabric.Internal.Editor.Model;
+	using Fabric.Internal.Editor.Update;
 
-    internal class KitUtils
-    {
-        public static bool IsKitInstalled(string name)
-        {
-            return Settings.Instance.InstalledKits.Exists(kit => kit.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && kit.Installed);
-        }
+	using KitsObject = Update.Dependency.DependencyGraphObject.DependenciesObject.KitsObject;
 
-        public static Func<List<ImportedKit>> ListImportedKits(API.V1 api)
-        {
-            return delegate ()
-            {
-                string root = FileUtils.Root + FileUtils.NormalizePathForPlatform("/Fabric/Kits/");
+	internal class KitUtils
+	{
+		public static bool IsKitInstalled(string name)
+		{
+			return Settings.Instance.InstalledKits.Exists (kit => kit.Name.Equals (name, StringComparison.OrdinalIgnoreCase) && kit.Installed);
+		}
 
-                List<ImportedKit> kits = new List<ImportedKit>();
+		public static Func<List<ImportedKit>> ListImportedKits(API.V1 api)
+		{
+			return delegate() {
+				string root = FileUtils.Root + FileUtils.NormalizePathForPlatform ("/Fabric/Kits/");
 
-                if (!Directory.Exists(root))
-                {
-                    return kits;
-                }
+				List<ImportedKit> kits = new List<ImportedKit> ();
 
-                foreach (string kit in Directory.GetDirectories(root))
-                {
-                    string unqualified = kit.Substring(kit.LastIndexOf(Path.DirectorySeparatorChar) + 1);
-                    string qualified = String.Format("Fabric.Internal.{0}.Editor.Controller.Controller", unqualified);
+				if (!Directory.Exists (root)) {
+					return kits;
+				}
 
-                    Type type = Type.GetType(qualified);
+				foreach (string kit in Directory.GetDirectories (root)) {
+					string unqualified = kit.Substring (kit.LastIndexOf (Path.DirectorySeparatorChar) + 1);
+					string qualified = String.Format ("Fabric.Internal.{0}.Editor.Controller.Controller", unqualified);
 
-                    // Those kits without a controller will not be displayed in the KitSelector
-                    // as they do not have a GUI component to them.
-                    if (type == null)
-                    {
-                        continue;
-                    }
-                    object instance = Activator.CreateInstance(type, api);
+					Type type = Type.GetType (qualified);
 
-                    kits.Add(new ImportedKit(unqualified, instance));
-                }
+					// Those kits without a controller will not be displayed in the KitSelector
+					// as they do not have a GUI component to them.
+					if (type == null) {
+						continue;
+					}
+					object instance = Activator.CreateInstance (type, api);
 
-                return kits;
-            };
-        }
+					kits.Add (new ImportedKit (unqualified, instance));
+				}
 
-        public static KitStatus StatusFor(ImportedKit importedKit)
-        {
-            Settings.InstalledKit installedKit = Settings.Instance.InstalledKits.Find(kit => { return kit.Name == importedKit.Name; });
+				return kits;
+			};
+		}
 
-            if (installedKit == null)
-            {
-                return KitStatus.Imported;
-            }
+		public static KitStatus StatusFor(ImportedKit importedKit)
+		{
+			Settings.InstalledKit installedKit = Settings.Instance.InstalledKits.Find (kit => { return kit.Name == importedKit.Name; });
 
-            Settings.KitInstallationStatus installationStatus = installedKit.InstallationStatus;
+			if (installedKit == null) {
+				return KitStatus.Imported;
+			}
 
-            switch (installationStatus)
-            {
-                case Settings.KitInstallationStatus.Configured:
-                    return KitStatus.Configured;
-                case Settings.KitInstallationStatus.Installed:
-                    return KitStatus.Installed;
-                case Settings.KitInstallationStatus.Imported:
-                default:
-                    return KitStatus.Imported;
-            }
-        }
+			Settings.KitInstallationStatus installationStatus = installedKit.InstallationStatus;
 
-        public static bool IsUpToDate(KitsObject availableKit, ImportedKit importedKit)
-        {
-            System.Version latestKitVersion = new System.Version(availableKit.Version);
-            System.Version currentKitVersion = new System.Version(); // Default is 0.0
+			switch (installationStatus) {
+			case Settings.KitInstallationStatus.Configured:
+				return KitStatus.Configured;
+			case Settings.KitInstallationStatus.Installed:
+				return KitStatus.Installed;
+			case Settings.KitInstallationStatus.Imported:
+			default:
+				return KitStatus.Imported;
+			}
+		}
 
-            if (importedKit != null)
-            {
-                currentKitVersion = importedKit.Instance.Version();
-            }
+		public static bool IsUpToDate(KitsObject availableKit, ImportedKit importedKit)
+		{
+			System.Version latestKitVersion = new System.Version (availableKit.Version);
+			System.Version currentKitVersion = new System.Version (); // Default is 0.0
 
-            return latestKitVersion <= currentKitVersion;
-        }
+			if (importedKit != null) {
+				currentKitVersion = importedKit.Instance.Version ();
+			}
 
-        public static string AnalyticsStateString()
-        {
-            List<Settings.InstalledKit> kits = Settings.Instance.InstalledKits;
+			return latestKitVersion <= currentKitVersion;
+		}
 
-            // If a single kit is in the "Configured" state, the overall stat is configured.
-            if (kits.Exists(k => k.InstallationStatus == Settings.KitInstallationStatus.Configured))
-            {
-                return "Configured";
-            }
+		public static string AnalyticsStateString()
+		{
+			List<Settings.InstalledKit> kits = Settings.Instance.InstalledKits;
 
-            // Otherwise, the kits are all installed, or available, or imported, but none are configured.
-            return "Normal";
-        }
-    }
+			// If a single kit is in the "Configured" state, the overall stat is configured.
+			if (kits.Exists (k => k.InstallationStatus == Settings.KitInstallationStatus.Configured)) {
+				return "Configured";
+			}
+
+			// Otherwise, the kits are all installed, or available, or imported, but none are configured.
+			return "Normal";
+		}
+	}
 }

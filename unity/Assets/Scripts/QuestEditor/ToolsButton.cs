@@ -1,21 +1,18 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
-using Assets.Scripts.UI.Screens;
+﻿using UnityEngine;
 using System.Collections.Generic;
-using UnityEngine;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI.Screens;
+using Assets.Scripts.UI;
 
 // Special class for the Menu button present while in a quest
 public class ToolsButton
 {
-    private readonly StringKey TOOLS = new StringKey("val", "TOOLS");
+    private StringKey TOOLS = new StringKey("val", "TOOLS");
 
     public ToolsButton()
     {
         Game game = Game.Get();
-        if (!game.editMode)
-        {
-            return;
-        }
+        if (!game.editMode) return;
 
         UIElement ui = new UIElement(Game.QUESTUI);
         ui.SetLocation(UIScaler.GetRight(-6), 0, 6, 1);
@@ -38,10 +35,7 @@ public class ToolsButton
 
     public void Test()
     {
-        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null)
-        {
-            return;
-        }
+        if (GameObject.FindGameObjectWithTag(Game.DIALOG) != null) return;
 
         QuestEditor.Save();
 

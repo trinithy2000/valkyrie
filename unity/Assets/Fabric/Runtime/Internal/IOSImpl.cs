@@ -1,13 +1,15 @@
 ﻿namespace Fabric.Runtime.Internal
 {
+	using System.Runtime.InteropServices;
+	using System.Collections.Generic;
 
-#if UNITY_IOS && !UNITY_EDITOR
+	#if UNITY_IOS && !UNITY_EDITOR
 	internal class IOSImpl : Impl
 	{
-    #region DLL Imports
+		#region DLL Imports
 		[DllImport("__Internal")]
 		private static extern string fabric_symbol_for_linker();
-    #endregion
+		#endregion
 
 		public override string Initialize()
 		{
@@ -16,5 +18,5 @@
 			return fabric_symbol_for_linker ();
 		}
 	}
-#endif
+	#endif
 }

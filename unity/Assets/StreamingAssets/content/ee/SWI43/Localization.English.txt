@@ -1,0 +1,3 @@
+.,English
+SWI43_CHOPPER,C1-10P
+SWI43_HERA, Hera Syndulla

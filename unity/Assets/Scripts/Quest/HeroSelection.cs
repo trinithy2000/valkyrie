@@ -25,42 +25,56 @@ public class HeroSelection
         List<string> heroList = new List<string>(game.cd.heroes.Keys);
         heroList.Sort();
 
-        UIElement ui = new UIElement();
+        UIElement parentUI = new UIElement();
+        parentUI.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
+        parentUI.GetTransform().SetAsFirstSibling();
 
-        if (game.gameType is MoMGameType)
+        if (GameUtils.IsMoMGameType())
         {
-            ui.SetLocation(0, 0, UIScaler.GetWidthUnits(), UIScaler.GetHeightUnits());
-            ui.SetImage(CommonImageKeys.mom_bgnd_Investigator);
-            ui.GetTransform().SetAsFirstSibling();
+            parentUI.SetImage(CommonImageKeys.mom_bgnd_Investigator);
+        }
+        else if (GameUtils.IsIAGameType())
+        {
+            parentUI.SetImage(CommonImageKeys.ia_bgnd_Heroes);
         }
 
         UIElementScrollVertical scrollArea;
 
         float offset = 0;
+        float height = 42f;
+        float top = 4.5f;
+
         bool up = true;
         buttons = new Dictionary<string, List<UIElement>>();
-        ui = null;
+        UIElement ui = null;
 
-        scrollArea = new UICharactersScroll(Game.HEROSELECT);
-        scrollArea.SetLocation(UIScaler.GetHCenter(-UIScaler.GetRelWidth(2.6f)), 4.5f, UIScaler.GetRelWidth(1.3f), 42f);
+        if (GameUtils.IsIAGameType())
+        {
+            height = 20f;
+            top = 5.5f;
+        }
+
+        scrollArea = new UICharactersScroll(parentUI.GetTransform(), Game.HEROSELECT, "CharacterScroll");
+        scrollArea.SetLocation(UIScaler.GetHCenter(-UIScaler.GetRelWidth(2.7f)),top, UIScaler.GetRelWidth(1.3f), height);
         scrollArea.SetBGColor(Color.clear);
+
 
         foreach (string hero in heroList)
         {
             buttons.Add(hero, new List<UIElement>());
             // Should be game type specific
             Texture2D newTex = ContentData.FileToTexture(game.cd.heroes[hero].image);
-            ui = new UIElement(Game.HEROSELECT, scrollArea.GetScrollTransform());
+            ui = new UIElement(scrollArea.GetScrollTransform(), Game.HEROSELECT, hero);
 
             float[] values =
             {
                 GameUtils.ReturnValueGameType<float>(.2f,1f,.2f),
-                GameUtils.ReturnValueGameType<float>(8,6.1f,8),
-                GameUtils.ReturnValueGameType<float>(9,6.1f,9),
-                GameUtils.ReturnValueGameType<float>(9.5f,10.5f,9.5f)
+                GameUtils.ReturnValueGameType<float>(8,6.1f,4.75f),
+                GameUtils.ReturnValueGameType<float>(9,6.1f,17.5f),
+                GameUtils.ReturnValueGameType<float>(9.5f,10.5f,17.5f)
             };
 
-            if (up)
+            if (GameUtils.IsIAGameType() || up)
                 ui.SetLocation(1 + offset, values[0], values[1], values[2]);
             else
                 ui.SetLocation(-3 + offset, values[3], values[1], values[2]);
@@ -74,7 +88,7 @@ public class HeroSelection
 
             up = !up;
 
-            offset += GameUtils.ReturnValueGameType<float>(4f, 4.4f, 4f);
+            offset += GameUtils.ReturnValueGameType<float>(4f, 4.4f, 6f);
 
         }
 
@@ -92,7 +106,7 @@ public class HeroSelection
                 hData = hd.Value;
                 break;
             }
-        }
+        } 
         foreach (Quest.Hero h in game.quest.heroes)
         {
             if (hData == h.heroData)

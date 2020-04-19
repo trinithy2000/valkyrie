@@ -1,13 +1,12 @@
-﻿using Assets.Scripts.Content;
-using Assets.Scripts.UI;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Collections.Generic;
+using Assets.Scripts.Content;
+using Assets.Scripts.UI;
 
 // This class manages the Quest editor Interface
 // FIXME: Rename, not a good name any more
-public class QuestEditorData
-{
+public class QuestEditorData {
 
     // Not used yet
     //private readonly StringKey COMPONENT_TO_DELETE = new StringKey("val", "COMPONENT_TO_DELETE");
@@ -20,7 +19,7 @@ public class QuestEditorData
     // Start the editor
     public QuestEditorData()
     {
-        Game.Get().qed = this;
+        Game.Get().qed = this;       
         selectionStack = new Stack<EditorComponent>();
         // Start at the quest component
         SelectQuest();
@@ -114,10 +113,8 @@ public class QuestEditorData
             select.AddNewComponentItem("Puzzle");
         }
 
-        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>
-        {
-            { CommonStringKeys.TYPE.Translate(), new string[] { "Quest" } }
-        };
+        Dictionary<string, IEnumerable<string>> traits = new Dictionary<string, IEnumerable<string>>();
+        traits.Add(CommonStringKeys.TYPE.Translate(), new string[] { "Quest" });
         select.AddItem(CommonStringKeys.QUEST.Translate(), "Quest", traits);
 
         foreach (QuestData.QuestComponent c in game.quest.qd.components.Values)
@@ -464,7 +461,7 @@ public class QuestEditorData
         game.quest.qd.components.Add("Puzzle" + index, new QuestData.Puzzle("Puzzle" + index));
         SelectComponent("Puzzle" + index);
     }
-
+    
     public void NewItem()
     {
         Game game = Game.Get();
@@ -511,10 +508,7 @@ public class QuestEditorData
         string name = game.qed.selection.name;
         Destroyer.Dialog();
 
-        if (name.Length == 0)
-        {
-            return;
-        }
+        if (name.Length == 0) return;
 
         // Remove all references to the deleted component
         foreach (KeyValuePair<string, QuestData.QuestComponent> kv in game.quest.qd.components)
@@ -540,9 +534,7 @@ public class QuestEditorData
     public static void Cancel()
     {
         foreach (GameObject go in GameObject.FindGameObjectsWithTag(Game.DIALOG))
-        {
             Object.Destroy(go);
-        }
     }
 
     // This is called by game
@@ -559,18 +551,13 @@ public class QuestEditorData
             return;
         }
 
-        PointerEventData pointer = new PointerEventData(EventSystem.current)
-        {
-            position = Input.mousePosition
-        };
+        PointerEventData pointer = new PointerEventData(EventSystem.current);
+        pointer.position = Input.mousePosition;
 
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointer, raycastResults);
 
-        if (raycastResults.Count == 0)
-        {
-            return;
-        }
+        if (raycastResults.Count == 0) return;
 
         UIWindowSelectionListTraits select = new UIWindowSelectionListTraits(SelectComponent, CommonStringKeys.SELECT_ITEM);
 
@@ -592,14 +579,7 @@ public class QuestEditorData
                 }
             }
         }
-        if (count == 1)
-        {
-            SelectComponent(last);
-        }
-
-        if (count > 1)
-        {
-            select.Draw();
-        }
+        if (count == 1) SelectComponent(last);
+        if (count > 1) select.Draw();
     }
 }
